@@ -1,0 +1,10 @@
+imageio==2.19.2
+numpy==1.19.5
+opencv_python==4.5.1.48
+typing_extensions==3.7.4.3
+httpx==0.22.0
+aiofiles==0.6.0
+aiocache==0.11.1
+emoji==1.7.0
+fontTools==4.33.3
+Pillow==9.1.1

@@ -1,0 +1,8 @@
+*__pycache__/
+dist/
+.vscode/
+.DS_Store
+*.ttf
+*.otf
+images/
+fonts/
