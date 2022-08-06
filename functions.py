@@ -1478,7 +1478,9 @@ async def repeat(users: List[UserInfo],sender: UserInfo, args: List[str] = [], *
         font = await load_font(fontname, 40)
         await draw_text(bg, (175, 45),f"{user.name}", font=font,fill="black")
         await draw_text(bg,(200 + 40*len(f"{user.name}"), 45),time, font=font,fill="gray")
-        text = args[0] or "救命啊"
+        if args:
+           text = args[0] 
+        else:text ="救命啊"
         font = await load_font(fontname, 50)
         await draw_text(bg, (175, 100),f"{text}", font=font,fill="black")
         if len(f"{user.name}") >20:
@@ -1501,8 +1503,7 @@ async def repeat(users: List[UserInfo],sender: UserInfo, args: List[str] = [], *
         frame = Image.new("RGB", (1079, 1192), "white")
         frame.paste(msg_img_twice, (0, -20 * i))
         frame.paste(input_img, (0, 1000))
-        frames.append(frame)
-    
+        frames.append(frame) 
     return save_gif(frames,0.08)
 
 async def anti_kidnap(users: List[UserInfo], sender: UserInfo, **kwargs) -> BytesIO:
