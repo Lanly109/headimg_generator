@@ -1584,10 +1584,7 @@ async def cuidao(
 async def have_lunch(users: List[UserInfo], **kwargs) -> BytesIO:
     img = users[0].img
     bg = await load_image("have_lunch/0.jpg")
-    print("1111111111111111")
     frame = Image.new("RGBA", bg.size)    
     frame.paste(bg, mask=bg)
-    print("2222222222222222")
     frame.paste(fit_size(img, (324, 324)), (653, 30))
-    print("333333333333333333333")
     return save_jpg(frame)
