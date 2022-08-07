@@ -1,17 +1,9 @@
 name: release zip gen
 
-on: 
-  - push:
-      paths:
-        - 'fonts/**'
-        - 'images/**'
-        - 'update_list.py'
-
-  - pull_request:
-      paths:
-        - 'fonts/**'
-        - 'images/**'
-        - 'update_list.py'
+on:
+  push:
+    tags:
+      - 'v*'
 
 jobs:
   build:
@@ -20,6 +12,8 @@ jobs:
 
     steps:
       - uses: actions/checkout@v3
+        with:
+          ref: resources
 
       - name: zip
         shell: bash
@@ -29,9 +23,11 @@ jobs:
           tar -zcf build/images.zip images
           tar -zcf build/release.zip images fonts
 
-      - name: Release
+      - name: release
         uses: softprops/action-gh-release@v0.1.14
         with:
           files: "build/**"
+          name: resources下载
+          body: "资源下载，参见`README.md`。\n`resources.zip`包括了`fonts.zip`和`images.zip`。\n你可以只下载`resources.zip`，或单独下载`fonts.zip`和`images.zip`。"
         env:
           GITHUB_TOKEN: ${{ secrets.ACCESS_TOKEN }}
