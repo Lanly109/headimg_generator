@@ -70,14 +70,6 @@ commands = [
     Command(("注意力涣散",), distracted),
     Command(("阿尼亚喜欢",), anyasuki, arg_num=1, allow_gif=True),
     Command(("想什么",), thinkwhat, allow_gif=True),
-    Command(("远离",), keepaway),
-    Command(("结婚申请","结婚登记"), marriage),
-    Command(("小画家",), painter),
-    Command(("复读",), repeat,arg_num=1,),
-    Command(("防诱拐",), anti_kidnap),
-    Command(("字符画",), charpic),
-    Command(("催刀","快出刀"), cuidao, arg_num=1),
-    Command(("共进午餐","共进晚餐"), have_lunch),
 ]
 
 

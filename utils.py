@@ -20,17 +20,7 @@ DEFAULT_FONT = "SourceHanSansSC-Regular.otf"
 BOLD_FONT = "SourceHanSansSC-Bold.otf"
 EMOJI_FONT = "NotoColorEmoji.ttf"
 
-def pastewithalpha(frame: IMG,img: IMG,pos=None,mask=None) -> IMG:#背景，待粘贴的图片，位置，mask
-    r,g,b,a = img.split()
-    frame.paste(img,pos,mask = a)
-    return frame
 
-def pastewithblow(frame: IMG,img: IMG,pos=None,mask=None) -> IMG:#背景，待粘贴的图片，位置，mask
-    frame2 = frame.convert("RGBA")
-    frame.paste(img, pos)
-    frame.paste(frame2, mask=frame2)
-    return frame
-    
 def resize(img: IMG, size: Tuple[int, int]) -> IMG:
     return img.resize(size, Image.ANTIALIAS)
 
@@ -52,7 +42,6 @@ def circle(img: IMG) -> IMG:
 def square(img: IMG) -> IMG:
     length = min(img.width, img.height)
     return cut_size(img, (length, length))
-    
 
 
 async def draw_text(
