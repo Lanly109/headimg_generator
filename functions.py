@@ -1484,7 +1484,7 @@ async def repeat(users: List[UserInfo],sender: UserInfo, args: List[str] = [], *
         font = await load_font(fontname, 50)
         await draw_text(bg, (175, 100),f"{text}", font=font,fill="black")
         if len(f"{user.name}") >20:
-            return TEXT_TOO_LONG
+            raise ValueError(TEXT_TOO_LONG)
         return bg
     msg_img = Image.new("RGB", (1079, 1000))
     for i in range(5):
@@ -1543,7 +1543,7 @@ async def charpic(users: List[UserInfo], sender: UserInfo, **kwargs) -> BytesIO:
     
 async def cuidao(
     users: List[UserInfo], args: List[str] = [], **kwargs
-) -> str:
+) -> BytesIO:
     img = users[0].img
     img = to_jpg(img).convert("RGBA")
     img_w, img_h = img.size
@@ -1572,7 +1572,7 @@ async def cuidao(
     text = f"请问你们看到{name}了吗?"
     fontsize = await fit_font_size(text, 560, 110, fontname, 70, 25)
     if not fontsize:
-        return "名字太长了哦，改短点再试吧~"
+        raise ValueError(NAME_TOO_LONG)
 
     font = await load_font(fontname, fontsize)
     text_w, text_h = font.getsize(text)

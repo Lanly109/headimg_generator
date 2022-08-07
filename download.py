@@ -3,9 +3,11 @@ import hashlib
 import aiofiles
 from aiocache import cached
 import os
+import json
+from pathlib import Path
 
 
-data_path = os.path.join(os.path.dirname(__file__), 'resources')
+data_path = Path() / os.path.dirname(__file__) / 'resources'
 
 
 class DownloadError(Exception):
@@ -29,18 +31,40 @@ async def download_url(url: str) -> bytes:
                 print(f"Error downloading {url}, retry {i}/3: {str(e)}")
     raise DownloadError
 
+def resource_url(path: str) -> str:
+    return f"https://ghproxy.com/https://raw.githubusercontent.com/Lanly109/headimg_generator/resources/{path}"
+
+
+async def download_resource(path: str) -> bytes:
+    return await download_url(resource_url(path))
+
+
+async def check_resources():
+    resource_list = json.loads(
+        (await download_resource("resource_list.json")).decode("utf-8")
+    )
+    for resource in resource_list:
+        file_name = str(resource["path"])
+        file_path = data_path / file_name
+        file_hash = str(resource["hash"])
+        if (
+            file_path.exists()
+            and hashlib.md5(file_path.read_bytes()).hexdigest() == file_hash
+        ):
+            continue
+        print(f"Downloading {file_name} ...")
+        file_path.parent.mkdir(parents=True, exist_ok=True)
+        try:
+            data = await download_resource(file_name)
+            with file_path.open("wb") as f:
+                f.write(data)
+        except Exception as e:
+            print(str(e))
 
 async def get_resource(path: str, name: str) -> bytes:
-    file_path = os.path.join(data_path, path, name)
-    if not os.path.exists(file_path):
-        file_path.parent.mkdir(parents=True, exist_ok=True)
-        url = f"https://cdn.jsdelivr.net/gh/MeetWq/nonebot-plugin-petpet@master/resources/{path}/{name}"
-        data = await download_url(url)
-        if data:
-            async with aiofiles.open(file_path, "wb") as f:
-                await f.write(data)
-    if not os.path.exists(file_path):
-        raise ResourceError
+    file_path = data_path / path / name
+    if not file_path.exists():
+        await check_resources()
     async with aiofiles.open(file_path, "rb") as f:
         return await f.read()
 
