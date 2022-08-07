@@ -1,0 +1,37 @@
+name: release zip gen
+
+on: 
+  - push:
+      paths:
+        - 'fonts/**'
+        - 'images/**'
+        - 'update_list.py'
+
+  - pull_request:
+      paths:
+        - 'fonts/**'
+        - 'images/**'
+        - 'update_list.py'
+
+jobs:
+  build:
+    name: zip resources
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: zip
+        shell: bash
+        run: |
+          mkdir build
+          tar -zcf build/fonts.zip fonts
+          tar -zcf build/images.zip images
+          tar -zcf build/release.zip images fonts
+
+      - name: Release
+        uses: softprops/action-gh-release@v0.1.14
+        with:
+          files: "build/**"
+        env:
+          GITHUB_TOKEN: ${{ secrets.ACCESS_TOKEN }}
