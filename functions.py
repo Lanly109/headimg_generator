@@ -4,7 +4,9 @@ from PIL.Image import Image as IMG
 from PIL import Image, ImageFilter, ImageDraw, ImageOps
 from typing import List, Dict, Optional
 from datetime import datetime
+import re
 
+from .imageutils import BuildImage, Text2Image
 from .models import UserInfo
 from .utils import *
 
@@ -1589,3 +1591,224 @@ async def have_lunch(users: List[UserInfo], **kwargs) -> BytesIO:
     frame.paste(bg, mask=bg)
     frame.paste(fit_size(img, (324, 324)), (653, 30))
     return save_jpg(frame)
+
+async def mywife(
+users: List[UserInfo],sender: UserInfo, args: List[str] = [], **kwargs
+):
+    # todo 此处应可自定义
+    ta = "我"
+    name = "老婆"
+    img = users[0].newImg
+
+    img = img.convert("RGBA").resize_width(400)
+    img_w, img_h = img.size
+    frame = BuildImage.new("RGBA", (650, img_h + 500), "white")
+    frame.paste(img, (int(325 - img_w / 2), 105), alpha=True)
+
+    try:
+        text = f"如果你的{name}长这样"
+        frame.draw_text(
+            (27, 12, 27 + 596, 12 + 79),
+            text,
+            max_fontsize=100,
+            min_fontsize=50,
+            allow_wrap=True,
+            lines_align="center",
+            weight="bold",
+        )
+        text = f"那么这就不是你的{name}\n这是{ta}的{name}"
+        frame.draw_text(
+            (27, img_h + 120, 27 + 593, img_h + 120 + 135),
+            text,
+            max_fontsize=100,
+            min_fontsize=50,
+            allow_wrap=True,
+            weight="bold",
+        )
+        text = f"滚去找你\n自己的{name}去"
+        frame.draw_text(
+            (27, img_h + 295, 27 + 374, img_h + 295 + 135),
+            text,
+            max_fontsize=100,
+            min_fontsize=50,
+            allow_wrap=True,
+            lines_align="center",
+            weight="bold",
+        )
+    except ValueError:
+        raise ValueError(NAME_TOO_LONG)
+
+    img_point = (await new_load_image("mywife/1.png")).resize_width(200)
+    frame.paste(img_point, (421, img_h + 270))
+
+    return frame.save_jpg()
+
+
+async def walnutpad(
+users: List[UserInfo],sender: UserInfo, args: List[str] = [], **kwargs
+):
+    img = users[0].newImg
+    frame = await new_load_image("walnutpad/0.png")
+
+    async def make(img: BuildImage) -> BuildImage:
+        return frame.copy().paste(
+            img.resize((540, 360), keep_ratio=True), (368, 65), below=True
+        )
+
+    return await new_make_jpg_or_gif(img, make)
+
+
+async def teach(
+users: List[UserInfo],sender: UserInfo, args: List[str] = [], **kwargs
+):
+    img = users[0].newImg
+    frame = (await new_load_image("teach/0.png")).resize_width(960).convert("RGBA")
+    text = "我老婆" if not args else args[0]
+    print(args)
+    try:
+        frame.draw_text(
+            (10, frame.height - 80, frame.width - 10, frame.height - 5),
+            text,
+            max_fontsize=50,
+            fill="white",
+            stroke_fill="black",
+            stroke_ratio=0.06,
+        )
+    except ValueError:
+        raise ValueError(TEXT_TOO_LONG)
+
+    async def make(img: BuildImage) -> BuildImage:
+        return frame.copy().paste(
+            img.resize((550, 395), keep_ratio=True), (313, 60), below=True
+        )
+
+    return await new_make_jpg_or_gif(img, make)
+
+
+async def addition(
+users: List[UserInfo],sender: UserInfo, args: List[str] = [], **kwargs
+):
+    img = users[0].newImg
+    frame = await new_load_image("addiction/0.png")
+
+    if args:
+        expand_frame = BuildImage.new("RGBA", (246, 286), "white")
+        expand_frame.paste(frame)
+        try:
+            expand_frame.draw_text(
+                (10, 246, 236, 286),
+                args[0],
+                max_fontsize=45,
+                lines_align="center",
+            )
+        except ValueError:
+            raise ValueError(TEXT_TOO_LONG)
+        frame = expand_frame
+
+    async def make(img: BuildImage) -> BuildImage:
+        return frame.copy().paste(img.resize((70, 70), keep_ratio=True), (0, 0))
+
+    return await new_make_jpg_or_gif(img, make)
+
+
+async def gun(
+users: List[UserInfo],sender: UserInfo, args: List[str] = [], **kwargs
+):
+    img = users[0].newImg
+    frame = await new_load_image("gun/0.png")
+    frame.paste(img.convert("RGBA").resize((500, 500), keep_ratio=True), below=True)
+    return frame.save_jpg()
+
+
+async def blood_pressure(
+users: List[UserInfo],sender: UserInfo, args: List[str] = [], **kwargs
+):
+    img = users[0].newImg
+    frame = await new_load_image("blood_pressure/0.png")
+
+    async def make(img: BuildImage) -> BuildImage:
+        return frame.copy().paste(
+            img.resize((414, 450), keep_ratio=True), (16, 17), below=True
+        )
+
+    return await new_make_jpg_or_gif(img, make)
+
+
+async def read_book(
+users: List[UserInfo],sender: UserInfo, args: List[str] = [], **kwargs
+):
+    img = users[0].newImg
+    frame = await new_load_image("read_book/0.png")
+    points = ((0, 108), (1092, 0), (1023, 1134), (29, 1134))
+    img = img.convert("RGBA").resize((1000, 1100), keep_ratio=True, direction="north")
+    cover = img.perspective(points)
+    frame.paste(cover, (1138, 1172), below=True)
+    if args:
+        chars = list(" ".join(args[0].splitlines()))
+        pieces: List[BuildImage] = []
+        for char in chars:
+            piece = BuildImage(
+                Text2Image.from_text(char, 200, fill="white", weight="bold").to_image()
+            )
+            if re.fullmatch(r"[a-zA-Z0-9\s]", char):
+                piece = piece.rotate(-90, expand=True)
+            else:
+                piece = piece.resize_canvas((piece.width, piece.height - 40), "south")
+            pieces.append(piece)
+        w = max((piece.width for piece in pieces))
+        h = sum((piece.height for piece in pieces))
+        if w > 240 or h > 3000:
+            raise ValueError(TEXT_TOO_LONG)
+        text_img = BuildImage.new("RGBA", (w, h))
+        h = 0
+        for piece in pieces:
+            text_img.paste(piece, ((w - piece.width) // 2, h), alpha=True)
+            h += piece.height
+        if h > 780:
+            ratio = 780 / h
+            text_img = text_img.resize((int(w * ratio), int(h * ratio)))
+        text_img = text_img.rotate(3, expand=True)
+        w, h = text_img.size
+        frame.paste(text_img, (870 + (240 - w) // 2, 1500 + (780 - h) // 2), alpha=True)
+    return frame.save_jpg()
+
+
+async def call_110(
+users: List[UserInfo],sender: UserInfo, args: List[str] = [], **kwargs
+):
+    user_imgs = [users[0].newImg]
+    if len(users) >= 2:
+        user_imgs.append(users[1].newImg)
+    sender_img = sender.newImg
+    if len(user_imgs) >= 2:
+        img1 = user_imgs[0]
+        img0 = user_imgs[1]
+    else:
+        img1 = sender_img
+        img0 = user_imgs[0]
+    img1 = img1.convert("RGBA").square().resize((250, 250))
+    img0 = img0.convert("RGBA").square().resize((250, 250))
+
+    frame = BuildImage.new("RGB", (900, 500), "white")
+    frame.draw_text((0, 0, 900, 200), "遇到困难请拨打", max_fontsize=100)
+    frame.paste(img1, (50, 200), alpha=True)
+    frame.paste(img1, (325, 200), alpha=True)
+    frame.paste(img0, (600, 200), alpha=True)
+    return frame.save_jpg()
+
+
+async def confuse(
+users: List[UserInfo], sender: UserInfo, args: List[str] = [], **kwargs
+):
+    img = users[0].newImg
+    img = img.convert("RGBA").resize((500, 500), keep_ratio=True)
+    frames: List[IMG] = []
+    for i in range(100):
+        mask = (await new_load_image(f"confuse/{i}.png")).resize(img.size, keep_ratio=True)
+        frame = BuildImage.new("RGBA", img.size, (255, 255, 255, 0))
+        avatar = img
+        frame.paste(avatar)
+        frame.paste(mask, alpha=True)
+        frames.append(frame.image)
+    return save_gif(frames, 0.015)
+

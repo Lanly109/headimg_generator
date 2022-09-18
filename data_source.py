@@ -78,6 +78,15 @@ commands = [
     Command(("字符画",), charpic),
     Command(("催刀","快出刀"), cuidao, arg_num=1),
     Command(("共进午餐","共进晚餐"), have_lunch),
+    Command(("这是我的老婆",), mywife),
+    Command(("胡桃平板",), walnutpad),
+    Command(("讲课", "敲黑板"), teach, arg_num=1),
+    Command(("上瘾", "毒瘾发作"), addition, arg_num=1),
+    Command(("手枪",), gun),
+    Command(("高血压",), blood_pressure),
+    Command(("看书",), read_book, arg_num=1),
+    Command(("遇到困难请拨打",), call_110),
+    Command(("迷惑",), confuse),
 ]
 
 
@@ -90,6 +99,7 @@ async def download_image(user: UserInfo, allow_gif: bool = False):
 
     if img:
         user.img = to_image(img, allow_gif)
+        user.newImg = BuildImage.open(BytesIO(img))
 
 
 async def make_image(

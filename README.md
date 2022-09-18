@@ -6,6 +6,12 @@
 
 ## 更新日志
 
+**2022.09.18**
+
+- 新增`这是我的老婆`、`胡桃平板`、`敲黑板`、`上瘾`、`手枪`、`高血压`、`看书`、`遇到困难请拨打`、`迷惑`指令
+- 由于懒得适配旧版的图片处理函数，直接搬了`nonebot-plugin-imageutils`[插件](https://github.com/noneplugin/nonebot-plugin-imageutils)，但字体选择方面还有点问题（新增的指令绘制的都是粗体，且大小似乎无法控制，容易因内容过长而无法绘制）
+- 由于搬了`imageutils`插件，`requirements`有所更新，记得安装缺失的插件
+
 **2022.08.07**
 
 - 新增`远离`、`结婚申请`、`小画家`、`复读`、`防诱拐`、`字符画`、`催刀`、`共进晚餐`指令，感谢[@othinus001](https://github.com/othinus001)
@@ -45,12 +51,14 @@ pip install dataclasses
 
 然后在```HoshinoBot\hoshino\config\__bot__.py```文件的```MODULES_ON```加入```headimg_generator```
 
+`imageutils`的字体安装方法请参照[原插件仓库](https://github.com/noneplugin/nonebot-plugin-imageutils)的`README`
+
 ## 使用方法
 
 发送`帮助头像表情包`显示下图的列表：
 
 <div align="left">
-  <img src="https://s2.loli.net/2022/08/07/vwe2TlP8IWMJ3u4.jpg" width="400" />
+  <img src="https://s2.loli.net/2022/09/18/zrhvqdCMDyOSpZj.jpg" width="400" />
 </div>
 
 > 以下内容摘自原插件README
@@ -137,3 +145,13 @@ pip install dataclasses
 | 字符画 | <img src="https://s2.loli.net/2022/07/21/R58eG7mVZWPp1Cy.jpg" width="200" > | 支持gif |
 | 催刀 | <img src="https://s2.loli.net/2022/08/07/9UZeilHQWXIf2mF.jpg" width="200" > |  |
 | 共进晚餐 | <img src="https://s2.loli.net/2022/08/07/QSyceaFHwEKVRPX.jpg" width="200" > | |
+| 这是我的老婆 | <img src="https://s2.loli.net/2022/08/16/7wPht5rp6sk1ZCq.jpg" width="200" > | |
+| 胡桃平板 | <img src="https://s2.loli.net/2022/08/16/Mc5HvfB6ywqLQiV.jpg" width="200" > | 支持gif |
+| 讲课<br>敲黑板 | <img src="https://s2.loli.net/2022/08/16/VpdIHsteKocgRzP.jpg" width="200" > | 支持gif，文字内容可改变 |
+| 上瘾<br>毒瘾发作 | <img src="https://s2.loli.net/2022/08/26/WAVDFfJB7tH5z3y.jpg" width="200" > | 支持gif |
+| 手枪 | <img src="https://s2.loli.net/2022/08/26/MRO3mqvfbaxkB1t.jpg" width="200" > |  |
+| 高血压 | <img src="https://s2.loli.net/2022/08/26/9qbyN2h38MAkRZE.jpg" width="200" > | 支持gif |
+| 看书 | <img src="https://s2.loli.net/2022/08/26/SeAC86RgDlUvLNY.jpg" width="200" > |  |
+| 遇到困难请拨打 | <img src="https://s2.loli.net/2022/08/26/KWGSf6qErB14uwp.jpg" width="200" > | 可指定一个或两个目标 |
+| 迷惑 | <img src="https://s2.loli.net/2022/09/18/RXothQYjgC7wGv4.gif" width="200" > | |
+

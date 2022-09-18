@@ -13,6 +13,8 @@ from PIL.ImageFont import FreeTypeFont
 from PIL import Image, ImageDraw, ImageFilter, ImageFont
 from emoji.unicode_codes import UNICODE_EMOJI
 
+from .imageutils.build_image import BuildImage
+
 from .download import get_font, get_image
 from .models import Command
 
@@ -328,6 +330,9 @@ class Maker(Protocol):
     async def __call__(self, img: IMG) -> IMG:
         ...
 
+class newMaker(Protocol):
+    async def __call__(self, img: BuildImage) -> BuildImage:
+        ...
 
 async def make_jpg_or_gif(
     img: IMG, func: Maker, gif_zoom: float = 1, gif_max_frames: int = 50
@@ -363,6 +368,40 @@ async def make_jpg_or_gif(
             )
         return save_gif(frames, duration)
 
+async def new_make_jpg_or_gif(
+    img: BuildImage, func: newMaker, gif_zoom: float = 1, gif_max_frames: int = 50
+) -> BytesIO:
+    """
+    制作静图或者动图
+    :params
+      * ``img``: 输入图片，如头像
+      * ``func``: 图片处理函数，输入img，返回处理后的图片
+      * ``gif_zoom``: gif 图片缩放比率，避免生成的 gif 太大
+      * ``gif_max_frames``: gif 最大帧数，避免生成的 gif 太大
+    """
+    image = img.image
+    if not getattr(image, "is_animated", False):
+        return (await func(img.convert("RGBA"))).save_jpg()
+    else:
+        index = range(image.n_frames)
+        ratio = image.n_frames / gif_max_frames
+        duration = image.info["duration"] / 1000
+        if ratio > 1:
+            index = (int(i * ratio) for i in range(gif_max_frames))
+            duration *= ratio
+
+        frames: List[IMG] = []
+        for i in index:
+            image.seek(i)
+            new_img = await func(BuildImage(image).convert("RGBA"))
+            new_img = new_img.resize(
+                (int(new_img.width * gif_zoom), int(new_img.height * gif_zoom))
+            )
+            bg = BuildImage.new("RGBA", new_img.size, "white")
+            bg.paste(new_img, alpha=True)
+            frames.append(bg.image)
+        return save_gif(frames, duration)
+
 
 def to_image(data: bytes, allow_gif: bool = False) -> IMG:
     image = Image.open(BytesIO(data))
@@ -375,6 +414,10 @@ async def load_image(name: str) -> IMG:
     image = await get_image(name)
     return Image.open(BytesIO(image)).convert("RGBA")
 
+
+async def new_load_image(name: str) -> BuildImage:
+    image = await get_image(name)
+    return BuildImage.open(BytesIO(image)).convert("RGBA")
 
 async def load_font(name: str, fontsize: int) -> FreeTypeFont:
     font = await get_font(name)

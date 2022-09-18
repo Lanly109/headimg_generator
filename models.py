@@ -3,6 +3,8 @@ from PIL import Image
 from PIL.Image import Image as IMG
 from dataclasses import dataclass
 from typing import List, Tuple, Protocol
+from typing_extensions import Literal
+from .imageutils import BuildImage
 
 
 class UserInfo:
@@ -10,9 +12,10 @@ class UserInfo:
         self.qq: str = qq
         self.group: str = group
         self.name: str = ""
-        self.gender: str = ""  # male 或 female 或 unknown
+        self.gender: Literal["male", "female", "unknown"] = "unknown"
         self.img_url: str = img_url
         self.img: IMG = Image.new("RGBA", (640, 640))
+        self.newImg: BuildImage = BuildImage.new("RGBA", (640, 640))
 
 
 class Func(Protocol):

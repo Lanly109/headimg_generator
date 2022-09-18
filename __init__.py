@@ -1,4 +1,5 @@
 import shlex
+import traceback
 import base64
 from typing import List
 from .utils import help_image
@@ -10,7 +11,7 @@ from .download import DownloadError, ResourceError
 from .models import UserInfo, Command
 
 sv = Service('头像表情包', help_='''
-![](https://s2.loli.net/2022/08/07/vwe2TlP8IWMJ3u4.jpg)
+![](https://s2.loli.net/2022/09/18/zrhvqdCMDyOSpZj.jpg)
 '''.strip(), enable_on_default=True, bundle='娱乐', visible = True)
 
 @sv.on_fullmatch(("帮助头像表情包"))
@@ -105,6 +106,7 @@ class Handler:
             img =  'base64://' + base64_str
             img = str(MessageSegment.image(img))
         except Exception as e:
+            print(traceback.format_exc())
             img = str(e)
 
         await bot.send(event, img)
