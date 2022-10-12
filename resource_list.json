@@ -120,6 +120,18 @@
         "hash": "d5dd1ea44908952885ff14a283f99695"
     },
     {
+        "path": "images/captain/0.png",
+        "hash": "f6cca0f44aa54c721f8b172f8ebb7f40"
+    },
+    {
+        "path": "images/captain/1.png",
+        "hash": "2885566e47ef4fb40560149c795dca7f"
+    },
+    {
+        "path": "images/captain/2.png",
+        "hash": "e230240d0929b774a985a301962d36b5"
+    },
+    {
         "path": "images/china_flag/0.png",
         "hash": "4fb0e081be615c62d2819df26a8c7c10"
     },
@@ -936,6 +948,82 @@
         "hash": "279077e30e8ca994272b9677a5eb568a"
     },
     {
+        "path": "images/fencing/0.png",
+        "hash": "494d6744b2fe70a2a24fa5680eab62e7"
+    },
+    {
+        "path": "images/fencing/1.png",
+        "hash": "c2352fea73085e5e30465bdbd14e967f"
+    },
+    {
+        "path": "images/fencing/10.png",
+        "hash": "bb11fc489bf9c9a5d6d7b6216cf2add7"
+    },
+    {
+        "path": "images/fencing/11.png",
+        "hash": "bd2f472a815021ffe09a038256fc3ed6"
+    },
+    {
+        "path": "images/fencing/12.png",
+        "hash": "c38fc68dbffa8f811dde76d05e158000"
+    },
+    {
+        "path": "images/fencing/13.png",
+        "hash": "05c025367c38dcb56cbddc25dcee5c2c"
+    },
+    {
+        "path": "images/fencing/14.png",
+        "hash": "e630633af5f3554a665c7acc700d8062"
+    },
+    {
+        "path": "images/fencing/15.png",
+        "hash": "1a992964b9dc0730e3b8e5f6fa8e33c6"
+    },
+    {
+        "path": "images/fencing/16.png",
+        "hash": "b2f3d5aae539fb2be6bc93d70361d93c"
+    },
+    {
+        "path": "images/fencing/17.png",
+        "hash": "b6305e03a78495edba1787a2fe33cad0"
+    },
+    {
+        "path": "images/fencing/18.png",
+        "hash": "0cd2f141d092fe8c2bc703b222275ac0"
+    },
+    {
+        "path": "images/fencing/2.png",
+        "hash": "8ef9f2964d620faf379ac3f9556d1ab1"
+    },
+    {
+        "path": "images/fencing/3.png",
+        "hash": "b0353f65f1f5c6f0dff890e314fbf866"
+    },
+    {
+        "path": "images/fencing/4.png",
+        "hash": "f7f92325df415688edd85295e8ffbf1b"
+    },
+    {
+        "path": "images/fencing/5.png",
+        "hash": "d13f10788d9b40353a3e0ea69fe646a5"
+    },
+    {
+        "path": "images/fencing/6.png",
+        "hash": "99691ce248fdb3f8ec6365185c88b944"
+    },
+    {
+        "path": "images/fencing/7.png",
+        "hash": "8eefb0b92e25340030721db422658c0c"
+    },
+    {
+        "path": "images/fencing/8.png",
+        "hash": "8d4c631bc83659ffa3ede9dbf604f65c"
+    },
+    {
+        "path": "images/fencing/9.png",
+        "hash": "81f17c9e3396f1d236efdb4d7a45c92f"
+    },
+    {
         "path": "images/garbage/0.png",
         "hash": "15a74fc27fc5ad1b2c4f3145aea81be4"
     },
@@ -1072,12 +1160,164 @@
         "hash": "312ec04ed8cb28f10c6a26771562a7d5"
     },
     {
+        "path": "images/hit_screen/0.png",
+        "hash": "f6494d8793efaac5dbc7d1d7b13f4775"
+    },
+    {
+        "path": "images/hit_screen/1.png",
+        "hash": "87ee7c887181c23cf49259c153e502c5"
+    },
+    {
+        "path": "images/hit_screen/10.png",
+        "hash": "d0a9b36fef0710f4e6f799309a02e175"
+    },
+    {
+        "path": "images/hit_screen/11.png",
+        "hash": "f3eec4ecbd7d2e9b157c03409b87e196"
+    },
+    {
+        "path": "images/hit_screen/12.png",
+        "hash": "73bed54512df3c2744e7bebbfc996605"
+    },
+    {
+        "path": "images/hit_screen/13.png",
+        "hash": "f1285419a554c685016a0c5abe40bed1"
+    },
+    {
+        "path": "images/hit_screen/14.png",
+        "hash": "1b77ed5a69d2c35f32b1ea4c79811b3b"
+    },
+    {
+        "path": "images/hit_screen/15.png",
+        "hash": "bc85628d0c3c8552215fe2cb993c41c0"
+    },
+    {
+        "path": "images/hit_screen/16.png",
+        "hash": "d3266c3c15639d66d6ba5574d796dbbd"
+    },
+    {
+        "path": "images/hit_screen/17.png",
+        "hash": "53700a08023e25078fd3c12ebc957ec7"
+    },
+    {
+        "path": "images/hit_screen/18.png",
+        "hash": "255c3eec878059930a74e2db07a9fdbd"
+    },
+    {
+        "path": "images/hit_screen/19.png",
+        "hash": "b9e225600359ae80000b128beaba0f1a"
+    },
+    {
+        "path": "images/hit_screen/2.png",
+        "hash": "b7f6d9fad41321e67055c089d38156ee"
+    },
+    {
+        "path": "images/hit_screen/20.png",
+        "hash": "32c8190626c5bda4e00d7487873f2b02"
+    },
+    {
+        "path": "images/hit_screen/21.png",
+        "hash": "dc3510a6e9a528e5a9f784e761b67fb3"
+    },
+    {
+        "path": "images/hit_screen/22.png",
+        "hash": "106f018ef661ff4a6596c7e2886a2916"
+    },
+    {
+        "path": "images/hit_screen/23.png",
+        "hash": "62c2724be713c96ca8a683a8284a6964"
+    },
+    {
+        "path": "images/hit_screen/24.png",
+        "hash": "efeca011d93b80b6e6057119a1f39f54"
+    },
+    {
+        "path": "images/hit_screen/25.png",
+        "hash": "a0c5e233f4fb5ec329fb95273944bc7a"
+    },
+    {
+        "path": "images/hit_screen/26.png",
+        "hash": "4740d1d5f7b774a611d63093029a2210"
+    },
+    {
+        "path": "images/hit_screen/27.png",
+        "hash": "8ab9413dee6c223657a91f835226365b"
+    },
+    {
+        "path": "images/hit_screen/28.png",
+        "hash": "6711d41565461c29c71ce080a47b230c"
+    },
+    {
+        "path": "images/hit_screen/3.png",
+        "hash": "67b1e253045b3b61914556ae4037d4f0"
+    },
+    {
+        "path": "images/hit_screen/4.png",
+        "hash": "e56a7f21fee42d909f4feb6770ff8827"
+    },
+    {
+        "path": "images/hit_screen/5.png",
+        "hash": "e417ba58fc5572147ea201690418e6d9"
+    },
+    {
+        "path": "images/hit_screen/6.png",
+        "hash": "40007806b850fc8fe3fd0a59146bd76c"
+    },
+    {
+        "path": "images/hit_screen/7.png",
+        "hash": "ab27a3c8a8c0bcb85f0f842f63677622"
+    },
+    {
+        "path": "images/hit_screen/8.png",
+        "hash": "ba715055ff1e4714041cbdf947d38083"
+    },
+    {
+        "path": "images/hit_screen/9.png",
+        "hash": "428161e3ddf06e69180156ab4c245884"
+    },
+    {
+        "path": "images/hold_tight/0.png",
+        "hash": "6c52f7de5f1a4aca8f1a0e7c5f6dd89b"
+    },
+    {
+        "path": "images/hug_leg/0.png",
+        "hash": "bc08d4fd4fa124712006354df0eb092d"
+    },
+    {
+        "path": "images/hug_leg/1.png",
+        "hash": "31bd381c73cccd175f1c71497a752870"
+    },
+    {
+        "path": "images/hug_leg/2.png",
+        "hash": "49214e16f3150aea1cbc4849576516cd"
+    },
+    {
+        "path": "images/hug_leg/3.png",
+        "hash": "83f6f33ead609c270873287ee65b89ca"
+    },
+    {
+        "path": "images/hug_leg/4.png",
+        "hash": "74bf0373ac3b8057326722a0cf8fc51c"
+    },
+    {
+        "path": "images/hug_leg/5.png",
+        "hash": "3d12cc8ad857617351d2961790e031af"
+    },
+    {
+        "path": "images/incivilization/0.png",
+        "hash": "352c9534c4ff182174b0b29e7ff7df42"
+    },
+    {
         "path": "images/interview/huaji.png",
         "hash": "3bb5ff24a83544995edab765c837bec3"
     },
     {
         "path": "images/interview/microphone.png",
         "hash": "34775a82e4b8b7df44d2cf37a6e16ea5"
+    },
+    {
+        "path": "images/jiji_king/0.png",
+        "hash": "9fa0daa0d9ce4756d09f405ed982861a"
     },
     {
         "path": "images/jiujiu/0.png",
@@ -1208,6 +1448,14 @@
         "hash": "e85c326ab5c4ca55589761be7b7e990d"
     },
     {
+        "path": "images/loading/icon.png",
+        "hash": "e85c326ab5c4ca55589761be7b7e990d"
+    },
+    {
+        "path": "images/look_this_icon/nmsl.png",
+        "hash": "4f37b38d2a14cbe368b4e427c23aa28d"
+    },
+    {
         "path": "images/love_you/0.png",
         "hash": "66ddcca5601fd9224a1e0d17909ade56"
     },
@@ -1256,6 +1504,10 @@
         "hash": "40a04aa8c2ffb9243119c865ece04cc4"
     },
     {
+        "path": "images/my_friend/label.png",
+        "hash": "9538d1dd1e7e3befadacc26bbb511754"
+    },
+    {
         "path": "images/mywife/0.png",
         "hash": "c6fd08ac07edee816f25a4713758f428"
     },
@@ -1266,6 +1518,10 @@
     {
         "path": "images/need/0.png",
         "hash": "4619406351d0c1b5fe4d42905e1beb6d"
+    },
+    {
+        "path": "images/no_response/0.png",
+        "hash": "2d83def33dfe559dcad883f39bfee4cb"
     },
     {
         "path": "images/paint/0.png",
@@ -1404,8 +1660,68 @@
         "hash": "d1e23a1e2f3f67a68f13d514222e8288"
     },
     {
+        "path": "images/play/23.png",
+        "hash": "027cfd72da7425411f4fbfb45af76e75"
+    },
+    {
+        "path": "images/play/24.png",
+        "hash": "ca73fe22c80e4d12f07854456e67500d"
+    },
+    {
+        "path": "images/play/25.png",
+        "hash": "79a133301b5aadd29c00ae351eb70258"
+    },
+    {
+        "path": "images/play/26.png",
+        "hash": "be4252f16c83933f0f843dbe65c41df1"
+    },
+    {
+        "path": "images/play/27.png",
+        "hash": "ca73fe22c80e4d12f07854456e67500d"
+    },
+    {
+        "path": "images/play/28.png",
+        "hash": "668b9f971b27685a1fcc06bc6d27d661"
+    },
+    {
+        "path": "images/play/29.png",
+        "hash": "027cfd72da7425411f4fbfb45af76e75"
+    },
+    {
         "path": "images/play/3.png",
         "hash": "1f5064e766aa07cbd0bcc6014e04a363"
+    },
+    {
+        "path": "images/play/30.png",
+        "hash": "79a133301b5aadd29c00ae351eb70258"
+    },
+    {
+        "path": "images/play/31.png",
+        "hash": "be4252f16c83933f0f843dbe65c41df1"
+    },
+    {
+        "path": "images/play/32.png",
+        "hash": "668b9f971b27685a1fcc06bc6d27d661"
+    },
+    {
+        "path": "images/play/33.png",
+        "hash": "027cfd72da7425411f4fbfb45af76e75"
+    },
+    {
+        "path": "images/play/34.png",
+        "hash": "79a133301b5aadd29c00ae351eb70258"
+    },
+    {
+        "path": "images/play/35.png",
+        "hash": "be4252f16c83933f0f843dbe65c41df1"
+    },
+    {
+        "path": "images/play/36.png",
+        "hash": "f15c1afc1766b284662e2972caff927e"
+    },
+    {
+        "path": "images/play/37.png",
+        "hash": "ca73fe22c80e4d12f07854456e67500d"
     },
     {
         "path": "images/play/4.png",
@@ -1552,6 +1868,10 @@
         "hash": "91cfac98b3e2857988c727c03ce76418"
     },
     {
+        "path": "images/rip_angrily/0.png",
+        "hash": "0c58878dfbe96bdc8a4f8cb3a5d9ae79"
+    },
+    {
         "path": "images/roll/0.png",
         "hash": "4b7bd23b3f9d4c2ab7d36885a6edf21a"
     },
@@ -1666,6 +1986,66 @@
     {
         "path": "images/support/0.png",
         "hash": "f82b0d023e4aab41df6159db726f4ae3"
+    },
+    {
+        "path": "images/tankuku_holdsign/0.png",
+        "hash": "4b0996d7cbdd8e9409a79dea071a01c2"
+    },
+    {
+        "path": "images/tankuku_holdsign/1.png",
+        "hash": "7e2ad13a0cafb74385ed9b600b4fc172"
+    },
+    {
+        "path": "images/tankuku_holdsign/10.png",
+        "hash": "cd63823284e11471738afe9db4702a52"
+    },
+    {
+        "path": "images/tankuku_holdsign/11.png",
+        "hash": "9dd87e60712401c9ed1837c7366cdb0a"
+    },
+    {
+        "path": "images/tankuku_holdsign/12.png",
+        "hash": "94f16191e6349e5ea1527b43d6ba0c35"
+    },
+    {
+        "path": "images/tankuku_holdsign/13.png",
+        "hash": "b933afc2d05436d334a617f163195ae4"
+    },
+    {
+        "path": "images/tankuku_holdsign/14.png",
+        "hash": "603df3a1fd1471cc19f57278e7239f1c"
+    },
+    {
+        "path": "images/tankuku_holdsign/2.png",
+        "hash": "18b19dac907b86fafdb1bc21f5aa1c26"
+    },
+    {
+        "path": "images/tankuku_holdsign/3.png",
+        "hash": "72781415d42ad7c07c4590f63c3ba012"
+    },
+    {
+        "path": "images/tankuku_holdsign/4.png",
+        "hash": "ca3209888f96d0f0ca857e8ef071069b"
+    },
+    {
+        "path": "images/tankuku_holdsign/5.png",
+        "hash": "4d17fe6e3d56b0fde997133b50b038db"
+    },
+    {
+        "path": "images/tankuku_holdsign/6.png",
+        "hash": "ce849be262fb6b89c2c4a4a0d292147c"
+    },
+    {
+        "path": "images/tankuku_holdsign/7.png",
+        "hash": "c925f70fd240737bc3910e7ce065ecdc"
+    },
+    {
+        "path": "images/tankuku_holdsign/8.png",
+        "hash": "efe38079a2bf6d2774bccfba198b2561"
+    },
+    {
+        "path": "images/tankuku_holdsign/9.png",
+        "hash": "dc1ca469b0083e4452319bc40539f2e9"
     },
     {
         "path": "images/teach/0.png",
@@ -1830,6 +2210,178 @@
     {
         "path": "images/wallpaper/0.png",
         "hash": "923b30b63e20465d93ca11a9c0968c4c"
+    },
+    {
+        "path": "images/wallpaper/1.png",
+        "hash": "6194bd1f877fa1688989d5259346dfa6"
+    },
+    {
+        "path": "images/wallpaper/10.png",
+        "hash": "c288c503a12cab9c39091069a26bcd4a"
+    },
+    {
+        "path": "images/wallpaper/11.png",
+        "hash": "3bd846854808543f65bfd1d3580c4139"
+    },
+    {
+        "path": "images/wallpaper/12.png",
+        "hash": "6fa9ea037c6a8785bde14abc419c6488"
+    },
+    {
+        "path": "images/wallpaper/13.png",
+        "hash": "b4eb969eccb10eed3fca88ecadbe0955"
+    },
+    {
+        "path": "images/wallpaper/14.png",
+        "hash": "51e238a783fd09a3ca35ce3064e35ba0"
+    },
+    {
+        "path": "images/wallpaper/15.png",
+        "hash": "1bcd15438124f0d69c5f9c5370dd998c"
+    },
+    {
+        "path": "images/wallpaper/16.png",
+        "hash": "2a824070b38f1a1d797cb3605cc46eea"
+    },
+    {
+        "path": "images/wallpaper/17.png",
+        "hash": "a5e53f08ecac8cf1ff6d1cbba52b8d4e"
+    },
+    {
+        "path": "images/wallpaper/18.png",
+        "hash": "84ede165d9ff52f3359af68ee18f9fa3"
+    },
+    {
+        "path": "images/wallpaper/19.png",
+        "hash": "df6431e84b121546d915f9bf82db97ff"
+    },
+    {
+        "path": "images/wallpaper/2.png",
+        "hash": "d7fcd678b73541083cec7e3567982251"
+    },
+    {
+        "path": "images/wallpaper/3.png",
+        "hash": "4ce310e39e9ff8b25b5c16b4d7397694"
+    },
+    {
+        "path": "images/wallpaper/4.png",
+        "hash": "7a40b7575dd0a44f706cf8db8ae930cb"
+    },
+    {
+        "path": "images/wallpaper/5.png",
+        "hash": "98c60b3dbc002001639d248b83340c20"
+    },
+    {
+        "path": "images/wallpaper/6.png",
+        "hash": "a48a8d743c252e027d714f7d58106c9d"
+    },
+    {
+        "path": "images/wallpaper/7.png",
+        "hash": "2de21663772f41d560659b03a9fa2e61"
+    },
+    {
+        "path": "images/wallpaper/8.png",
+        "hash": "1057eb7c22e0cf0f338fa106381237e4"
+    },
+    {
+        "path": "images/wallpaper/9.png",
+        "hash": "b1f12532b7bb00c1f1c551d8f2d007be"
+    },
+    {
+        "path": "images/walnut_zoom/0.png",
+        "hash": "92bb0da8d3890e0717f9afea806feb3f"
+    },
+    {
+        "path": "images/walnut_zoom/1.png",
+        "hash": "a7188622f13997c0bac0c252f6ca8780"
+    },
+    {
+        "path": "images/walnut_zoom/10.png",
+        "hash": "96636c7b99de6478c533621cb738c359"
+    },
+    {
+        "path": "images/walnut_zoom/11.png",
+        "hash": "4e755bfee68660dc9d8a954b7d4ade0e"
+    },
+    {
+        "path": "images/walnut_zoom/12.png",
+        "hash": "7eb01898f3c021be1f4422ddda156449"
+    },
+    {
+        "path": "images/walnut_zoom/13.png",
+        "hash": "7b00a9eb069f0524717f1e6f78eca581"
+    },
+    {
+        "path": "images/walnut_zoom/14.png",
+        "hash": "e44eb768a6466fa7cb3991213ec6d341"
+    },
+    {
+        "path": "images/walnut_zoom/15.png",
+        "hash": "045d4e8bc6dfe03d80d235c52b43d8fe"
+    },
+    {
+        "path": "images/walnut_zoom/16.png",
+        "hash": "a06ad8576a6ce3960952e4b5eb6cefc1"
+    },
+    {
+        "path": "images/walnut_zoom/17.png",
+        "hash": "d2aff58b16a87b52b7ca2d1247ce5b67"
+    },
+    {
+        "path": "images/walnut_zoom/18.png",
+        "hash": "7c3270dc9c22106fc1bbd008ff6fdaed"
+    },
+    {
+        "path": "images/walnut_zoom/19.png",
+        "hash": "5a8be1f8c11fd3bde502fcad4a7d535e"
+    },
+    {
+        "path": "images/walnut_zoom/2.png",
+        "hash": "d16bb37532169bc10694614cefa67f92"
+    },
+    {
+        "path": "images/walnut_zoom/20.png",
+        "hash": "f884b724ada6eb42e78d9a34194f8f4b"
+    },
+    {
+        "path": "images/walnut_zoom/21.png",
+        "hash": "c83d942a9aab9e4cb942a78f339bc6a3"
+    },
+    {
+        "path": "images/walnut_zoom/22.png",
+        "hash": "a86aea753d88feec4ac48b3d9d0b6c8f"
+    },
+    {
+        "path": "images/walnut_zoom/23.png",
+        "hash": "ff8e7723089df5fa18f44bd2c081dcb3"
+    },
+    {
+        "path": "images/walnut_zoom/3.png",
+        "hash": "a0cfd729ee63cabe86a0caf74ed197a1"
+    },
+    {
+        "path": "images/walnut_zoom/4.png",
+        "hash": "5b0250386bbc4984461ebe7b8b165a0e"
+    },
+    {
+        "path": "images/walnut_zoom/5.png",
+        "hash": "90c13c206c83b053e9efc2e69323ca4a"
+    },
+    {
+        "path": "images/walnut_zoom/6.png",
+        "hash": "b8093ea7ce31ffd3e874e3687f6337c8"
+    },
+    {
+        "path": "images/walnut_zoom/7.png",
+        "hash": "00a228caaffc39f4be62005151736c82"
+    },
+    {
+        "path": "images/walnut_zoom/8.png",
+        "hash": "bec1df1d0b68e52744a1c002acf7b4ff"
+    },
+    {
+        "path": "images/walnut_zoom/9.png",
+        "hash": "da2d8c5f9dc73ec4efb5d0de31c59706"
     },
     {
         "path": "images/walnutpad/0.png",
