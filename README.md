@@ -6,6 +6,10 @@
 
 ## 更新日志
 
+**2022.10.12**
+
+- 新增`打穿屏幕`、`击剑`、`抱大腿`、`唐可可举牌`、`无响应`、`抱紧`、`看扁`、`看图标`、`舰长`、`急急国王`、`不文明`指令
+
 **2022.09.18**
 
 - 新增`这是我的老婆`、`胡桃平板`、`敲黑板`、`上瘾`、`手枪`、`高血压`、`看书`、`遇到困难请拨打`、`迷惑`指令
@@ -58,7 +62,7 @@ pip install dataclasses
 发送`帮助头像表情包`显示下图的列表：
 
 <div align="left">
-  <img src="https://s2.loli.net/2022/09/18/zrhvqdCMDyOSpZj.jpg" width="400" />
+  <img src="https://s2.loli.net/2022/10/11/M2kKNEQCygqA6u8.jpg" width="400" />
 </div>
 
 > 以下内容摘自原插件README
@@ -154,4 +158,13 @@ pip install dataclasses
 | 看书 | <img src="https://s2.loli.net/2022/08/26/SeAC86RgDlUvLNY.jpg" width="200" > |  |
 | 遇到困难请拨打 | <img src="https://s2.loli.net/2022/08/26/KWGSf6qErB14uwp.jpg" width="200" > | 可指定一个或两个目标 |
 | 迷惑 | <img src="https://s2.loli.net/2022/09/18/RXothQYjgC7wGv4.gif" width="200" > | |
-
+| 打穿<br>打穿屏幕 | <img src="https://s2.loli.net/2022/10/01/ndxBbC1TKeRYv9X.gif" width="200" > | 支持gif |
+| 击剑<br>🤺 | <img src="https://s2.loli.net/2022/10/01/97uZYdFs16CkJhQ.gif" width="200" > |  |
+| 抱大腿 | <img src="https://s2.loli.net/2022/10/01/mivPkLle6qwZQsg.gif" width="200" > |  |
+| 唐可可举牌 | <img src="https://s2.loli.net/2022/10/01/LdGk9MmzYaebFt5.gif" width="200" > |  |
+| 无响应 | <img src="https://s2.loli.net/2022/10/01/vjXnOgcSVLGfdCQ.jpg" width="200" > |  |
+| 抱紧 | <img src="https://s2.loli.net/2022/10/01/vYgl3nRmXuGwqDd.jpg" width="200" > |  |
+| 看扁 | <img src="https://s2.loli.net/2022/10/08/kAHs6GYnmRh28WB.jpg" width="200" > | 支持gif<br>可指定描述<br>可指定缩放倍率，默认为2<br>如：看扁 3 自己 |
+| 看图标 | <img src="https://s2.loli.net/2022/10/08/Ek8Vu6eFyQKJnos.jpg" width="200" > | 支持gif<br>可指定描述 |
+| 舰长 | <img src="https://s2.loli.net/2022/10/11/8kPgVo6yzWMhfqU.jpg" width="200" > | 可指定1~5个目标 |
+| 急急国王 | <img src="https://s2.loli.net/2022/10/11/RqFP8Gtr2CQmSTU.jpg" width="200" > | 可指定方块中的字和描述<br>可用多个图片替代方块 |
