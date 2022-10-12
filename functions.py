@@ -1987,7 +1987,7 @@ async def look_flat(users: List[UserInfo], args=None, **kwargs):
             weight="bold",
         )
     except ValueError:
-        return TEXT_TOO_LONG
+        raise ValueError(TEXT_TOO_LONG)
 
     async def make(_img: BuildImage) -> BuildImage:
         new_img = _img.convert("RGBA").resize_width(img_w)
@@ -2016,7 +2016,7 @@ async def look_this_icon(users: List[UserInfo], args=None, **kwargs):
             min_fontsize=50,
         )
     except ValueError:
-        return TEXT_TOO_LONG
+        raise ValueError(TEXT_TOO_LONG)
 
     async def make(_img: BuildImage) -> BuildImage:
         new_img = _img.convert("RGBA").resize((515, 515), keep_ratio=True)
@@ -2091,7 +2091,7 @@ async def jiji_king(users: List[UserInfo], args=None, **kwargs):
                 fill="white",
             )
         except ValueError:
-            return TEXT_TOO_LONG
+            raise ValueError(TEXT_TOO_LONG)
         imgs = [block]
 
     imgs = sum([[img] * math.ceil(5 / len(imgs)) for img in imgs], [])
@@ -2108,7 +2108,7 @@ async def jiji_king(users: List[UserInfo], args=None, **kwargs):
             min_fontsize=60,
         )
     except ValueError:
-        return TEXT_TOO_LONG
+        raise ValueError(TEXT_TOO_LONG)
 
     return frame.save_jpg()
 
@@ -2132,5 +2132,5 @@ async def incivilization(users: List[UserInfo], args=None, **kwargs):
             allow_wrap=True,
         )
     except ValueError:
-        return TEXT_TOO_LONG
+        raise ValueError(TEXT_TOO_LONG)
     return frame.save_jpg()
