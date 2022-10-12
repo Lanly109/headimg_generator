@@ -87,6 +87,17 @@ commands = [
     Command(("看书",), read_book, arg_num=1),
     Command(("遇到困难请拨打",), call_110),
     Command(("迷惑",), confuse),
+    Command(("打穿", "打穿屏幕"), hit_screen),
+    Command(("击剑", ), fencing),
+    Command(("抱大腿",), hug_leg),
+    Command(("唐可可举牌",), tankuku_holdsign),
+    Command(("无响应",), no_response),
+    Command(("抱紧",), hold_tight),
+    Command(("看扁",), look_flat),
+    Command(("看图标",), look_this_icon),
+    Command(("舰长",), captain),
+    Command(("急急国王",), jiji_king),
+    Command(("不文明",), incivilization),
 ]
 
 
