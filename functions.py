@@ -1,12 +1,9 @@
 import random
-from io import BytesIO
-from PIL.Image import Image as IMG
-from PIL import Image, ImageFilter, ImageDraw, ImageOps, ImageEnhance
-from typing import List, Dict, Optional
 from datetime import datetime
-import re
 
-from .imageutils import BuildImage, Text2Image
+from PIL import ImageOps, ImageEnhance
+
+from .imageutils import Text2Image
 from .models import UserInfo
 from .utils import *
 
@@ -2145,6 +2142,7 @@ async def together(users: List[UserInfo], args=None, **kwargs):
     frame = await new_load_image("together/0.png")
     frame.paste(img.convert("RGBA").resize((63, 63)), (132, 36))
     text = arg if arg else f"一起玩{users[0].name}吧！"
+    text = remove_emoji(text)
     try:
         frame.draw_text(
             (10, 140, 190, 190),

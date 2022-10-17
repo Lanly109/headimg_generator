@@ -91,7 +91,7 @@ class Handler:
                         continue
                     users.append(UserInfo(img_url=url.group(1)))
                 else:
-                    qq = re.search(r"qq=(\d+)", str(source_msg)).group(1)
+                    qq = msg_seg.data["qq"]
                     users.append(UserInfo(qq=qq, group=str(event.group_id)))
             elif msg_seg.type == "text":
                 raw_text = str(msg_seg)

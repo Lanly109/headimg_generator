@@ -1,21 +1,23 @@
 import math
-import httpx
-import imageio
-import cv2 as cv
-import numpy as np
 from enum import Enum
 from io import BytesIO
-from fontTools.ttLib import TTFont
 from typing import Protocol, List, Tuple, Union
-from typing_extensions import Literal
+
+import cv2 as cv
+import emoji
+import httpx
+import imageio
+import numpy as np
+import re
+from PIL import Image, ImageDraw, ImageFilter, ImageFont
 from PIL.Image import Image as IMG
 from PIL.ImageFont import FreeTypeFont
-from PIL import Image, ImageDraw, ImageFilter, ImageFont
 from emoji.unicode_codes import UNICODE_EMOJI
-
-from .imageutils.build_image import BuildImage
+from fontTools.ttLib import TTFont
+from typing_extensions import Literal
 
 from .download import get_font, get_image
+from .imageutils.build_image import BuildImage
 from .models import Command
 
 DEFAULT_FONT = "SourceHanSansSC-Regular.otf"
@@ -505,3 +507,7 @@ async def help_image(commands: List[Command]) -> BytesIO:
     img.paste(img2, (padding, img1.height + padding))
     img.paste(img3, (img2.width + padding, img1.height + padding))
     return save_jpg(img)
+
+
+def remove_emoji(text):
+    return re.sub(emoji.get_emoji_regexp(), "", text)
