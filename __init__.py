@@ -1,14 +1,16 @@
+import base64
+import re
 import shlex
 import traceback
-import base64
 from typing import List
-from .utils import help_image
+
+from hoshino import Service, HoshinoBot
 from hoshino.typing import CQEvent, MessageSegment
 from nonebot import on_startup
-from hoshino import Service, priv, HoshinoBot
+
 from .data_source import make_image, commands
-from .download import DownloadError, ResourceError
-from .models import UserInfo, Command
+from .models import UserInfo
+from .utils import help_image
 
 sv = Service('头像表情包', help_='''
 ![](https://s2.loli.net/2022/09/18/zrhvqdCMDyOSpZj.jpg)
@@ -51,10 +53,23 @@ class Handler:
         args: List[str] = []
         msg = event.message
 
-        # if event.reply:
-        #     reply_imgs = event.reply.message["image"]
-        #     for reply_img in reply_imgs:
-        #         users.append(UserInfo(img_url=reply_img.data["url"]))
+        # 回复前置处理
+        if msg[0].type == "reply":
+            # 当回复目标是自己时，去除隐式at自己
+            if msg[0].data["qq"] == str(event.user_id):
+                msg.pop(1)
+            # 因为回复别人会默认多加一个at，需要跳过回复附带的显式at
+            elif len(msg) > 3:
+                temp_msg = [msg[0]] + [each for each in msg[3:]]
+                at_sb = MessageSegment.at(msg[0].data["qq"])
+                if temp_msg[1] == at_sb:
+                    temp_msg.pop(1)
+                msg = temp_msg
+            # 手机版可以去掉显式at，因此直接去除隐式at即可
+            else:
+                at_sb = MessageSegment.at(msg[0].data["qq"])
+                if msg[1] == at_sb:
+                    msg.pop(1)
 
         for msg_seg in msg:
             if msg_seg.type == "at":
@@ -66,6 +81,18 @@ class Handler:
                 )
             elif msg_seg.type == "image":
                 users.append(UserInfo(img_url=msg_seg.data["url"]))
+            elif msg_seg.type == "reply":
+                msg_id = msg_seg.data["id"]
+                source_msg = await sv.bot.get_msg(message_id=int(msg_id))
+                source_msg = source_msg["message"]
+                if source_msg.startswith("[CQ:image,"):
+                    url = re.search(r"url=(.+)", str(source_msg))
+                    if not url:
+                        continue
+                    users.append(UserInfo(img_url=url.group(1)))
+                else:
+                    qq = re.search(r"qq=(\d+)", str(source_msg)).group(1)
+                    users.append(UserInfo(qq=qq, group=str(event.group_id)))
             elif msg_seg.type == "text":
                 raw_text = str(msg_seg)
                 try:

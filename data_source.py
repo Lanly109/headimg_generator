@@ -98,6 +98,7 @@ commands = [
     Command(("舰长",), captain),
     Command(("急急国王",), jiji_king, arg_num=2),
     Command(("不文明",), incivilization, arg_num=1),
+    Command(("一起",), together, arg_num=1),
 ]
 
 
