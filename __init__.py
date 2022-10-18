@@ -53,23 +53,24 @@ class Handler:
         args: List[str] = []
         msg = event.message
 
+        # 由于使用的trigger是prefix，回复时无法捕捉trigger，不兼容
         # 回复前置处理
-        if msg[0].type == "reply":
-            # 当回复目标是自己时，去除隐式at自己
-            if msg[0].data["qq"] == str(event.user_id):
-                msg.pop(1)
-            # 因为回复别人会默认多加一个at，需要跳过回复附带的显式at
-            elif len(msg) > 3:
-                temp_msg = [msg[0]] + [each for each in msg[3:]]
-                at_sb = MessageSegment.at(msg[0].data["qq"])
-                if temp_msg[1] == at_sb:
-                    temp_msg.pop(1)
-                msg = temp_msg
-            # 手机版可以去掉显式at，因此直接去除隐式at即可
-            else:
-                at_sb = MessageSegment.at(msg[0].data["qq"])
-                if msg[1] == at_sb:
-                    msg.pop(1)
+        # if msg[0].type == "reply":
+        #     # 当回复目标是自己时，去除隐式at自己
+        #     if msg[0].data["qq"] == str(event.user_id):
+        #         msg.pop(1)
+        #     # 因为回复别人会默认多加一个at，需要跳过回复附带的显式at
+        #     elif len(msg) > 3:
+        #         temp_msg = [msg[0]] + [each for each in msg[3:]]
+        #         at_sb = MessageSegment.at(msg[0].data["qq"])
+        #         if temp_msg[1] == at_sb:
+        #             temp_msg.pop(1)
+        #         msg = temp_msg
+        #     # 手机版可以去掉显式at，因此直接去除隐式at即可
+        #     else:
+        #         at_sb = MessageSegment.at(msg[0].data["qq"])
+        #         if msg[1] == at_sb:
+        #             msg.pop(1)
 
         for msg_seg in msg:
             if msg_seg.type == "at":
