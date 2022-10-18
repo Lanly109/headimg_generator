@@ -17,7 +17,7 @@ sv_help = """
 [头像表情包] 发送全部功能帮助
 """
 
-cmd_prefix = "##"
+cmd_prefix = ""
 
 sv = Service(
     name="头像表情包",
