@@ -129,11 +129,12 @@ class Handler:
                         if text:
                             args.append(text)
 
-        if args[0] in self.command.keywords:
+        if args[0].replace(cmd_prefix, "") in self.command.keywords:
             args.pop(0)
-        for each_key in self.command.keywords:
-            if f"{cmd_prefix}{each_key}" in args[0]:
-                args[0] = args[0].replace(f"{cmd_prefix}{each_key}", "")
+        if args:
+            for each_key in self.command.keywords:
+                if f"{cmd_prefix}{each_key}" in args[0]:
+                    args[0] = args[0].replace(f"{cmd_prefix}{each_key}", "")
         if len(args) > self.command.arg_num:
             sv.logger.info("arg num exceed limit")
             return False
