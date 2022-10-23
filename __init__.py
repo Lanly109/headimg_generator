@@ -6,7 +6,7 @@ from typing import List
 from io import BytesIO
 
 from hoshino import Service, HoshinoBot, priv
-from hoshino.typing import CQEvent, MessageSegment
+from hoshino.typing import CQEvent, MessageSegment, Message
 from nonebot import on_startup
 
 from .data_source import make_image, commands
@@ -30,18 +30,18 @@ sv = Service(
 )
 
 
+# 绕了一圈弄帮助图片
+# 主要是因为图片制作得在插件加载完成后才能生成
 @sv.on_fullmatch(["帮助头像表情包"])
-async def bangzhu(bot, ev):
+async def bangzhu_text(bot, ev):
     await bot.send(ev, sv_help, at_sender=True)
 
-
 def bytesio2b64(im: BytesIO) -> str:
-    im = im.getvalue()
-    return f"base64://{base64.b64encode(im).decode()}"
-
+    img = im.getvalue()
+    return f"base64://{base64.b64encode(img).decode()}"
 
 @sv.on_fullmatch("头像表情包")
-async def bangzhu(bot: HoshinoBot, ev: CQEvent):
+async def bangzhu_img(bot: HoshinoBot, ev: CQEvent):
     im = await help_image(commands)
     await bot.send(ev, MessageSegment.image(bytesio2b64(im)))
 
@@ -78,20 +78,15 @@ class Handler:
         # 回复前置处理
         if msg[0].type == "reply":
             # 当回复目标是自己时，去除隐式at自己
-            if msg[0].data["qq"] == str(event.user_id):
-                msg.pop(1)
-            # 因为回复别人会默认多加一个at，需要跳过回复附带的显式at
-            elif len(msg) > 3:
-                temp_msg = [msg[0]] + [each for each in msg[3:]]
-                at_sb = MessageSegment.at(msg[0].data["qq"])
-                if temp_msg[1] == at_sb:
-                    temp_msg.pop(1)
-                msg = temp_msg
-            # 手机版可以去掉显式at，因此直接去除隐式at即可
-            else:
-                at_sb = MessageSegment.at(msg[0].data["qq"])
-                if msg[1] == at_sb:
+            msg_id = msg[0].data["id"]
+            source_msg = await sv.bot.get_msg(message_id=int(msg_id))
+            source_qq = str(source_msg['sender']['user_id'])
+            # 隐式at和显示at之间还有一个文本空格
+            while len(msg) > 1 and (msg[1].type == 'at' or msg[1].type == 'text' and msg[1].data['text'].strip() == ""):
+                if msg[1].type == 'at' and msg[1].data['qq'] == source_qq or msg[1].type == 'text' and msg[1].data['text'].strip() == "":
                     msg.pop(1)
+                else:
+                    break
 
         for msg_seg in msg:
             if msg_seg.type == "at":
@@ -106,15 +101,13 @@ class Handler:
             elif msg_seg.type == "reply":
                 msg_id = msg_seg.data["id"]
                 source_msg = await sv.bot.get_msg(message_id=int(msg_id))
+                source_qq = str(source_msg['sender']['user_id'])
                 source_msg = source_msg["message"]
-                if source_msg.startswith("[CQ:image,"):
-                    url = re.search(r"url=(.+)", str(source_msg))
-                    if not url:
-                        continue
-                    users.append(UserInfo(img_url=url.group(1)))
-                else:
-                    qq = msg_seg.data["qq"]
-                    users.append(UserInfo(qq=qq, group=str(event.group_id)))
+                messages = Message(source_msg)
+                # 处理回复中有多图片情况，但at情况不处理
+                for message in messages:
+                    if message.type == "image":
+                        users.append(UserInfo(img_url=message.data['url']))
             elif msg_seg.type == "text":
                 raw_text = str(msg_seg)
                 try:
@@ -134,10 +127,9 @@ class Handler:
                         )
                     else:
                         text = text.strip()
-                        if text:
+                        if text and text not in self.command.keywords:
                             args.append(text)
 
-        args.pop(0)
         if len(args) > self.command.arg_num:
             return False
         if event.raw_message.find(f"[CQ:at,qq={str(event.self_id)}") != -1:
@@ -153,8 +145,7 @@ class Handler:
 
         try:
             img = await make_image(command=self.command, sender=sender, users=users, args=args)
-            base64_str = base64.b64encode(img.getvalue()).decode()
-            img = 'base64://' + base64_str
+            img = bytesio2b64(img)
             img = str(MessageSegment.image(img))
         except Exception as e:
             print(traceback.format_exc())
@@ -172,6 +163,8 @@ async def register_handler():
         if cmd_prefix:
             for each in key:
                 keys.append(f"{cmd_prefix}{each}")
+        else:
+            keys = key
         func = func(keys, only_to_me=False)
         func(Handler(command).handle)
     sv.logger.info('petpet register done.')
