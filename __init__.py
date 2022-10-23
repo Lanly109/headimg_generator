@@ -1,5 +1,5 @@
 import base64
-import re
+import copy
 import shlex
 import traceback
 from typing import List
@@ -83,7 +83,8 @@ class Handler:
             source_qq = str(source_msg['sender']['user_id'])
             # 隐式at和显示at之间还有一个文本空格
             while len(msg) > 1 and (msg[1].type == 'at' or msg[1].type == 'text' and msg[1].data['text'].strip() == ""):
-                if msg[1].type == 'at' and msg[1].data['qq'] == source_qq or msg[1].type == 'text' and msg[1].data['text'].strip() == "":
+                if msg[1].type == 'at' and msg[1].data['qq'] == source_qq \
+                        or msg[1].type == 'text' and msg[1].data['text'].strip() == "":
                     msg.pop(1)
                 else:
                     break
@@ -101,13 +102,33 @@ class Handler:
             elif msg_seg.type == "reply":
                 msg_id = msg_seg.data["id"]
                 source_msg = await sv.bot.get_msg(message_id=int(msg_id))
-                source_qq = str(source_msg['sender']['user_id'])
                 source_msg = source_msg["message"]
-                messages = Message(source_msg)
-                # 处理回复中有多图片情况，但at情况不处理
-                for message in messages:
-                    if message.type == "image":
-                        users.append(UserInfo(img_url=message.data['url']))
+                msgs = Message(source_msg)
+                # if msgs[0].type == "at":
+                #     # 当回复目标是一条回复时，源消息会转化为一条atcq码
+                #     # 因为会和真正的at混淆，暂时没想好怎么修
+                #     msgs.pop(0)
+                for each_msg in msgs:
+                    if each_msg.type == "at":
+                        users.append(UserInfo(qq=each_msg.data["qq"]))
+                    if each_msg.type == "image":
+                        users.append(UserInfo(img_url=each_msg.data["url"]))
+                    if each_msg.type == "text":
+                        arg = each_msg.data["text"]
+                        if not arg.strip():
+                            continue
+                        if is_qq(arg.strip()):
+                            users.append(UserInfo(qq=arg.strip()))
+                        elif arg.strip() == "自己":
+                            users.append(
+                                UserInfo(
+                                    qq=str(event.user_id),
+                                    group=str(event.group_id)
+                                )
+                            )
+                        else:
+                            if arg.strip():
+                                args.append(arg.strip())
             elif msg_seg.type == "text":
                 raw_text = str(msg_seg)
                 try:
@@ -127,10 +148,17 @@ class Handler:
                         )
                     else:
                         text = text.strip()
-                        if text and text not in self.command.keywords:
+                        if text:
                             args.append(text)
 
+        for index in range(len(args)):
+            for each_key in self.command.keywords:
+                if f"{cmd_prefix}{each_key}" in args[index]:
+                    args[index] = args[index].replace(f"{cmd_prefix}{each_key}", "").strip()
+        bak_args = copy.deepcopy(args)
+        args = [e_a for e_a in bak_args if e_a]
         if len(args) > self.command.arg_num:
+            sv.logger.info("arg num exceed limit")
             return False
         if event.raw_message.find(f"[CQ:at,qq={str(event.self_id)}") != -1:
             users.append(UserInfo(qq=str(event.self_id), group=str(event.group_id)))
