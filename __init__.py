@@ -104,31 +104,9 @@ class Handler:
                 source_msg = await sv.bot.get_msg(message_id=int(msg_id))
                 source_msg = source_msg["message"]
                 msgs = Message(source_msg)
-                # if msgs[0].type == "at":
-                #     # 当回复目标是一条回复时，源消息会转化为一条atcq码
-                #     # 因为会和真正的at混淆，暂时没想好怎么修
-                #     msgs.pop(0)
                 for each_msg in msgs:
-                    if each_msg.type == "at":
-                        users.append(UserInfo(qq=each_msg.data["qq"]))
                     if each_msg.type == "image":
                         users.append(UserInfo(img_url=each_msg.data["url"]))
-                    if each_msg.type == "text":
-                        arg = each_msg.data["text"]
-                        if not arg.strip():
-                            continue
-                        if is_qq(arg.strip()):
-                            users.append(UserInfo(qq=arg.strip()))
-                        elif arg.strip() == "自己":
-                            users.append(
-                                UserInfo(
-                                    qq=str(event.user_id),
-                                    group=str(event.group_id)
-                                )
-                            )
-                        else:
-                            if arg.strip():
-                                args.append(arg.strip())
             elif msg_seg.type == "text":
                 raw_text = str(msg_seg)
                 try:
@@ -151,12 +129,11 @@ class Handler:
                         if text:
                             args.append(text)
 
-        for index in range(len(args)):
-            for each_key in self.command.keywords:
-                if f"{cmd_prefix}{each_key}" in args[index]:
-                    args[index] = args[index].replace(f"{cmd_prefix}{each_key}", "").strip()
-        bak_args = copy.deepcopy(args)
-        args = [e_a for e_a in bak_args if e_a]
+        if args[0] in self.command.keywords:
+            args.pop(0)
+        for each_key in self.command.keywords:
+            if f"{cmd_prefix}{each_key}" in args[0]:
+                args[0] = args[0].replace(f"{cmd_prefix}{each_key}", "")
         if len(args) > self.command.arg_num:
             sv.logger.info("arg num exceed limit")
             return False
