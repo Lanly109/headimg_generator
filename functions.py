@@ -269,6 +269,14 @@ async def rip(
         )
     return save_jpg(frame)
 
+async def rip_angrily(users: List[UserInfo], **kwargs):
+    img = users[0].newImg
+    img = img.convert("RGBA").square().resize((105, 105))
+    frame = await new_load_image("rip_angrily/0.png")
+    frame.paste(img.rotate(-24, expand=True), (18, 170), below=True)
+    frame.paste(img.rotate(24, expand=True), (163, 65), below=True)
+    return frame.save_jpg()
+
 
 async def throw(users: List[UserInfo], **kwargs) -> BytesIO:
     img = users[0].img
@@ -340,6 +348,41 @@ async def always(users: List[UserInfo], **kwargs) -> BytesIO:
         return frame
 
     return await make_jpg_or_gif(img, make)
+
+async def always_always(users: List[UserInfo], **kwargs):
+    img = users[0].newImg
+    tmp = img.convert("RGBA").resize_width(500)
+    img_h = tmp.height
+    text_h = tmp.resize_width(100).height + tmp.resize_width(20).height + 10
+    text_h = max(text_h, 80)
+    frame_h = img_h + text_h
+    text_frame = BuildImage.new("RGBA", (500, frame_h), "white")
+    text_frame.draw_text(
+        (0, img_h, 280, frame_h), "要我一直", halign="right", max_fontsize=60
+    ).draw_text((400, img_h, 500, frame_h), "吗", halign="left", max_fontsize=60)
+
+    frame_num = 20
+    coeff = 5 ** (1 / frame_num)
+
+    def maker(i: int) -> newMaker:
+        async def make(img: BuildImage) -> BuildImage:
+            img = img.resize_width(500)
+            base_frame = text_frame.copy().paste(img, alpha=True)
+            frame = BuildImage.new("RGBA", base_frame.size, "white")
+            r = coeff**i
+            for _ in range(4):
+                x = int(358 * (1 - r))
+                y = int(frame_h * (1 - r))
+                w = int(500 * r)
+                h = int(frame_h * r)
+                frame.paste(base_frame.resize((w, h)), (x, y))
+                r /= 5
+            return frame
+
+        return make
+
+    functions = [maker(i) for i in range(frame_num)]
+    return await make_gif_or_combined_gif(img, functions, 0.1)
 
 
 async def loading(users: List[UserInfo], **kwargs) -> BytesIO:
@@ -658,6 +701,31 @@ async def wallpaper(users: List[UserInfo], **kwargs) -> BytesIO:
         return frame
 
     return await make_jpg_or_gif(img, make, gif_zoom=0.5)
+
+async def walnut_zoom(users: List[UserInfo], **kwargs):
+    # fmt: off
+    locs = (
+        (-222, 30, 695, 430), (-212, 30, 695, 430), (0, 30, 695, 430), (41, 26, 695, 430),
+        (-100, -67, 922, 570), (-172, -113, 1059, 655), (-273, -192, 1217, 753)
+    )  # (-47, -12, 801, 495),
+    seq = [0, 0, 0, 1, 2, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 4, 4, 4, 4, 5, 6, 6, 6, 6]
+
+    # fmt: on
+
+    img = users[0].newImg
+
+    def maker(i: int) -> newMaker:
+        async def make(img: BuildImage) -> BuildImage:
+            frame = await new_load_image(f"walnut_zoom/{i}.png")
+            x, y, w, h = locs[seq[i]]
+            img = img.resize((w, h), keep_ratio=True).rotate(4.2, expand=True)
+            frame.paste(img, (x, y), below=True)
+            return frame
+
+        return make
+
+    functions = [maker(i) for i in range(24)]
+    return await make_gif_or_combined_gif(img, functions, 0.2)
 
 
 async def china_flag(users: List[UserInfo], **kwargs) -> BytesIO:

@@ -57,6 +57,14 @@ def square(img: IMG) -> IMG:
     length = min(img.width, img.height)
     return cut_size(img, (length, length))
     
+def get_avg_duration(image: IMG) -> float:
+    if not getattr(image, "is_animated", False):
+        return 0
+    total_duration = 0
+    for i in range(image.n_frames):
+        image.seek(i)
+        total_duration += image.info["duration"]
+    return total_duration / image.n_frames
 
 
 async def draw_text(
@@ -511,3 +519,48 @@ async def help_image(commands: List[Command]) -> BytesIO:
 
 def remove_emoji(text):
     return re.sub(emoji.get_emoji_regexp(), "", text)
+
+async def make_gif_or_combined_gif(
+    img: BuildImage, functions: List[newMaker], duration: float
+) -> BytesIO:
+    """
+    使用静图或动图制作gif
+    :params
+      * ``img``: 输入图片，如头像
+      * ``functions``: 图片处理函数数组，每个函数输入img并返回处理后的图片
+      * ``duration``: 相邻帧之间的时间间隔，单位为秒
+    """
+    image = img.image
+    if not getattr(image, "is_animated", False):
+        img = img.convert("RGBA")
+        frames: List[IMG] = []
+        for func in functions:
+            frames.append((await func(img)).image)
+        return save_gif(frames, duration)
+
+    img_frames: List[BuildImage] = []
+    n_frames = image.n_frames
+    img_duration = get_avg_duration(image) / 1000
+
+    n_frame = 0
+    time_start = 0
+    for i in range(len(functions)):
+        while n_frame < n_frames:
+            if (
+                n_frame * img_duration
+                <= i * duration - time_start
+                < (n_frame + 1) * img_duration
+            ):
+                image.seek(n_frame)
+                img_frames.append(BuildImage(image).convert("RGBA"))
+                break
+            else:
+                n_frame += 1
+                if n_frame >= n_frames:
+                    n_frame = 0
+                    time_start += n_frames * img_duration
+
+    frames: List[IMG] = []
+    for func, img_frame in zip(functions, img_frames):
+        frames.append((await func(img_frame)).image)
+    return save_gif(frames, duration)

@@ -7,12 +7,16 @@
 
 ## 更新日志
 
+**2022.10.23**
+- 完善回复触发，适应回复多图情况
+- 新增`怒撕、一直一直、胡桃放大`指令
+
 **2022.10.17**
-- 新增`一起`
-- 现在支持回复触发，逻辑如下：
+- 新增`一起`指令，感谢[@kcn3388](https://github.com/kcn3388)
+- 现在支持回复触发，感谢[@kcn3388](https://github.com/kcn3388)，逻辑如下：
   - 当回复对象是图片时，优先选择图片
   - 否则第一用户对象为回复的人
-- 修复当使用emoji时的报错
+- 修复当使用emoji时的报错，感谢[@kcn3388](https://github.com/kcn3388)
 
 **2022.10.12**
 
@@ -166,6 +170,8 @@ pip install dataclasses
 | 复读                          | <img src="https://s2.loli.net/2022/08/16/E6vgRCt3MSLfAWU.gif" width="200" >  | 复读内容默认为“救命啊”<br>可指定多个目标                                            |
 | 防诱拐                         | <img src="https://s2.loli.net/2022/07/21/ve6lcYaiV4wfhHg.jpg" width="200" >  |                                                                    |
 | 字符画                         | <img src="https://s2.loli.net/2022/07/21/R58eG7mVZWPp1Cy.jpg" width="200" >  | 支持gif                                                              |
+| 催刀 | <img src="https://s2.loli.net/2022/08/07/9UZeilHQWXIf2mF.jpg" width="200" > |  |
+| 共进晚餐 | <img src="https://s2.loli.net/2022/08/07/QSyceaFHwEKVRPX.jpg" width="200" > | |
 | 我老婆                         | <img src="https://s2.loli.net/2022/08/16/7wPht5rp6sk1ZCq.jpg" width="200" >  |                                                                    |
 | 胡桃平板                        | <img src="https://s2.loli.net/2022/08/16/Mc5HvfB6ywqLQiV.jpg" width="200" >  | 支持gif                                                              |
 | 胡桃放大                        | <img src="https://s2.loli.net/2022/10/01/ISotJVp1xOfgvlq.gif" width="200" >  | 支持gif                                                              |
