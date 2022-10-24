@@ -26,7 +26,7 @@ class Func(Protocol):
 @dataclass
 class Command:
     keywords: Tuple[str, ...]
-    prefix_keywords: list[str]
     func: Func
     allow_gif: bool = False
     arg_num: int = 0
+    prefix_keywords: list[str] = []

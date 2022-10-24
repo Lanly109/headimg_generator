@@ -129,9 +129,9 @@ class Handler:
                         if text:
                             args.append(text)
 
-        if args == [] or args[0] not in self.command.prefix_keywords:
+        if not args or args[0] not in self.command.prefix_keywords:
             return False
-        sv.logger.info(f"triggered by {args[0]}")
+        sv.logger.info(f"Message {event.message_id} triggered {args[0].replace(cmd_prefix, '')}")
         args.pop(0)
 
         if len(args) > self.command.arg_num:
