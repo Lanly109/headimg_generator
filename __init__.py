@@ -129,12 +129,11 @@ class Handler:
                         if text:
                             args.append(text)
 
-        if args[0].replace(cmd_prefix, "") in self.command.keywords:
-            args.pop(0)
-        if args:
-            for each_key in self.command.keywords:
-                if f"{cmd_prefix}{each_key}" in args[0]:
-                    args[0] = args[0].replace(f"{cmd_prefix}{each_key}", "")
+        if args == [] or args[0] not in self.command.prefix_keywords:
+            return False
+        sv.logger.info(f"triggered by {args[0]}")
+        args.pop(0)
+
         if len(args) > self.command.arg_num:
             sv.logger.info("arg num exceed limit")
             return False
@@ -164,13 +163,7 @@ class Handler:
 async def register_handler():
     for command in commands:
         func = getattr(sv, "on_keyword")
-        key = command.keywords
-        keys = []
-        if cmd_prefix:
-            for each in key:
-                keys.append(f"{cmd_prefix}{each}")
-        else:
-            keys = key
-        func = func(keys, only_to_me=False)
+        command.prefix_keywords = [f"{cmd_prefix}{each_key}" for each_key in command.keywords]
+        func = func(command.prefix_keywords, only_to_me=False)
         func(Handler(command).handle)
     sv.logger.info('petpet register done.')
