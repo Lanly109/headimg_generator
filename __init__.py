@@ -1,5 +1,4 @@
 import base64
-import copy
 import shlex
 import traceback
 from typing import List
@@ -17,7 +16,8 @@ sv_help = """
 [头像表情包] 发送全部功能帮助
 """
 
-cmd_prefix = ""
+## 触发词前缀，避免参数触发情况
+cmd_prefix = "#"
 
 sv = Service(
     name="头像表情包",
@@ -102,11 +102,16 @@ class Handler:
             elif msg_seg.type == "reply":
                 msg_id = msg_seg.data["id"]
                 source_msg = await sv.bot.get_msg(message_id=int(msg_id))
+                source_qq = str(source_msg['sender']['user_id'])
                 source_msg = source_msg["message"]
                 msgs = Message(source_msg)
+                have_img = False
                 for each_msg in msgs:
                     if each_msg.type == "image":
                         users.append(UserInfo(img_url=each_msg.data["url"]))
+                        have_img = True
+                if not have_img:
+                    users.append(UserInfo(qq=source_qq))
             elif msg_seg.type == "text":
                 raw_text = str(msg_seg)
                 try:

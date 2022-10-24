@@ -9,14 +9,16 @@
 
 **2022.10.23**
 - 完善回复触发，适应回复多图情况
-- 新增`怒撕、一直一直、胡桃放大`指令
+- 新增`怒撕、一直直、胡桃放大`指令
 
 **2022.10.17**
-- 新增`一起`指令，感谢[@kcn3388](https://github.com/kcn3388)
-- 现在支持回复触发，感谢[@kcn3388](https://github.com/kcn3388)，逻辑如下：
+- 新增`一起`指令
+- 现在支持回复触发，逻辑如下：
   - 当回复对象是图片时，优先选择图片
   - 否则第一用户对象为回复的人
-- 修复当使用emoji时的报错，感谢[@kcn3388](https://github.com/kcn3388)
+- 修复当使用emoji时的报错
+- 新增触发词前缀设置(于`__init__.py`的`cmd_prefix`变量，默认触发词前加`#`）避免参数触发情况
+- 以上感谢[@kcn3388](https://github.com/kcn3388)
 
 **2022.10.12**
 
@@ -87,6 +89,7 @@ pip install dataclasses
 ### 触发方式
 
 - 指令 + @user，如： 爬 @小Q
+- 指令 + 回复消息，如： [回复消息] 爬
 - 指令 + qq号，如：爬 123456
 - 指令 + 自己，如：爬 自己
 - 指令 + 图片，如：爬 [图片]
@@ -113,7 +116,7 @@ pip install dataclasses
 | 爬                           | <img src="https://s2.loli.net/2022/02/23/hfmAToDuF2actC1.jpg" width="200" /> | 默认为随机选取一张爬表情<br>可使用数字指定特定表情<br>如：爬 13 自己                           |
 | 精神支柱                        | <img src="https://s2.loli.net/2022/02/23/WwjNmiz4JXbuE1B.jpg" width="200" /> |                                                                    |
 | 一直                          | <img src="https://s2.loli.net/2022/02/23/dAf9Z3kMDwYcRWv.gif" width="200" /> | 支持gif                                                              |
-| 一直一直                        | <img src="https://s2.loli.net/2022/10/15/hn5Q4jm29pXNsrL.gif" width="200" /> | 支持gif                                                              |
+| 一直直                        | <img src="https://s2.loli.net/2022/10/15/hn5Q4jm29pXNsrL.gif" width="200" /> | 支持gif                                                              |
 | 加载中                         | <img src="https://s2.loli.net/2022/02/23/751Oudrah6gBsWe.gif" width="200" /> | 支持gif                                                              |
 | 转                           | <img src="https://s2.loli.net/2022/02/23/HoZaCcDIRgs784Y.gif" width="200" /> |                                                                    |
 | 小天使                         | <img src="https://s2.loli.net/2022/02/23/ZgD1WSMRxLIymCq.jpg" width="200" /> | 图中名字为目标qq昵称<br>可指定名字，如：小天使 meetwq 自己                               |

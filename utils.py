@@ -498,10 +498,10 @@ async def help_image(commands: List[Command]) -> BytesIO:
 
     def cmd_text(cmds: List[Command], start: int = 1) -> str:
         return "\n".join(
-            [f"{i + start}. " + "/".join(cmd.keywords) for i, cmd in enumerate(cmds)]
+            [f"{i + start}. " + "/".join(cmd.prefix_keywords) for i, cmd in enumerate(cmds)]
         )
 
-    text1 = "摸头等头像相关表情制作\n触发方式：指令 + @user/qq/自己/图片\n支持的指令："
+    text1 = "摸头等头像相关表情制作\n触发方式：指令 + @user/qq/自己/图片/回复\n支持的指令："
     idx = math.ceil(len(commands) / 2)
     img1 = text_img(text1)
     text2 = cmd_text(commands[:idx])
