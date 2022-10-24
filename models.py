@@ -1,7 +1,7 @@
 from io import BytesIO
 from PIL import Image
 from PIL.Image import Image as IMG
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import List, Tuple, Protocol
 from typing_extensions import Literal
 from .imageutils import BuildImage
@@ -29,4 +29,4 @@ class Command:
     func: Func
     allow_gif: bool = False
     arg_num: int = 0
-    prefix_keywords: list[str] = []
+    prefix_keywords: list = field(default_factory=list)
