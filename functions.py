@@ -1,12 +1,9 @@
 import random
-from io import BytesIO
-from PIL.Image import Image as IMG
-from PIL import Image, ImageFilter, ImageDraw, ImageOps, ImageEnhance
-from typing import List, Dict, Optional
 from datetime import datetime
-import re
 
-from .imageutils import BuildImage, Text2Image
+from PIL import ImageOps, ImageEnhance
+
+from .imageutils import Text2Image
 from .models import UserInfo
 from .utils import *
 
@@ -2134,3 +2131,28 @@ async def incivilization(users: List[UserInfo], args=None, **kwargs):
     except ValueError:
         raise ValueError(TEXT_TOO_LONG)
     return frame.save_jpg()
+
+
+# noinspection PyUnusedLocal
+async def together(users: List[UserInfo], args=None, **kwargs):
+    if args is None:
+        args = []
+    arg = args[0] if args else None
+    img = users[0].newImg
+    frame = await new_load_image("together/0.png")
+    frame.paste(img.convert("RGBA").resize((63, 63)), (132, 36))
+    text = arg if arg else f"一起玩{users[0].name}吧！"
+    text = remove_emoji(text)
+    try:
+        frame.draw_text(
+            (10, 140, 190, 190),
+            text,
+            weight="bold",
+            max_fontsize=50,
+            min_fontsize=10,
+            allow_wrap=True,
+        )
+    except ValueError:
+        raise ValueError(TEXT_TOO_LONG)
+    return frame.save_jpg()
+

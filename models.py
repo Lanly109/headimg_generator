@@ -29,3 +29,4 @@ class Command:
     func: Func
     allow_gif: bool = False
     arg_num: int = 0
+    prefix_keywords: list[str] = []
