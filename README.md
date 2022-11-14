@@ -8,17 +8,36 @@
 ## 更新日志
 
 **2022.11.14**
-- 占坑，重构代码ing
+
+- 新增随机表情
+  - 同步源repo
+- 新增启用/禁用表情
+  - 同步源repo
+  - 支持同时启用/禁用多个表情
+  - 参数附带`全局`会在全部群禁用
+- 重构代码，现在实现层与源repo移植，简化移植难度
+    - 旧function已全部同步为源仓库，现在所有function都使用buildimage
+        - **注意：不要使用pip安装`nonebot_plugin_imageutils`，该module依赖nonebot2**
+    - 重命名相关库为正常名字，方便后续调整
+    - 部分设置项移至`config.py`
+        - 命令前缀、百度翻译apiID与Key、gif大小限制
+    - 暂时取消移除用户名的emoji，有报错再加回去
+    - 由于`on_keyword`限制，`一直一直`修改为`一一直`
+    - 增加风控提醒
+- 同步至最新表情
+    - 新增`波纹、诈尸、卡比重锤`
 
 **2022.10.23**
+
 - 完善回复触发，适应回复多图情况
 - 新增`怒撕、一直直、胡桃放大`指令
 
 **2022.10.17**
+
 - 新增`一起`指令
 - 现在支持回复触发，逻辑如下：
-  - 当回复对象是图片时，优先选择图片
-  - 否则第一用户对象为回复的人
+    - 当回复对象是图片时，优先选择图片
+    - 否则第一用户对象为回复的人
 - 修复当使用emoji时的报错
 - 新增触发词前缀设置(于`__init__.py`的`cmd_prefix`变量，默认触发词前加`#`）避免参数触发情况
 - 以上感谢[@kcn3388](https://github.com/kcn3388)
@@ -32,8 +51,10 @@
 
 - 新增`这是我的老婆`、`胡桃平板`、`敲黑板`、`上瘾`、`手枪`、`高血压`、`看书`、`遇到困难请拨打`、`迷惑`指令
 -
+
 由于懒得适配旧版的图片处理函数，直接搬了`nonebot-plugin-imageutils`[插件](https://github.com/noneplugin/nonebot-plugin-imageutils)
 ，但字体选择方面还有点问题（新增的指令绘制的都是粗体，且大小似乎无法控制，容易因内容过长而无法绘制）
+
 - 由于搬了`imageutils`插件，`requirements`有所更新，记得安装缺失的插件
 
 **2022.08.07**
@@ -84,7 +105,7 @@ pip install dataclasses
 发送`帮助头像表情包`显示下图的列表：
 
 <div align="left">
-  <img src="https://s2.loli.net/2022/10/15/CiHyoqgI6eKSW9p.jpg" width="400" />
+  <img src="https://s2.loli.net/2022/11/09/xazi1q8JsfEmdhC.jpg" width="400" />
 </div>
 
 > 以下内容摘自原插件README
@@ -98,6 +119,26 @@ pip install dataclasses
 - 指令 + 图片，如：爬 [图片]
 
 前三种触发方式会使用目标qq的头像作为图片
+
+### 随机表情
+
+随机表情 + @user/qq号/自己/图片
+
+如：`随机表情 自己`
+
+会在未禁用的表情中随机选取一个制作表情包
+
+### 表情包开关
+
+群主 / 管理员 / 超级用户 可以启用或禁用某些表情包
+
+发送 `启用表情/禁用表情 [表情名]`，如：`禁用表情 摸`、`启用表情 petpet 贴 爬`
+
+超级用户 可以设置某个表情包的管控模式（黑名单/白名单）
+
+发送 `启用表情 [全局] [表情名]` 可将表情设为黑名单模式；
+
+发送 `禁用表情 [全局] [表情名]` 可将表情设为白名单模式；
 
 ### 支持的指令
 
@@ -119,7 +160,7 @@ pip install dataclasses
 | 爬                           | <img src="https://s2.loli.net/2022/02/23/hfmAToDuF2actC1.jpg" width="200" /> | 默认为随机选取一张爬表情<br>可使用数字指定特定表情<br>如：爬 13 自己                           |
 | 精神支柱                        | <img src="https://s2.loli.net/2022/02/23/WwjNmiz4JXbuE1B.jpg" width="200" /> |                                                                    |
 | 一直                          | <img src="https://s2.loli.net/2022/02/23/dAf9Z3kMDwYcRWv.gif" width="200" /> | 支持gif                                                              |
-| 一直直                        | <img src="https://s2.loli.net/2022/10/15/hn5Q4jm29pXNsrL.gif" width="200" /> | 支持gif                                                              |
+| 一一直                         | <img src="https://s2.loli.net/2022/10/15/hn5Q4jm29pXNsrL.gif" width="200" /> | 支持gif                                                              |
 | 加载中                         | <img src="https://s2.loli.net/2022/02/23/751Oudrah6gBsWe.gif" width="200" /> | 支持gif                                                              |
 | 转                           | <img src="https://s2.loli.net/2022/02/23/HoZaCcDIRgs784Y.gif" width="200" /> |                                                                    |
 | 小天使                         | <img src="https://s2.loli.net/2022/02/23/ZgD1WSMRxLIymCq.jpg" width="200" /> | 图中名字为目标qq昵称<br>可指定名字，如：小天使 meetwq 自己                               |
@@ -175,9 +216,9 @@ pip install dataclasses
 | 小画家                         | <img src="https://s2.loli.net/2022/06/23/KCD73EbgqzWFxr4.jpg" width="200" >  |                                                                    |
 | 复读                          | <img src="https://s2.loli.net/2022/08/16/E6vgRCt3MSLfAWU.gif" width="200" >  | 复读内容默认为“救命啊”<br>可指定多个目标                                            |
 | 防诱拐                         | <img src="https://s2.loli.net/2022/07/21/ve6lcYaiV4wfhHg.jpg" width="200" >  |                                                                    |
-| 字符画                         | <img src="https://s2.loli.net/2022/07/21/R58eG7mVZWPp1Cy.jpg" width="200" >  | 支持gif                                                              |
-| 催刀 | <img src="https://s2.loli.net/2022/08/07/9UZeilHQWXIf2mF.jpg" width="200" > |  |
-| 共进晚餐 | <img src="https://s2.loli.net/2022/08/07/QSyceaFHwEKVRPX.jpg" width="200" > | |
+| 字符画                         | <img src="https://s2.loli.net/2022/07/21/R58eG7mVZWPp1Cy.jpg" width="200" >  | 支持gif                                                              |                                                          |
+| 催刀                          | <img src="https://s2.loli.net/2022/08/07/9UZeilHQWXIf2mF.jpg" width="200" >  |                                                                    |
+| 共进晚餐                        | <img src="https://s2.loli.net/2022/08/07/QSyceaFHwEKVRPX.jpg" width="200" >  |                                                                    |
 | 我老婆                         | <img src="https://s2.loli.net/2022/08/16/7wPht5rp6sk1ZCq.jpg" width="200" >  |                                                                    |
 | 胡桃平板                        | <img src="https://s2.loli.net/2022/08/16/Mc5HvfB6ywqLQiV.jpg" width="200" >  | 支持gif                                                              |
 | 胡桃放大                        | <img src="https://s2.loli.net/2022/10/01/ISotJVp1xOfgvlq.gif" width="200" >  | 支持gif                                                              |
@@ -200,5 +241,8 @@ pip install dataclasses
 | 急急国王                        | <img src="https://s2.loli.net/2022/10/11/RqFP8Gtr2CQmSTU.jpg" width="200" >  | 可指定方块中的字和描述<br>可用多个图片替代方块                                          |
 | 不文明                         | <img src="https://s2.loli.net/2022/10/15/XBqrksgCcAx1YaH.jpg" width="200" >  |                                                                    |
 | 一起                          | <img src="https://s2.loli.net/2022/10/15/Ujt7avy9d5TfOlW.jpg" width="200" >  |                                                                    |
+| 波纹                          | <img src="https://s2.loli.net/2022/11/09/hTnrF1e5gaYbxsX.gif" width="200" >  | 支持gif                                                              |
+| 诈尸<br>秽土转生                  | <img src="https://s2.loli.net/2022/11/09/z2alEPjdsrNSyMU.gif" width="200" >  |                                                                    |
+| 卡比锤<br>卡比重锤                 | <img src="https://s2.loli.net/2022/11/09/ouF5MxzQaqjC64d.gif" width="200" >  | 支持gif<br>可使用参数“圆”让头像为圆形                                            |
 
 </details>

@@ -6,3 +6,5 @@ dist/
 *.otf
 images/
 fonts/
+*.json
+.idea/

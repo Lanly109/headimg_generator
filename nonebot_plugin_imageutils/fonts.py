@@ -1,36 +1,29 @@
-import anyio
-import httpx
 import shutil
 import traceback
-from pathlib import Path
-from PIL import ImageFont
-from functools import lru_cache
-from fontTools.ttLib import TTFont
 from collections import namedtuple
+from functools import lru_cache
+from typing import Optional, Set, Iterator
+
+import anyio
+import httpx
+from PIL import ImageFont
 from PIL.ImageFont import FreeTypeFont
-from matplotlib.ft2font import FT2Font
-from typing import List, Union, Optional, Set, Iterator
+from fontTools.ttLib import TTFont
+from hoshino import logger
 from matplotlib.font_manager import FontManager, FontProperties
-import os
+from matplotlib.ft2font import FT2Font
 
-from hoshino.log import new_logger
-
-from .config import Config
+from .config import *
 from .types import *
 
-imageutils_config = Config()
-
-data_path = Path() / os.path.dirname(__file__) / '..' / 'resources'
-
-FONT_PATH = data_path / "fonts"
-FONT_PATH.mkdir(parents=True, exist_ok=True)
+FONT_PATH = custom_font_path
 
 font_manager = FontManager()
 
-logger = new_logger("imageutils_fonts")
-
 
 def local_fonts() -> Iterator[str]:
+    if not FONT_PATH.exists():
+        return
     for f in FONT_PATH.iterdir():
         if f.is_file() and f.suffix in [".otf", ".ttf", ".ttc", ".afm"]:
             yield f.name
@@ -93,8 +86,7 @@ class Font:
     @classmethod
     def find_local_font(cls, name: str) -> Optional["Font"]:
         """查找插件路径下的字体"""
-        for fontname in local_fonts():
-            print(fontname, name)
+        for fontname in local_fonts():  # noqa
             if name == fontname or name == fontname.split(".")[0]:
                 fontpath = FONT_PATH / fontname
                 return cls(fontname, fontpath)
@@ -125,7 +117,7 @@ class Font:
 
         if family in SPECIAL_FONTS:
             prop = SPECIAL_FONTS[family]
-            fontname = prop.fontname
+            fontname = prop.fontname  # noqa
             valid_size = prop.valid_size
             fontpath = None
             if fontname in local_fonts():
@@ -150,15 +142,15 @@ class Font:
         return ord(char) in self._glyph_table
 
 
-default_fallback_fonts = imageutils_config.default_fallback_fonts
+default_fallback_fonts = default_fallback_fonts
 
 
 def get_proper_font(
     char: str,
     style: FontStyle = "normal",
     weight: FontWeight = "normal",
-    fontname: Optional[str] = None,
-    fallback_fonts: List[str] = [],
+    fontname: Optional[str] = None,  # noqa
+    fallback_fonts: List[str] = [],  # noqa
 ) -> Font:
     """
     获取合适的字体，将依次检查备选字体是否支持想要的字符
@@ -181,7 +173,7 @@ def get_proper_font(
             logger.info(str(e))
             try:
                 default_fallback_fonts.remove(family)
-            except:
+            except:  # noqa
                 pass
             continue
         if font.has_char(char):
@@ -191,11 +183,12 @@ def get_proper_font(
     return Font.find("serif", style, weight)
 
 
-async def add_font(fontname: str, source: Union[str, Path]):
+async def add_font(fontname: str, source: Union[str, Path]):  # noqa
     """通过字体文件路径或下载链接添加字体到插件路径"""
     fontpath = FONT_PATH / fontname
     if fontpath.exists():
         return
+    FONT_PATH.mkdir(parents=True, exist_ok=True)
     try:
         if isinstance(source, Path):
             if source.is_file():
@@ -203,7 +196,7 @@ async def add_font(fontname: str, source: Union[str, Path]):
         else:
             await download_font(source, fontpath)
         add_font_to_manager(fontpath)
-    except:
+    except:  # noqa
         logger.warning(
             f"Add font {fontname} from {source} failed\n{traceback.format_exc()}"
         )
