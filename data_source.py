@@ -17,7 +17,7 @@ commands = [
     Command(("爬", "爪巴"), crawl, arg_num=1),
     Command(("精神支柱",), support),
     Command(("一直",), always, allow_gif=True),
-    Command(("一一直",), always_always, allow_gif=True),
+    Command(("一直一直",), always_always, allow_gif=True),
     Command(("加载中",), loading, allow_gif=True),
     Command(("转",), turn),
     Command(("小天使",), littleangel, arg_num=1),

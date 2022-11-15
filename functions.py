@@ -388,7 +388,7 @@ async def always_always(users: List[UserInfo], **kwargs):
         return make
 
     return await make_gif_or_combined_gif(
-        user_img, maker, frame_num, 0.1, FrameAlignPolicy.extend_loop
+        user_img, maker, frame_num, 0.08, FrameAlignPolicy.extend_loop
     )
 
 
