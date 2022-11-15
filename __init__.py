@@ -91,7 +91,7 @@ class Handler:
         handle_group = str(event.group_id)
         for command in self.commands:
             if raw_msg[0] in command.prefix_keywords or raw_msg[0] == "随机表情":
-                if raw_msg[0] == "随机表情" is not None:
+                if raw_msg[0] == "随机表情":
                     command = random.choice(commands)
                     await bot.send(event, f"随机到了{command.keywords[0]}")
                 # 回复前置处理
