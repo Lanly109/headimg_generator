@@ -86,6 +86,8 @@ class Handler:
         args: List[str] = []
         msg = event.message
         raw_msg = event.message.extract_plain_text().strip().split()
+        if not raw_msg:
+            raw_msg = [""]
         handle_group = str(event.group_id)
         for command in self.commands:
             if raw_msg[0] in command.prefix_keywords or raw_msg[0] == "随机表情":
