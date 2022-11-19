@@ -1,11 +1,7 @@
-from io import BytesIO
-from typing import List
-
 from .download import download_url, download_avatar
-from .utils import to_image
-from .models import UserInfo, Command
 from .functions import *
 
+# noinspection PyTypeChecker
 commands = [
     Command(("图片操作",), operations, allow_gif=True, arg_num=2),
     Command(("万能表情",), universal, allow_gif=True, arg_num=10),
@@ -14,14 +10,14 @@ commands = [
     Command(("贴", "贴贴", "蹭", "蹭蹭"), rub),
     Command(("顶", "玩"), play),
     Command(("拍",), pat),
-    Command(("撕",), rip, arg_num=2),
+    Command(("撕",), rip, arg_num=1),
     Command(("怒撕",), rip_angrily),
     Command(("丢", "扔"), throw),
     Command(("抛", "掷"), throw_gif),
-    Command(("爬",), crawl, arg_num=1),
+    Command(("爬", "爪巴"), crawl, arg_num=1),
     Command(("精神支柱",), support),
     Command(("一直",), always, allow_gif=True),
-    Command(("一直直",), always_always, allow_gif=True),
+    Command(("一直一直",), always_always, allow_gif=True),
     Command(("加载中",), loading, allow_gif=True),
     Command(("转",), turn),
     Command(("小天使",), littleangel, arg_num=1),
@@ -51,7 +47,7 @@ commands = [
     Command(("典中典",), dianzhongdian, arg_num=3),
     Command(("哈哈镜",), funny_mirror),
     Command(("永远爱你",), love_you),
-    Command(("对称",), symmetric, arg_num=1),
+    Command(("对称",), symmetric, allow_gif=True, arg_num=1),
     Command(("安全感",), safe_sense, arg_num=2),
     Command(("永远喜欢", "我永远喜欢"), always_like, arg_num=10),
     Command(("采访",), interview, arg_num=1),
@@ -73,35 +69,39 @@ commands = [
     Command(("阿尼亚喜欢",), anyasuki, arg_num=1, allow_gif=True),
     Command(("想什么",), thinkwhat, allow_gif=True),
     Command(("远离",), keepaway),
-    Command(("结婚申请","结婚登记"), marriage),
+    Command(("结婚申请", "结婚登记"), marriage),
     Command(("小画家",), painter),
-    Command(("复读",), repeat,arg_num=1,),
+    Command(("复读",), repeat, arg_num=1, ),
     Command(("防诱拐",), anti_kidnap),
-    Command(("字符画",), charpic),
-    Command(("催刀","快出刀"), cuidao, arg_num=1),
-    Command(("共进午餐","共进晚餐"), have_lunch),
-    Command(("这是我的老婆", "我老婆"), mywife),
-    Command(("胡桃平板",), walnutpad),
-    Command(("胡桃放大",), walnut_zoom),
-    Command(("讲课", "敲黑板"), teach, arg_num=1),
-    Command(("上瘾", "毒瘾发作"), addition, arg_num=1),
+    Command(("字符画",), charpic, allow_gif=True),
+    Command(("催刀", "快出刀"), cuidao, arg_num=1),
+    Command(("共进午餐", "共进晚餐"), have_lunch),
+    Command(("这是我的老婆",), mywife),
+    Command(("胡桃平板",), walnutpad, allow_gif=True),
+    Command(("胡桃放大",), walnut_zoom, allow_gif=True),
+    Command(("讲课", "敲黑板"), teach, allow_gif=True, arg_num=1),
+    Command(("上瘾", "毒瘾发作"), addition, allow_gif=True, arg_num=1),
     Command(("手枪",), gun),
-    Command(("高血压",), blood_pressure),
+    Command(("高血压",), blood_pressure, allow_gif=True),
     Command(("看书",), read_book, arg_num=1),
     Command(("遇到困难请拨打",), call_110),
-    Command(("迷惑",), confuse),
-    Command(("打穿", "打穿屏幕"), hit_screen),
-    Command(("击剑", "🤺", ), fencing),
+    Command(("迷惑",), confuse, allow_gif=True),
+    Command(("打穿", "打穿屏幕"), hit_screen, allow_gif=True),
+    Command(("击剑", "🤺",), fencing),
     Command(("抱大腿",), hug_leg),
     Command(("唐可可举牌",), tankuku_holdsign),
     Command(("无响应",), no_response),
     Command(("抱紧",), hold_tight),
-    Command(("看扁",), look_flat, arg_num=2),
-    Command(("看图标",), look_this_icon, arg_num=1),
+    Command(("看扁",), look_flat, allow_gif=True, arg_num=2),
+    Command(("看图标",), look_this_icon, allow_gif=True, arg_num=1),
     Command(("舰长",), captain),
     Command(("急急国王",), jiji_king, arg_num=2),
     Command(("不文明",), incivilization, arg_num=1),
     Command(("一起",), together, arg_num=1),
+    Command(("波纹",), wave, allow_gif=True),
+    Command(("诈尸", "秽土转生"), rise_dead),
+    Command(("卡比锤", "卡比重锤"), kirby_hammer, allow_gif=True, arg_num=1),
+
 ]
 
 
@@ -113,13 +113,28 @@ async def download_image(user: UserInfo, allow_gif: bool = False):
         img = await download_url(user.img_url)
 
     if img:
-        user.img = to_image(img, allow_gif)
-        user.newImg = BuildImage.open(BytesIO(img))
+        def to_jpg(frame: IMG, bg_color=(255, 255, 255)) -> IMG:
+            if frame.mode == "RGBA":
+                bg = Image.new("RGB", frame.size, bg_color)
+                bg.paste(frame, mask=frame.split()[3])
+                return bg
+            else:
+                return frame.convert("RGB")
+
+        def to_image(data: bytes, is_allow_gif: bool = False) -> IMG:
+            image = Image.open(BytesIO(data))
+            if not is_allow_gif:
+                image = to_jpg(image).convert("RGBA")
+            return image
+
+        user.img = BuildImage(to_image(img, allow_gif))
 
 
 async def make_image(
-    command: Command, sender: UserInfo, users: List[UserInfo], args: List[str] = []
+        command: Command, sender: UserInfo, users: List[UserInfo], args=None
 ) -> BytesIO:
+    if args is None:
+        args = []
     await download_image(sender, command.allow_gif)
     for user in users:
         await download_image(user, command.allow_gif)

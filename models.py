@@ -1,21 +1,20 @@
 from io import BytesIO
-from PIL import Image
-from PIL.Image import Image as IMG
 from dataclasses import dataclass, field
 from typing import List, Tuple, Protocol
-from typing_extensions import Literal
-from .imageutils import BuildImage
+from .nonebot_plugin_imageutils import BuildImage
 
 
+@dataclass
 class UserInfo:
-    def __init__(self, qq: str = "", group: str = "", img_url: str = ""):
+    def __init__(self, qq: str = "", group: str = "", img_url: str = "", bot_qq=""):
         self.qq: str = qq
         self.group: str = group
         self.name: str = ""
-        self.gender: Literal["male", "female", "unknown"] = "unknown"
+        self.gender: str = ""  # male 或 female 或 unknown
         self.img_url: str = img_url
-        self.img: IMG = Image.new("RGBA", (640, 640))
-        self.newImg: BuildImage = BuildImage.new("RGBA", (640, 640))
+        # self.img: IMG = Image.new("RGBA", (640, 640))
+        self.bot_qq: str = bot_qq
+        self.img: BuildImage = BuildImage.new("RGBA", (640, 640))
 
 
 class Func(Protocol):

@@ -1,5 +1,4 @@
-from typing import Tuple, Union
-from typing_extensions import Literal
+from typing import Tuple, Union, Literal
 
 
 ModeType = Literal[

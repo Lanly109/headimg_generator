@@ -1,7 +1,7 @@
 import re
 from bbcode import Parser
 from PIL import Image, ImageDraw
-from PIL.Image import Image as IMG
+from PIL.Image import Image as IMG  # noqa
 from PIL.ImageColor import colormap
 from typing import List, Optional, Iterator
 
@@ -11,13 +11,13 @@ from .fonts import Font, get_proper_font
 
 class Char:
     def __init__(
-        self,
-        char: str,
-        font: Font,
-        fontsize: int = 16,
-        fill: ColorType = "black",
-        stroke_width: int = 0,
-        stroke_fill: Optional[ColorType] = None,
+            self,
+            char: str,
+            font: Font,
+            fontsize: int = 16,
+            fill: ColorType = "black",
+            stroke_width: int = 0,
+            stroke_fill: Optional[ColorType] = None,
     ):
         self.char = char
         self.font = font
@@ -39,10 +39,10 @@ class Char:
 
         if self.font.valid_size:
             ratio = fontsize / self.font.valid_size
-            self.ascent *= ratio
-            self.descent *= ratio
-            self.width *= ratio
-            self.height *= ratio
+            self.ascent = round(self.ascent * ratio)
+            self.descent = round(self.descent * ratio)
+            self.width = round(self.width * ratio)
+            self.height = round(self.height * ratio)
 
     def draw_on(self, img: IMG, pos: PosTypeInt):
         if self.font.valid_size:
@@ -77,7 +77,7 @@ class Char:
 
 class Line:
     def __init__(
-        self, chars: List[Char], align: HAlignType = "left", fontsize: int = 16
+            self, chars: List[Char], align: HAlignType = "left", fontsize: int = 16
     ):
         self.chars: List[Char] = chars
         self.align: HAlignType = align
@@ -88,16 +88,18 @@ class Line:
         if not self.chars:
             return 0
         return (
-            sum([char.width - char.stroke_width * 2 for char in self.chars])
-            + self.chars[0].stroke_width
-            + self.chars[-1].stroke_width
+                sum([char.width - char.stroke_width * 2 for char in self.chars])
+                + self.chars[0].stroke_width
+                + self.chars[-1].stroke_width
         )
 
     @property
     def height(self) -> int:
         if not self.chars:
             return Char("A", get_proper_font("A"), fontsize=self.fontsize).height
-        return max([char.height for char in self.chars])
+        return max([char.ascent + char.stroke_width for char in self.chars]) + max(
+            [char.descent + char.stroke_width for char in self.chars]
+        )
 
     @property
     def ascent(self) -> int:
@@ -114,7 +116,7 @@ class Line:
     def wrap(self, width: float) -> Iterator["Line"]:
         last_idx = 0
         for idx in range(len(self.chars)):
-            if Line(self.chars[last_idx : idx + 1]).width > width:
+            if Line(self.chars[last_idx: idx + 1]).width > width:
                 yield Line(self.chars[last_idx:idx], self.align)
                 last_idx = idx
         yield Line(self.chars[last_idx:], self.align)
@@ -127,19 +129,19 @@ class Text2Image:
 
     @classmethod
     def from_text(
-        cls,
-        text: str,
-        fontsize: int,
-        style: FontStyle = "normal",
-        weight: FontWeight = "normal",
-        fill: ColorType = "black",
-        spacing: int = 4,
-        align: HAlignType = "left",
-        stroke_width: int = 0,
-        stroke_fill: Optional[ColorType] = None,
-        font_fallback: bool = True,
-        fontname: str = "",
-        fallback_fonts: List[str] = [],
+            cls,
+            text: str,
+            fontsize: int,
+            style: FontStyle = "normal",
+            weight: FontWeight = "normal",
+            fill: ColorType = "black",
+            spacing: int = 4,
+            align: HAlignType = "left",
+            stroke_width: int = 0,
+            stroke_fill: Optional[ColorType] = None,
+            font_fallback: bool = True,
+            fontname: str = "",
+            fallback_fonts: List[str] = [],  # noqa
     ) -> "Text2Image":
         """
         从文本构建 `Text2Image` 对象
@@ -185,15 +187,17 @@ class Text2Image:
 
     @classmethod
     def from_bbcode_text(
-        cls,
-        text: str,
-        fontsize: int = 30,
-        fill: ColorType = "black",
-        spacing: int = 6,
-        align: HAlignType = "left",
-        font_fallback: bool = True,
-        fontname: str = "",
-        fallback_fonts: List[str] = [],
+            cls,
+            text: str,
+            fontsize: int = 30,
+            fill: ColorType = "black",
+            spacing: int = 6,
+            align: HAlignType = "left",
+            stroke_ratio: float = 0,
+            stroke_fill: Optional[ColorType] = None,
+            font_fallback: bool = True,
+            fontname: str = "",
+            fallback_fonts: List[str] = [],  # noqa
     ) -> "Text2Image":
         """
         从含有 `BBCode` 的文本构建 `Text2Image` 对象
@@ -201,7 +205,8 @@ class Text2Image:
         目前支持的 `BBCode` 标签：
           * ``[align=left|right|center][/align]``: 文字对齐方式
           * ``[color=#66CCFF|red|black][/color]``: 字体颜色
-          * ``[font=msyh.ttc][/font]``: 文字字体，需填写完整字体文件名
+          * ``[stroke=#66CCFF|red|black][/stroke]``: 描边颜色
+          * ``[font=msyh.ttc][/font]``: 文字字体
           * ``[size=30][/size]``: 文字大小
           * ``[b][/b]``: 文字加粗
 
@@ -211,6 +216,8 @@ class Text2Image:
           * ``fill``: 文字颜色，默认为 `black`
           * ``spacing``: 多行文字间距
           * ``align``: 多行文字对齐方式，默认为靠左
+          * ``stroke_ratio``: 文字描边的比例，即 描边宽度 / 字体大小
+          * ``stroke_fill``: 描边颜色
           * ``font_fallback``: 是否使用后备字体，默认为 `True`
           * ``fontname``: 指定首选字体
           * ``fallback_fonts``: 指定备选字体
@@ -231,23 +238,26 @@ class Text2Image:
             lines.append(Line(chars, last_align, fontsize))
             chars = []
 
-        align_stack = []
-        color_stack = []
-        font_stack = []
-        size_stack = []
-        bold_stack = []
+        align_stack: List[HAlignType] = []
+        color_stack: List[ColorType] = []
+        stroke_stack: List[ColorType] = []
+        font_stack: List[str] = []
+        size_stack: List[int] = []
+        bold_stack: List[bool] = []
         last_align: HAlignType = align
 
         align_pattern = r"left|right|center"
         colors = "|".join(colormap.keys())
         color_pattern = rf"#[a-fA-F0-9]{{6}}|{colors}"
-        font_pattern = r"\S+\.ttf|\S+\.ttc|\S+\.otf|\S+\.fnt"
+        stroke_pattern = color_pattern
+        font_pattern = r".+"
         size_pattern = r"\d+"
 
         parser = Parser()
         parser.recognized_tags = {}
         parser.add_formatter("align", None)
         parser.add_formatter("color", None)
+        parser.add_formatter("stroke", None)
         parser.add_formatter("font", None)
         parser.add_formatter("size", None)
         parser.add_formatter("b", None)
@@ -262,12 +272,15 @@ class Text2Image:
                 elif tag_name == "color":
                     if re.fullmatch(color_pattern, tag_opts["color"]):
                         color_stack.append(tag_opts["color"])
+                elif tag_name == "stroke":
+                    if re.fullmatch(stroke_pattern, tag_opts["stroke"]):
+                        stroke_stack.append(tag_opts["stroke"])
                 elif tag_name == "font":
                     if re.fullmatch(font_pattern, tag_opts["font"]):
                         font_stack.append(tag_opts["font"])
                 elif tag_name == "size":
                     if re.fullmatch(size_pattern, tag_opts["size"]):
-                        size_stack.append(tag_opts["size"])
+                        size_stack.append(int(tag_opts["size"]))
                 elif tag_name == "b":
                     bold_stack.append(True)
             elif token_type == 2:
@@ -277,6 +290,9 @@ class Text2Image:
                 elif tag_name == "color":
                     if color_stack:
                         color_stack.pop()
+                elif tag_name == "stroke":
+                    if stroke_stack:
+                        stroke_stack.pop()
                 elif tag_name == "font":
                     if font_stack:
                         font_stack.pop()
@@ -291,6 +307,7 @@ class Text2Image:
             elif token_type == 4:
                 char_align = align_stack[-1] if align_stack else align
                 char_color = color_stack[-1] if color_stack else fill
+                char_stroke = stroke_stack[-1] if stroke_stack else stroke_fill
                 char_font = font_stack[-1] if font_stack else fontname
                 char_size = size_stack[-1] if size_stack else fontsize
                 char_bold = bold_stack[-1] if bold_stack else False
@@ -303,13 +320,22 @@ class Text2Image:
                     if font_fallback:
                         font = get_proper_font(
                             char,
-                            weight="bold" if char_bold else "normal",
+                            weight="bold" if char_bold else "normal",  # noqa
                             fontname=char_font,
                             fallback_fonts=fallback_fonts,
                         )
                     else:
                         assert font
-                    chars.append(Char(char, font, int(char_size), char_color))
+                    chars.append(
+                        Char(
+                            char,
+                            font,
+                            int(char_size),
+                            char_color,
+                            int(char_size * stroke_ratio),
+                            char_stroke,
+                        )
+                    )
 
         if chars:
             new_line()
@@ -327,9 +353,11 @@ class Text2Image:
         if not self.lines:
             return 0
         return (
-            sum([line.ascent for line in self.lines])
-            + self.lines[-1].descent
-            + self.spacing * (len(self.lines) - 1)
+                sum([line.ascent for line in self.lines])
+                + self.lines[-1].descent
+                + self.spacing * (len(self.lines) - 1)
+                + max([char.stroke_width for char in self.lines[0].chars])
+                + max([char.stroke_width for char in self.lines[-1].chars])
         )
 
     def wrap(self, width: float) -> "Text2Image":
@@ -340,17 +368,28 @@ class Text2Image:
         return self
 
     def to_image(
-        self, bg_color: Optional[ColorType] = None, padding: SizeType = (0, 0)
+            self,
+            bg_color: Optional[ColorType] = None,
+            padding: Union[SizeType, BoxType] = (0, 0),
     ) -> IMG:
+        if len(padding) == 4:
+            padding_left, padding_top, padding_right, padding_bottom = padding
+        else:
+            padding_left = padding_right = padding[0]
+            padding_top = padding_bottom = padding[1]
+
         img = Image.new(
             "RGBA",
-            (int(self.width + padding[0] * 2), int(self.height + padding[1] * 2)),
+            (
+                self.width + padding_left + padding_right,
+                self.height + padding_top + padding_bottom,
+            ),
             bg_color,  # type: ignore
         )
 
-        top = padding[1]
+        top = padding_top
         for line in self.lines:
-            left = padding[0]  # "left"
+            left = padding_left
             if line.align == "center":
                 left += (self.width - line.width) / 2
             elif line.align == "right":
@@ -367,14 +406,32 @@ class Text2Image:
 
         return img
 
+    def draw_on_image(self, img: IMG, pos: PosTypeFloat):
+        top = pos[1]
+        for line in self.lines:
+            left = pos[0]
+            if line.align == "center":
+                left += (self.width - line.width) / 2
+            elif line.align == "right":
+                left += self.width - line.width
+
+            x = left
+            if line.chars:
+                x += line.chars[0].stroke_width
+            for char in line.chars:
+                y = top + line.ascent - char.ascent
+                char.draw_on(img, (int(x), int(y)))
+                x += char.width - char.stroke_width * 2
+            top += line.ascent + self.spacing
+
 
 def text2image(
-    text: str,
-    bg_color: ColorType = "white",
-    padding: SizeType = (10, 10),
-    max_width: Optional[int] = None,
-    font_fallback: bool = True,
-    **kwargs,
+        text: str,
+        bg_color: ColorType = "white",
+        padding: Union[SizeType, BoxType] = (10, 10),
+        max_width: Optional[int] = None,
+        font_fallback: bool = True,
+        **kwargs,
 ) -> IMG:
     """
     文字转图片，支持少量 `BBCode` 标签，具体见 `Text2Image` 类的 `from_bbcode_text` 函数
