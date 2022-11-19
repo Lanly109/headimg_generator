@@ -93,7 +93,7 @@ async def make_jpg_or_gif(
         frames: List[IMG] = []
         for i in range(image.n_frames):
             image.seek(i)
-            frames.append((await func(BuildImage(image).convert("RGBA"))).image)
+            frames.append((await func(BuildImage(image))).image)
         if keep_transparency:
             image.seek(0)
             frames[0].info["transparency"] = image.info.get("transparency", 0)
@@ -137,7 +137,6 @@ async def make_gif_or_combined_gif(
     """
     image = img.image
     if not getattr(image, "is_animated", False):
-        img = img.convert("RGBA")
         return save_gif([(await maker(i)(img)).image for i in range(frame_num)], duration)
 
     frame_num_in = image.n_frames
@@ -207,7 +206,7 @@ async def make_gif_or_combined_gif(
 
                 func = maker(idx_maker)
                 image.seek(idx_in)
-                frames.append((await func(BuildImage(image).convert("RGBA"))).image)
+                frames.append((await func(BuildImage(image))).image)
                 break
             else:
                 frame_idx_fit += 1
