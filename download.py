@@ -1,11 +1,12 @@
-import httpx
 import hashlib
-import aiofiles
-from aiocache import cached
-import os
+import hoshino
 import json
+import os
 from pathlib import Path
 
+import aiofiles
+import httpx
+from aiocache import cached
 
 data_path = Path() / os.path.dirname(__file__) / 'resources'
 
@@ -27,9 +28,10 @@ async def download_url(url: str) -> bytes:
                     continue
                 return resp.content
             except Exception as e:
-                # sv.logger.warning(f"Error downloading {url}, retry {i}/3: {e}")
-                print(f"Error downloading {url}, retry {i}/3: {str(e)}")
+                hoshino.logger.warning(f"Error downloading {url}, retry {i}/3: {e}")
+                # print(f"Error downloading {url}, retry {i}/3: {str(e)}")
     raise DownloadError
+
 
 def resource_url(path: str) -> str:
     return f"https://ghproxy.com/https://raw.githubusercontent.com/Lanly109/headimg_generator/resources/{path}"
@@ -48,8 +50,8 @@ async def check_resources():
         file_path = data_path / file_name
         file_hash = str(resource["hash"])
         if (
-            file_path.exists()
-            and hashlib.md5(file_path.read_bytes()).hexdigest() == file_hash
+                file_path.exists()
+                and hashlib.md5(file_path.read_bytes()).hexdigest() == file_hash
         ):
             continue
         print(f"Downloading {file_name} ...")
@@ -60,6 +62,7 @@ async def check_resources():
                 f.write(data)
         except Exception as e:
             print(str(e))
+
 
 async def get_resource(path: str, name: str) -> bytes:
     file_path = data_path / path / name
@@ -81,10 +84,10 @@ async def get_font(name: str) -> bytes:
 
 @cached(ttl=60)
 async def download_avatar(user_id: str) -> bytes:
-    url = f"http://q1.qlogo.cn/g?b=qq&nk={user_id}&s=640"
+    url = f"https://q1.qlogo.cn/g?b=qq&nk={user_id}&s=640"
     data = await download_url(url)
     if not data or hashlib.md5(data).hexdigest() == "acef72340ac0e914090bd35799f5594e":
-        url = f"http://q1.qlogo.cn/g?b=qq&nk={user_id}&s=100"
+        url = f"https://q1.qlogo.cn/g?b=qq&nk={user_id}&s=100"
         data = await download_url(url)
         if not data:
             raise DownloadError
