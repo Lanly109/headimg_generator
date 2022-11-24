@@ -10,10 +10,10 @@ from typing import List
 import aiocqhttp
 from nonebot import on_startup
 
-from hoshino import HoshinoBot, Service, priv, Message
-from hoshino.typing import CQEvent, MessageSegment
+from hoshino import HoshinoBot, Service, priv
+from hoshino.typing import CQEvent, MessageSegment, Message
 from .config import petpet_command_start as cmd_prefix
-from .data_source import commands, make_image, SPECIAL_DETAIL_HELP
+from .data_source import commands, make_image
 from .download import DownloadError, ResourceError
 from .models import UserInfo
 from .utils import help_image
