@@ -7,6 +7,7 @@ from pathlib import Path
 import aiofiles
 import httpx
 from aiocache import cached
+from .config import *
 
 data_path = Path() / os.path.dirname(__file__) / 'resources'
 
@@ -33,12 +34,8 @@ async def download_url(url: str) -> bytes:
     raise DownloadError
 
 
-def resource_url(path: str) -> str:
-    return f"https://ghproxy.com/https://raw.githubusercontent.com/Lanly109/headimg_generator/resources/{path}"
-
-
 async def download_resource(path: str) -> bytes:
-    return await download_url(resource_url(path))
+    return await download_url(f"{petpet_resource_url}{path}")
 
 
 async def check_resources():

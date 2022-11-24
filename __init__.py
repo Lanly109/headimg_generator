@@ -12,7 +12,7 @@ from nonebot import on_startup
 
 from hoshino import HoshinoBot, Service, priv
 from hoshino.typing import CQEvent, MessageSegment, Message
-from .config import petpet_command_start as cmd_prefix
+from .config import petpet_disabled_list, petpet_command_start as cmd_prefix
 from .data_source import commands, make_image
 from .download import DownloadError, ResourceError
 from .models import UserInfo
@@ -157,6 +157,9 @@ class Handler:
 
                 if handle_group not in banned_command:
                     banned_command[handle_group] = []
+                if command.keywords[0] in petpet_disabled_list:
+                    sv.logger.info(f"{args[0].replace(cmd_prefix, '')}已在配置文件中禁用")
+                    return
                 if command.keywords[0] in banned_command["global"]:
                     sv.logger.info(f"{args[0].replace(cmd_prefix, '')}已被全局禁用")
                     return

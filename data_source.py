@@ -101,6 +101,8 @@ commands = [
     Command(("波纹",), wave, allow_gif=True),
     Command(("诈尸", "秽土转生"), rise_dead),
     Command(("卡比锤", "卡比重锤"), kirby_hammer, allow_gif=True, arg_num=1),
+    Command(("木鱼",), wooden_fish),
+    Command(("凯露指",), karyl_point),
 
 ]
 

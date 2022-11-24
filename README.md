@@ -6,6 +6,17 @@
 ，感谢[@MeetWq](https://github.com/MeetWq)以及参与该项目的所有成员！
 
 ## 更新日志
+**2022.11.24**
+- 增加`木鱼`，`凯露指`
+- 同步源仓库，设置项新增：
+  - `petpet_resource_url`
+    - 类型：`str`
+    - 默认：`https://ghproxy.com/https://raw.githubusercontent.com/noneplugin/nonebot-plugin-petpet/v0.3.x/resources/`
+    - 说明：资源下载链接，默认为使用`ghproxy`代理的github仓库链接
+  - `petpet_disabled_list`
+    - 类型：`List[str]`
+    - 默认：`[]`
+    - 说明：禁用的表情包列表，需填写需要禁用的表情的第一个触发词，表情名称可以在`data_source.py`文件中查看。若只是临时关闭，可以用下文中的“表情包开关”
 
 **2022.11.15**
 - 切换handle为`on_message`，彻底解决`一直`与`一直一直`冲突的问题。感谢[@kcn3388](https://github.com/kcn3388)
@@ -25,7 +36,7 @@
     - 部分设置项移至`config.py`
         - 命令前缀、百度翻译apiID与Key、gif大小限制
     - 暂时取消移除用户名的emoji，有报错再加回去
-    - 由于`on_keyword`限制，`一直一直`修改为`一一直`
+    - ~~由于`on_keyword`限制，`一直一直`修改为`一一直`~~
     - 增加风控提醒
 - 同步至最新表情
     - 新增`波纹、诈尸、卡比重锤`
@@ -111,6 +122,47 @@ pip install dataclasses
 </div>
 
 > 以下内容摘自原插件README
+
+### 配置项
+
+> 以下配置项可在 `config.py` 文件中设置
+
+#### `petpet_command_start`
+ - 类型：`str`
+ - 默认：`""`
+ - 说明：命令开始字符
+
+#### `petpet_resource_url`
+ - 类型：`str`
+ - 默认：`https://ghproxy.com/https://raw.githubusercontent.com/noneplugin/nonebot-plugin-petpet/v0.3.x/resources/`
+ - 说明：资源下载链接，默认为使用`ghproxy`代理的github仓库链接
+
+#### `petpet_disabled_list`
+ - 类型：`List[str]`
+ - 默认：`[]`
+ - 说明：禁用的表情包列表，需填写需要禁用的表情的第一个触发词，表情名称可以在`data_source.py`文件中查看。若只是临时关闭，可以用下文中的“表情包开关”
+
+#### `petpet_gif_max_size`
+ - 类型：`float`
+ - 默认：`10`
+ - 说明：限制生成的gif的最大体积，单位为`Mb`。若生成的gif体积过大，则先会尝试缩减帧数，其次尝试缩小图片尺寸
+
+#### `petpet_gif_max_frames`
+ - 类型：`int`
+ - 默认：`100`
+ - 说明：限制生成的gif的最大帧数
+
+#### `baidu_trans_appid`
+ - 类型：`str`
+ - 默认：`""`
+ - 说明：百度翻译api相关，可在[百度翻译开放平台](http://api.fanyi.baidu.com)申请
+
+#### `baidu_trans_apikey`
+ - 类型：`str`
+ - 默认：`""`
+ - 说明：百度翻译api相关，可在[百度翻译开放平台](http://api.fanyi.baidu.com)申请
+
+ > “典中典”表情需要设置 `baidu_trans_appid` 和 `baidu_trans_apikey`
 
 ### 触发方式
 

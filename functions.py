@@ -2343,3 +2343,20 @@ async def kirby_hammer(users: List[UserInfo], args=None, **kwargs) -> BytesIO:
         return make
 
     return await make_gif_or_combined_gif(user_img, maker, 62, 0.05, FrameAlignPolicy.extend_loop)
+
+
+# noinspection PyUnusedLocal
+async def wooden_fish(users: List[UserInfo], **kwargs) -> BytesIO:
+    img = users[0].img
+    img = img.convert("RGBA").resize((85, 85))
+    frames = [(await load_image(f"wooden_fish/{i}.png")).paste(img, (116, 153), below=True).image for i in range(66)]
+    return save_gif(frames, 0.10)
+
+
+# noinspection PyUnusedLocal
+async def karyl_point(users: List[UserInfo], **kwargs) -> BytesIO:
+    img = users[0].img
+    img = img.convert("RGBA").rotate(7.5, expand=True).resize((225, 225))
+    frame = await load_image("karyl_point/0.png")
+    frame.paste(img, (87, 790), alpha=True)
+    return frame.save_png()
