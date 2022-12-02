@@ -3,21 +3,57 @@ import math
 import time
 from enum import Enum
 from io import BytesIO
-from typing import Protocol, List
+from typing import Protocol, List, Tuple
 
 import httpx
 from PIL import Image, ImageDraw, ImageFont
 from PIL.Image import Image as IMG  # noqa
 from PIL.ImageFont import FreeTypeFont
 from .nonebot_plugin_imageutils import BuildImage
+from hoshino.typing import CQEvent
 
 from . import config as petpet_config
 from .download import get_font, get_image
 from .models import Command
+import pygtrie
 
 DEFAULT_FONT = "SourceHanSansSC-Regular.otf"
 BOLD_FONT = "SourceHanSansSC-Bold.otf"
 EMOJI_FONT = "NotoColorEmoji.ttf"
+
+class trie_handle():
+    def __init__(self):
+        self.trie = pygtrie.CharTrie()
+
+    def add(self, prefix: str, handle: Command) -> bool:
+        if prefix not in self.trie:
+            self.trie[prefix] = handle
+            return True
+        else:
+            return False
+
+    def find(self, prefix: str):
+        return self.trie.longest_prefix(prefix)
+
+    def find_handle(self, event: CQEvent) -> Command:
+        index = next((i for i, mes in enumerate(event.message) if mes.type == "text" and mes.data['text'].strip()), -1)
+
+        if index == -1:
+        # no text
+            return None
+
+        prefix = event.message[index].data["text"].lstrip()
+        handle = self.find(prefix)
+        if not handle:
+            return None
+
+        prefix = prefix[len(handle.key):]
+        if not prefix and len(event.message) > 1:
+            del event.message[index]
+        else:
+            event.message[index].data['text'] = prefix
+
+        return handle.value
 
 
 def save_gif(frames: List[IMG], duration: float) -> BytesIO:

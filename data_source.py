@@ -3,6 +3,7 @@ from .functions import *
 
 # noinspection PyTypeChecker
 commands = [
+    Command(("随机表情",), random_expressions, allow_gif=True, arg_num=10),
     Command(("图片操作",), operations, allow_gif=True, arg_num=2),
     Command(("万能表情",), universal, allow_gif=True, arg_num=10),
     Command(("摸", "摸摸", "摸头", "摸摸头", "rua"), petpet, arg_num=1),
