@@ -22,7 +22,7 @@ REQUIRE_ARG = "该表情至少需要一个参数"
 async def random_expressions(commands: List, banned_command: dict, handle_group: str):
     avaliable = [command for command in commands[1:] 
                  if command.keywords[0] not in banned_command['global'] 
-                 or command.keywords[0] not in banned_command[handle_group]]
+                 and command.keywords[0] not in banned_command[handle_group]]
     if len(avaliable) == 0:
         return None
     else:
