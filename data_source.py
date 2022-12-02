@@ -76,7 +76,7 @@ commands = [
     Command(("字符画",), charpic, allow_gif=True),
     Command(("催刀", "快出刀"), cuidao, arg_num=1),
     Command(("共进午餐", "共进晚餐"), have_lunch),
-    Command(("这是我的老婆",), mywife),
+    Command(("这是我的老婆", "我老婆"), mywife),
     Command(("胡桃平板",), walnutpad, allow_gif=True),
     Command(("胡桃放大",), walnut_zoom, allow_gif=True),
     Command(("讲课", "敲黑板"), teach, allow_gif=True, arg_num=1),

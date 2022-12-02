@@ -1663,7 +1663,7 @@ async def mywife(users: List[UserInfo], sender: UserInfo, args=None, **kwargs) -
         ta = users[1].name
     img = users[0].img
 
-    sex = '老婆' if users[0].gender == 'female' else '老公'
+    sex = '老公' if users[0].gender == 'male' else '老婆'
 
     img = img.convert("RGBA").resize_width(400)
     img_w, img_h = img.size
