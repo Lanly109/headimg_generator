@@ -176,7 +176,7 @@ async def handle(bot, event: CQEvent):
 
     if prefix == "随机表情":
         command = await command.func_random(commands, banned_command, handle_group)
-        if not command:
+        if command is None:
             bot.finish("本群已没有可使用的表情了捏qwq")
         await bot.send(event, f"随机到了【{command.keywords[0]}】")
 
