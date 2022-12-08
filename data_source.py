@@ -104,6 +104,8 @@ commands = [
     Command(("卡比锤", "卡比重锤"), kirby_hammer, allow_gif=True, arg_num=1),
     Command(("木鱼",), wooden_fish),
     Command(("凯露指",), karyl_point),
+    Command(("木鱼",), wooden_fish),
+    Command(("凯露指",), karyl_point),
 
 ]
 
