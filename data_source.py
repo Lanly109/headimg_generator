@@ -3,6 +3,7 @@ from .functions import *
 
 # noinspection PyTypeChecker
 commands = [
+    Command(("随机表情",), random_expressions, allow_gif=True, arg_num=10, func_random=random_expressions),
     Command(("图片操作",), operations, allow_gif=True, arg_num=2),
     Command(("万能表情",), universal, allow_gif=True, arg_num=10),
     Command(("摸", "摸摸", "摸头", "摸摸头", "rua"), petpet, arg_num=1),
@@ -76,7 +77,7 @@ commands = [
     Command(("字符画",), charpic, allow_gif=True),
     Command(("催刀", "快出刀"), cuidao, arg_num=1),
     Command(("共进午餐", "共进晚餐"), have_lunch),
-    Command(("这是我的老婆",), mywife),
+    Command(("这是我的老婆", "我老婆"), mywife),
     Command(("胡桃平板",), walnutpad, allow_gif=True),
     Command(("胡桃放大",), walnut_zoom, allow_gif=True),
     Command(("讲课", "敲黑板"), teach, allow_gif=True, arg_num=1),

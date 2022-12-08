@@ -1,6 +1,6 @@
 from typing import List
 
-petpet_command_start: str = "##"
+petpet_command_start: str = ""
 # petpet_resource_url:
 # str = "https://ghproxy.com/https://raw.githubusercontent.com/Lanly109/headimg_generator/resources/"
 petpet_resource_url: str = "https://ghproxy.com/" \

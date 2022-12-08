@@ -20,6 +20,16 @@ REQUIRE_NAME = "找不到名字，加上名字再试吧~"
 REQUIRE_ARG = "该表情至少需要一个参数"
 
 
+async def random_expressions(commands: List, banned_command: dict, handle_group: str) -> Union[Command, None]:
+    available = [command for command in commands[1:]
+                 if command.keywords[0] not in banned_command['global']
+                 and command.keywords[0] not in banned_command[handle_group]]
+    if len(available) == 0:
+        return None
+    else:
+        return random.choice(available)
+
+
 # noinspection PyUnusedLocal
 async def operations(users: List[UserInfo], args=None, **kwargs) -> BytesIO:
     if args is None:
@@ -30,7 +40,7 @@ async def operations(users: List[UserInfo], args=None, **kwargs) -> BytesIO:
         raise ValueError(help_msg)
 
     op = args[0]
-    if op == "倒放" and getattr(user_img, "is_animated", False):
+    if op == "倒放" and getattr(user_img.image, "is_animated", False):
         duration = user_img.image.info["duration"] / 1000
         frames = []
         for i in range(user_img.image.n_frames):
@@ -1650,7 +1660,7 @@ async def have_lunch(users: List[UserInfo], **kwargs) -> BytesIO:
     bg = await load_image("have_lunch/0.jpg")
     frame = BuildImage.new("RGBA", bg.size)
     frame.paste(bg, below=True)
-    frame.paste(img.resize((324, 324)), (653, 30))
+    frame.paste(img.resize((324, 324)))
     return frame.save_jpg()
 
 
@@ -1663,7 +1673,7 @@ async def mywife(users: List[UserInfo], sender: UserInfo, args=None, **kwargs) -
         ta = users[1].name
     img = users[0].img
 
-    sex = '老婆' if users[0].gender == 'female' else '老公'
+    sex = '老公' if users[0].gender == 'male' else '老婆'
 
     img = img.convert("RGBA").resize_width(400)
     img_w, img_h = img.size
@@ -1741,7 +1751,7 @@ async def walnut_zoom(users: List[UserInfo], **kwargs) -> BytesIO:
 
         return make
 
-    return await make_gif_or_combined_gif(img, maker, 24, 0.2, FrameAlignPolicy.extend_last)
+    return await make_gif_or_combined_gif(img, maker, 24, 0.1, FrameAlignPolicy.extend_last)
 
 
 # noinspection PyUnusedLocal
