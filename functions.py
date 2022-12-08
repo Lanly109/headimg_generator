@@ -1715,7 +1715,7 @@ async def have_lunch(users: List[UserInfo], **kwargs) -> BytesIO:
     bg = await load_image("have_lunch/0.jpg")
     frame = BuildImage.new("RGBA", bg.size)
     frame.paste(bg, below=True)
-    frame.paste(img.resize((324, 324)))
+    frame.paste(img.resize((324, 324)), (653, 30))
     return frame.save_jpg()
 
 

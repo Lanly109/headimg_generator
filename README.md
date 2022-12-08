@@ -13,6 +13,18 @@
 **2022.12.02**
 - 实施[#23](https://github.com/Lanly109/headimg_generator/issues/23)，采用`Trie`树优化触发。优化`禁用表情、启用表情、随机表情`逻辑
 
+**2022.11.24**
+ - 增加`木鱼`，`凯露指`
+ - 同步源仓库，设置项新增：
+   - `petpet_resource_url`
+     - 类型：`str`
+     - 默认：`https://ghproxy.com/https://raw.githubusercontent.com/noneplugin/nonebot-plugin-petpet/v0.3.x/resources/`
+     - 说明：资源下载链接，默认为使用`ghproxy`代理的github仓库链接
+   - `petpet_disabled_list`
+     - 类型：`List[str]`
+     - 默认：`[]`
+     - 说明：禁用的表情包列表，需填写需要禁用的表情的第一个触发词，表情名称可以在`data_source.py`文件中查看。若只是临时关闭，可以用下文中的“表情包开关”
+
 **2022.11.15**
 - 切换handle为`on_message`，彻底解决`一直`与`一直一直`冲突的问题。感谢[@kcn3388](https://github.com/kcn3388)
   - 同时修改`Handler`的固有变量为`command`数组，避免注册多个`trigger`带来的性能损失
@@ -227,6 +239,8 @@ pip install dataclasses
 | 复读                          | <img src="https://s2.loli.net/2022/08/16/E6vgRCt3MSLfAWU.gif" width="200" >  | 复读内容默认为“救命啊”<br>可指定多个目标                                            |
 | 防诱拐                         | <img src="https://s2.loli.net/2022/07/21/ve6lcYaiV4wfhHg.jpg" width="200" >  |                                                                    |
 | 字符画                         | <img src="https://s2.loli.net/2022/07/21/R58eG7mVZWPp1Cy.jpg" width="200" >  | 支持gif                                                              |
+| 催刀                          | <img src="https://s2.loli.net/2022/08/07/9UZeilHQWXIf2mF.jpg" width="200" >  |                                                                    |
+| 共进晚餐                        | <img src="https://s2.loli.net/2022/08/07/QSyceaFHwEKVRPX.jpg" width="200" >  |                                                                    |
 | 我老婆                         | <img src="https://s2.loli.net/2022/08/16/7wPht5rp6sk1ZCq.jpg" width="200" >  |                                                                    |
 | 胡桃平板                        | <img src="https://s2.loli.net/2022/08/16/Mc5HvfB6ywqLQiV.jpg" width="200" >  | 支持gif                                                              |
 | 胡桃放大                        | <img src="https://s2.loli.net/2022/10/01/ISotJVp1xOfgvlq.gif" width="200" >  | 支持gif                                                              |
