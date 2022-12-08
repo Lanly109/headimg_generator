@@ -9,6 +9,7 @@ commands = [
     Command(("摸", "摸摸", "摸头", "摸摸头", "rua"), petpet, arg_num=1),
     Command(("亲", "亲亲"), kiss),
     Command(("贴", "贴贴", "蹭", "蹭蹭"), rub),
+    Command(("咖波蹭",), capoo_rub),
     Command(("顶", "玩"), play),
     Command(("拍",), pat),
     Command(("撕",), rip, arg_num=1),
@@ -28,7 +29,9 @@ commands = [
     Command(("玩游戏", "来玩游戏"), play_game, allow_gif=True, arg_num=1),
     Command(("膜", "膜拜"), worship),
     Command(("吃",), eat),
+    Command(("可莉吃",), klee_eat),
     Command(("啃",), bite),
+    Command(("胡桃啃",), hutao_bite),
     Command(("出警",), police),
     Command(("警察",), police1),
     Command(("问问", "去问问"), ask, arg_num=1),
@@ -104,6 +107,11 @@ commands = [
     Command(("卡比锤", "卡比重锤"), kirby_hammer, allow_gif=True, arg_num=1),
     Command(("木鱼",), wooden_fish),
     Command(("凯露指",), karyl_point),
+    Command(("踢球",), kick_ball),
+    Command(("砸",), smash, allow_gif=True),
+    Command(("波奇手稿",), bocchi_draft),
+    Command(("坐得住", "坐不住", "坐的住"), sit_still, arg_num=1),
+    Command(("偷学",), learn, arg_num=1),
 
 ]
 

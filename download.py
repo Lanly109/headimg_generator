@@ -8,6 +8,7 @@ import aiofiles
 import httpx
 from aiocache import cached
 from .config import *
+from .nonebot_plugin_imageutils.fonts import add_font, Font
 
 data_path = Path() / os.path.dirname(__file__) / 'resources'
 
@@ -38,6 +39,13 @@ async def download_resource(path: str) -> bytes:
     return await download_url(f"{petpet_resource_url}{path}")
 
 
+async def check_font(family: str, fontname: str):
+    try:
+        Font.find(family)
+    except ValueError:
+        await add_font(fontname, f"{petpet_resource_url}fonts/{fontname}")
+
+
 async def check_resources():
     resource_list = json.loads(
         (await download_resource("resource_list.json")).decode("utf-8")
@@ -58,7 +66,9 @@ async def check_resources():
             with file_path.open("wb") as f:
                 f.write(data)
         except Exception as e:
-            print(str(e))
+            hoshino.logger.warning(f"{e}")
+
+    await check_font("Consolas", "consola.ttf")
 
 
 async def get_resource(path: str, name: str) -> bytes:

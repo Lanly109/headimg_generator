@@ -3,7 +3,7 @@ import math
 import time
 from enum import Enum
 from io import BytesIO
-from typing import Protocol, List, Union
+from typing import Protocol, List, Union, Optional
 
 import httpx
 import pygtrie
@@ -67,6 +67,7 @@ def save_gif(frames: List[IMG], duration: float) -> BytesIO:
         duration=duration * 1000,
         loop=0,
         disposal=2,
+        optimize=False
     )
 
     # 没有超出最大大小，直接返回
@@ -112,6 +113,31 @@ def get_avg_duration(image: IMG) -> float:
     return total_duration / image.n_frames
 
 
+def split_gif(image: IMG) -> List[IMG]:
+    frames: List[IMG] = []
+
+    update_mode = "full"
+    for i in range(image.n_frames):
+        image.seek(i)
+        if image.tile:  # type: ignore
+            update_region = image.tile[0][1][2:]  # type: ignore
+            if update_region != image.size:
+                update_mode = "partial"
+                break
+
+    last_frame: Optional[IMG] = None
+    for i in range(image.n_frames):
+        image.seek(i)
+        frame = image.copy()
+        if update_mode == "partial" and last_frame:
+            last_frame.copy().paste(frame)
+        frames.append(frame)
+        image.seek(0)
+        if image.info.__contains__("transparency"):
+            frames[0].info["transparency"] = image.info["transparency"]
+    return frames
+
+
 async def make_jpg_or_gif(
         img: BuildImage, func: Maker, keep_transparency: bool = False
 ) -> BytesIO:
@@ -126,14 +152,13 @@ async def make_jpg_or_gif(
     if not getattr(image, "is_animated", False):
         return (await func(img)).save_jpg()
     else:
+        frames = split_gif(image)
         duration = get_avg_duration(image) / 1000
-        frames: List[IMG] = []
-        for i in range(image.n_frames):
-            image.seek(i)
-            frames.append((await func(BuildImage(image))).image)
+        frames = [(await func(BuildImage(frame))).image for frame in frames]
         if keep_transparency:
             image.seek(0)
-            frames[0].info["transparency"] = image.info.get("transparency", 0)
+            if image.info.__contains__("transparency"):
+                frames[0].info["transparency"] = image.info["transparency"]
         return save_gif(frames, duration)
 
 
@@ -243,7 +268,7 @@ async def make_gif_or_combined_gif(
 
                 func = maker(idx_maker)
                 image.seek(idx_in)
-                frames.append((await func(BuildImage(image))).image)
+                frames.append((await func(BuildImage(image.copy()))).image)
                 break
             else:
                 frame_idx_fit += 1
@@ -253,7 +278,8 @@ async def make_gif_or_combined_gif(
 
     if keep_transparency:
         image.seek(0)
-        frames[0].info["transparency"] = image.info.get("transparency", 0)
+        if image.info.__contains__("transparency"):
+            frames[0].info["transparency"] = image.info["transparency"]
 
     return save_gif(frames, duration)
 
