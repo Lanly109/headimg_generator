@@ -1,15 +1,14 @@
-import emoji
 import random
 import re
 from collections import namedtuple
 from datetime import datetime
 from typing import Dict
 
-from PIL import ImageOps, ImageEnhance, ImageFilter
+import emoji
+from PIL import Image, ImageOps, ImageEnhance, ImageFilter, ImageDraw
 
 import hoshino
 from .models import UserInfo
-from .nonebot_plugin_imageutils import Text2Image
 from .nonebot_plugin_imageutils.fonts import Font
 from .nonebot_plugin_imageutils.gradient import LinearGradient, ColorStop
 from .utils import *
@@ -1668,44 +1667,46 @@ async def cuidao(users: List[UserInfo], args=None, **kwargs) -> BytesIO:
 
     bg = BuildImage.new("RGB", (600, img_h + 230), (255, 255, 255))
     bg.paste(img, (int(300 - img_w / 2), 110))
-    draw = bg.draw
-    fontname = BOLD_FONT
 
-    font = await load_font(fontname, 46)
     ta = "他" if users[0].gender == "male" else "她"
     text = f"{ta}好像失踪了，一刀都没出"
-    text_w, _ = font.getsize(text)
-    draw.text((300 - text_w / 2, img_h + 120), text, font=font, fill=(0, 0, 0))
+    try:
+        bg.draw_text(
+            (0, img_h + 120, 600, img_h + 180),
+            text,
+            max_fontsize=46,
+            fill=(0, 0, 0),
+            weight="bold",
+        )
+    except ValueError:
+        raise ValueError(TEXT_TOO_LONG)
 
-    font = await load_font(fontname, 26)
     text = f"你们谁看见了麻烦叫{ta}赶紧回来出刀"
-    text_w, _ = font.getsize(text)
-    draw.text((300 - text_w / 2, img_h + 180), text, font=font, fill=(0, 0, 0))
+    try:
+        bg.draw_text(
+            (0, img_h + 180, 600, img_h + 230),
+            text,
+            max_fontsize=26,
+            fill=(0, 0, 0),
+            weight="bold",
+        )
+    except ValueError:
+        raise ValueError(TEXT_TOO_LONG)
 
     name = args[0] if args else random.choice([users[0].name, ta])
     text = f"请问你们看到{name}了吗?"
     text = re.sub(emoji.get_emoji_regexp(), "", text)
 
-    fontsize = 70
-    while True:
-        font = await load_font(fontname, fontsize)
-        width, height = font.getsize_multiline(text)
-        if width > 560 or height > 110:
-            fontsize -= 1
-        else:
-            break
-        if fontsize < 25:
-            fontsize = 0
-            break
-
-    if not fontsize:
-        raise ValueError(NAME_TOO_LONG)
-
-    font = await load_font(fontname, fontsize)
-    text_w, text_h = font.getsize(text)
-    x = 300 - text_w / 2
-    y = 55 - text_h / 2
-    draw.text((x, y), text, font=font, fill=(0, 0, 0))
+    try:
+        bg.draw_text(
+            (10, 0, 590, 120),
+            text,
+            max_fontsize=70,
+            fill=(0, 0, 0),
+            weight="bold",
+        )
+    except ValueError:
+        raise ValueError(TEXT_TOO_LONG)
     return bg.save_jpg()
 
 

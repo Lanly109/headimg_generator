@@ -1,5 +1,7 @@
 import hashlib
+import json
 import math
+import os
 import time
 from enum import Enum
 from io import BytesIO
@@ -7,19 +9,13 @@ from typing import Protocol, List, Union, Optional
 
 import httpx
 import pygtrie
-from PIL import Image, ImageDraw, ImageFont
 from PIL.Image import Image as IMG  # noqa
-from PIL.ImageFont import FreeTypeFont
 
 from hoshino.typing import CQEvent
 from . import config as petpet_config
-from .download import get_font, get_image
+from .download import get_image
 from .models import Command
-from .nonebot_plugin_imageutils import BuildImage
-
-DEFAULT_FONT = "SourceHanSansSC-Regular.otf"
-BOLD_FONT = "SourceHanSansSC-Bold.otf"
-EMOJI_FONT = "NotoColorEmoji.ttf"
+from .nonebot_plugin_imageutils import BuildImage, Text2Image
 
 
 class TrieHandle:
@@ -305,45 +301,45 @@ async def translate(text: str, lang_from: str = "auto", lang_to: str = "zh") -> 
     return result["trans_result"][0]["dst"]
 
 
-async def load_font(name: str, fontsize: int) -> FreeTypeFont:
-    font = await get_font(name)
-    return ImageFont.truetype(BytesIO(font), fontsize, encoding="utf-8")
+async def help_image(all_commands: List[Command], group_id: int) -> BytesIO:
+    def cmd_text(commands: List[Command], start: int = 1) -> str:
+        texts = []
+        banned_config_path = os.path.join(os.path.dirname(__file__), "banned.json")
+        if not os.path.exists(banned_config_path):
+            open(banned_config_path, "w")
+        try:
+            banned_command = json.load(open(banned_config_path, encoding="utf-8"))
+        except json.decoder.JSONDecodeError:
+            banned_command = {
+                "global": []
+            }
+        for i, command in enumerate(commands):
+            return_text = f"{i + start}. " + "/".join(command.keywords)
+            if command.keywords[0] in banned_command["global"]:
+                return_text = f"[color=lightgrey]{return_text}[/color]"
+            if str(group_id) in banned_command:
+                if command.keywords[0] in banned_command[str(group_id)]:
+                    return_text = f"[color=lightgrey]{return_text}[/color]"
+            texts.append(return_text)
+        return "\n".join(texts)
 
-
-async def help_image(commands: List[Command]) -> BytesIO:
-    font = await load_font(DEFAULT_FONT, 30)
-    padding = 10
-
-    def text_img(text: str) -> IMG:
-        wit, hei = font.getsize_multiline(text)
-        imgs = Image.new("RGB", (wit + padding * 2, hei + padding * 2), "white")
-        draw = ImageDraw.Draw(imgs)
-        draw.multiline_text((padding / 2, padding / 2), text, font=font, fill="black")
-        return imgs
-
-    def cmd_text(cmds: List[Command], start: int = 1) -> str:
-        return "\n".join(
-            [f"{i + start}. " + "/".join(cmd.keywords) for i, cmd in enumerate(cmds)]
-        )
-
-    text1 = f"摸头等头像相关表情制作\n触发方式：{petpet_config.petpet_command_start}指令 + @user/qq/自己/图片\n支持的指令："
-    idx = math.ceil(len(commands) / 2)
-    img1 = text_img(text1)
-    text2 = cmd_text(commands[:idx])
-    img2 = text_img(text2)
-    text3 = cmd_text(commands[idx:], start=idx + 1)
-    img3 = text_img(text3)
-    w = max(img1.width, img2.width + img2.width + padding)
-    h = img1.height + padding + max(img2.height, img2.height)
-    img = Image.new("RGB", (w + padding * 2, h + padding * 2), "white")
-    img.paste(img1, (padding, padding))
-    img.paste(img2, (padding, img1.height + padding))
-    img.paste(img3, (img2.width + padding, img1.height + padding))
-
-    output = BytesIO()
-    frame = img.convert("RGB")
-    frame.save(output, format="jpeg")
-    return output
+    head_text = f"摸头等头像相关表情制作\n触发方式：{petpet_config.petpet_command_start}指令 + @user/qq/自己/图片\n支持的指令："
+    head = Text2Image.from_text(head_text, 30, weight="bold").to_image(padding=(20, 10))
+    imgs: List[IMG] = []
+    col_num = 3
+    num_per_col = math.ceil(len(all_commands) / col_num)
+    for idx in range(0, len(all_commands), num_per_col):
+        text = cmd_text(all_commands[idx: idx + num_per_col], start=idx + 1)
+        imgs.append(Text2Image.from_bbcode_text(text, 30).to_image(padding=(20, 10)))
+    w = max(sum((img.width for img in imgs)), head.width)
+    h = head.height + max((img.height for img in imgs))
+    frame = BuildImage.new("RGBA", (w, h), "white")
+    frame.paste(head, alpha=True)
+    current_w = 0
+    for img in imgs:
+        frame.paste(img, (current_w, head.height), alpha=True)
+        current_w += img.width
+    return frame.save_jpg()
 
 
 async def load_image(name: str) -> BuildImage:

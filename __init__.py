@@ -53,7 +53,7 @@ def bytesio2b64(im: BytesIO) -> str:
 
 @sv.on_fullmatch("头像表情包")
 async def bangzhu_img(bot: HoshinoBot, ev: CQEvent):
-    im = await help_image(commands)
+    im = await help_image(commands, ev.group_id)
     await bot.send(ev, MessageSegment.image(bytesio2b64(im)))
 
 

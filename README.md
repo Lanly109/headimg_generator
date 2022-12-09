@@ -6,6 +6,11 @@
 ，感谢[@MeetWq](https://github.com/MeetWq)以及参与该项目的所有成员！
 
 ## 更新日志
+**2022.12.09**
+- 重构`催刀`，解决历史遗留问题，现在全部表情均支持emoji
+- 重构生成帮助的函数，现在生成的帮助图片可以包含emoji
+  - 同时被禁用的函数会变为灰色
+
 **2022.12.08**
 - 新增`咖波蹭`、`可莉吃`、`胡桃啃`、`踢球`、`砸`、`波奇手稿`、`坐得住`、`偷学`
 - 同步源仓库bug修复
@@ -13,21 +18,13 @@
 **2022.12.02**
 - 实施[#23](https://github.com/Lanly109/headimg_generator/issues/23)，采用`Trie`树优化触发。优化`禁用表情、启用表情、随机表情`逻辑
 
-**2022.11.24**
- - 增加`木鱼`，`凯露指`
- - 同步源仓库，设置项新增：
-   - `petpet_resource_url`
-     - 类型：`str`
-     - 默认：`https://ghproxy.com/https://raw.githubusercontent.com/noneplugin/nonebot-plugin-petpet/v0.3.x/resources/`
-     - 说明：资源下载链接，默认为使用`ghproxy`代理的github仓库链接
-   - `petpet_disabled_list`
-     - 类型：`List[str]`
-     - 默认：`[]`
-     - 说明：禁用的表情包列表，需填写需要禁用的表情的第一个触发词，表情名称可以在`data_source.py`文件中查看。若只是临时关闭，可以用下文中的“表情包开关”
-
 **2022.11.15**
 - 切换handle为`on_message`，彻底解决`一直`与`一直一直`冲突的问题。感谢[@kcn3388](https://github.com/kcn3388)
   - 同时修改`Handler`的固有变量为`command`数组，避免注册多个`trigger`带来的性能损失
+
+<details>
+
+<summary>更新历史</summary>
 
 **2022.11.14**
 - 新增随机表情
@@ -48,10 +45,6 @@
 - 同步至最新表情
     - 新增`波纹`、`诈尸`、`卡比重锤`
 - 以上感谢[@kcn3388](https://github.com/kcn3388)
-
-<details>
-
-<summary>更新历史</summary>
 
 **2022.10.23**
 - 完善回复触发，适应回复多图情况
