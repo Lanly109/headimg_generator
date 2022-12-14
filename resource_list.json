@@ -37,7 +37,7 @@
     },
     {
         "path": "images/anyasuki/0.png",
-        "hash": "c0544ad269fc90cdfabfaf7e19244dc3"
+        "hash": "9a46dd33cc7a511a8368e768c6d4abb0"
     },
     {
         "path": "images/anyasuki/1.png",
@@ -45,7 +45,7 @@
     },
     {
         "path": "images/back_to_work/0.png",
-        "hash": "f98920d0918e1d25eaed034b812506de"
+        "hash": "d85cf009fac3ce49ed90883e0c61e737"
     },
     {
         "path": "images/back_to_work/1.png",
@@ -120,6 +120,114 @@
         "hash": "d5dd1ea44908952885ff14a283f99695"
     },
     {
+        "path": "images/bocchi_draft/0.png",
+        "hash": "7ce07a776f093d149dc496ad93e48212"
+    },
+    {
+        "path": "images/bocchi_draft/1.png",
+        "hash": "7ce07a776f093d149dc496ad93e48212"
+    },
+    {
+        "path": "images/bocchi_draft/10.png",
+        "hash": "625cfca64613485424ec01b31673df4f"
+    },
+    {
+        "path": "images/bocchi_draft/11.png",
+        "hash": "da3ca205e8325fa90609bdae961b9265"
+    },
+    {
+        "path": "images/bocchi_draft/12.png",
+        "hash": "3ad676d4c984e2c6c9be150fcd4c6503"
+    },
+    {
+        "path": "images/bocchi_draft/13.png",
+        "hash": "9c0eae4dd03c522eb9c6c23f8902f85e"
+    },
+    {
+        "path": "images/bocchi_draft/14.png",
+        "hash": "e270250a1d05755f34067f887ef9cf8d"
+    },
+    {
+        "path": "images/bocchi_draft/15.png",
+        "hash": "c7f8d515c9dc440df7bcafa20f311978"
+    },
+    {
+        "path": "images/bocchi_draft/16.png",
+        "hash": "d63505c2d5ed0b4250ca46aaa475cd45"
+    },
+    {
+        "path": "images/bocchi_draft/17.png",
+        "hash": "46a9cc799d9c3845b4ae12a47ba0577d"
+    },
+    {
+        "path": "images/bocchi_draft/18.png",
+        "hash": "13777c8809375a7c14c22f9e29399c0f"
+    },
+    {
+        "path": "images/bocchi_draft/19.png",
+        "hash": "f70847523f89a57dd4c9ac287a1ee1f6"
+    },
+    {
+        "path": "images/bocchi_draft/2.png",
+        "hash": "7ce07a776f093d149dc496ad93e48212"
+    },
+    {
+        "path": "images/bocchi_draft/20.png",
+        "hash": "4a85a48ff1c7d6743205b26cd44c8bb2"
+    },
+    {
+        "path": "images/bocchi_draft/21.png",
+        "hash": "4a85a48ff1c7d6743205b26cd44c8bb2"
+    },
+    {
+        "path": "images/bocchi_draft/22.png",
+        "hash": "4a85a48ff1c7d6743205b26cd44c8bb2"
+    },
+    {
+        "path": "images/bocchi_draft/3.png",
+        "hash": "4b228ab670bff9eb993838bda1cfb4b9"
+    },
+    {
+        "path": "images/bocchi_draft/4.png",
+        "hash": "258d9e428339014660bbf646cd7a4131"
+    },
+    {
+        "path": "images/bocchi_draft/5.png",
+        "hash": "0ac07c666791e8577843a4f594bcddcd"
+    },
+    {
+        "path": "images/bocchi_draft/6.png",
+        "hash": "5d9f9658f30034afcf8569886a10386b"
+    },
+    {
+        "path": "images/bocchi_draft/7.png",
+        "hash": "913b47a1b1fc230728ba6c341735d310"
+    },
+    {
+        "path": "images/bocchi_draft/8.png",
+        "hash": "58fab9c9bbe32a3c496cfeb2a6082e04"
+    },
+    {
+        "path": "images/bocchi_draft/9.png",
+        "hash": "7238b22be1faf7ff74e83c7646580531"
+    },
+    {
+        "path": "images/capoo_rub/0.png",
+        "hash": "6fc3f9dd10f0a7de7f8c4c853166de26"
+    },
+    {
+        "path": "images/capoo_rub/1.png",
+        "hash": "4ee09f4c274dac2d33c59f1a464591df"
+    },
+    {
+        "path": "images/capoo_rub/2.png",
+        "hash": "3e4d4babbd4b9081682651510ad70680"
+    },
+    {
+        "path": "images/capoo_rub/3.png",
+        "hash": "6d35b343f1bde5f1de4a5df94921b634"
+    },
+    {
         "path": "images/captain/0.png",
         "hash": "f6cca0f44aa54c721f8b172f8ebb7f40"
     },
@@ -133,7 +241,7 @@
     },
     {
         "path": "images/china_flag/0.png",
-        "hash": "4fb0e081be615c62d2819df26a8c7c10"
+        "hash": "aa64adae6f7ede5bceafe81a5273cafc"
     },
     {
         "path": "images/confuse/0.png",
@@ -1304,6 +1412,14 @@
         "hash": "3d12cc8ad857617351d2961790e031af"
     },
     {
+        "path": "images/hutao_bite/0.png",
+        "hash": "bbd32543d177575053100e7b23ac1b27"
+    },
+    {
+        "path": "images/hutao_bite/1.png",
+        "hash": "9b108ddc8654bda9c3a3922308be2e07"
+    },
+    {
         "path": "images/incivilization/0.png",
         "hash": "352c9534c4ff182174b0b29e7ff7df42"
     },
@@ -1354,6 +1470,66 @@
     {
         "path": "images/karyl_point/0.png",
         "hash": "9ab82387b8f3cce1acdb57499c49ebe7"
+    },
+    {
+        "path": "images/kick_ball/0.png",
+        "hash": "d2b2916d37d2cccd5c9f12ea99da87a7"
+    },
+    {
+        "path": "images/kick_ball/1.png",
+        "hash": "509da70e46d631c3353ad525431b7674"
+    },
+    {
+        "path": "images/kick_ball/10.png",
+        "hash": "9535ff5344dbf99f1afbf27f0282b2d1"
+    },
+    {
+        "path": "images/kick_ball/11.png",
+        "hash": "4af18499194c6436eca8ff0a24944643"
+    },
+    {
+        "path": "images/kick_ball/12.png",
+        "hash": "95897fc9e72b3f9ada4cf3ae673cbcdc"
+    },
+    {
+        "path": "images/kick_ball/13.png",
+        "hash": "0dd603137fc1de3b18e4c0fd65eda6bb"
+    },
+    {
+        "path": "images/kick_ball/14.png",
+        "hash": "fd8164a80326bdd5eee1291767b05ed3"
+    },
+    {
+        "path": "images/kick_ball/2.png",
+        "hash": "bd6d20fd03612ba751059157b1966fab"
+    },
+    {
+        "path": "images/kick_ball/3.png",
+        "hash": "94990605389da96c2f8168b4c2561562"
+    },
+    {
+        "path": "images/kick_ball/4.png",
+        "hash": "6b0071cb715b8bc853ba32cde58a0e73"
+    },
+    {
+        "path": "images/kick_ball/5.png",
+        "hash": "80e2a119658a86b1d97a26c2b41d8481"
+    },
+    {
+        "path": "images/kick_ball/6.png",
+        "hash": "f573f27a1d7ff5117f2855d34bd225a1"
+    },
+    {
+        "path": "images/kick_ball/7.png",
+        "hash": "76d027ec89c7de2b0abeabe84497cd00"
+    },
+    {
+        "path": "images/kick_ball/8.png",
+        "hash": "3865dacbe636cb2c56967b1d873752c3"
+    },
+    {
+        "path": "images/kick_ball/9.png",
+        "hash": "ca06142edeeafb64a59cd83985d4afd5"
     },
     {
         "path": "images/kirby_hammer/0.png",
@@ -1656,6 +1832,130 @@
         "hash": "2ddacd69e518cdc3b63dc682bffe4d1e"
     },
     {
+        "path": "images/klee_eat/0.png",
+        "hash": "bd284652faeb1d17a9fe9a96a7eed219"
+    },
+    {
+        "path": "images/klee_eat/1.png",
+        "hash": "434dd145519e680ea5a7efd6c46fc181"
+    },
+    {
+        "path": "images/klee_eat/10.png",
+        "hash": "57f83d884ef3f5da1b7036e97a77ca31"
+    },
+    {
+        "path": "images/klee_eat/11.png",
+        "hash": "8a5807ac9c701f1fe6d8f4acac72db36"
+    },
+    {
+        "path": "images/klee_eat/12.png",
+        "hash": "2474538aae3536aa75f00bf49eba6587"
+    },
+    {
+        "path": "images/klee_eat/13.png",
+        "hash": "c24d9702f74c06b1e14473542ca0ecea"
+    },
+    {
+        "path": "images/klee_eat/14.png",
+        "hash": "ce03d5f6d09e6aba982272187701756e"
+    },
+    {
+        "path": "images/klee_eat/15.png",
+        "hash": "30f24c72d721677136805ca01cfdc50e"
+    },
+    {
+        "path": "images/klee_eat/16.png",
+        "hash": "36f15c4c9460e7d6b2d41a03ebfa7718"
+    },
+    {
+        "path": "images/klee_eat/17.png",
+        "hash": "70023d2f2d0a6018b839a29c70f8710f"
+    },
+    {
+        "path": "images/klee_eat/18.png",
+        "hash": "5206043658761fa5ec7479c518a8e369"
+    },
+    {
+        "path": "images/klee_eat/19.png",
+        "hash": "c1a2d1db2ffafc850d2d859884437dae"
+    },
+    {
+        "path": "images/klee_eat/2.png",
+        "hash": "a187d0bfec4b78787077b8780d91e7b0"
+    },
+    {
+        "path": "images/klee_eat/20.png",
+        "hash": "3ba814841c09721cd37e30b8ef9683a5"
+    },
+    {
+        "path": "images/klee_eat/21.png",
+        "hash": "578e23bba8cb885c377833aa14562f9d"
+    },
+    {
+        "path": "images/klee_eat/22.png",
+        "hash": "8495aa8a2792ac60f6359553c29c1567"
+    },
+    {
+        "path": "images/klee_eat/23.png",
+        "hash": "1746365398e99a42860a0a8154a63541"
+    },
+    {
+        "path": "images/klee_eat/24.png",
+        "hash": "a594a3457c8c562e5891e721a692c324"
+    },
+    {
+        "path": "images/klee_eat/25.png",
+        "hash": "92bbc0ca794e36e10b5e1049884df9ce"
+    },
+    {
+        "path": "images/klee_eat/26.png",
+        "hash": "85a9bc64d2a974cb718b9c08c1f84a34"
+    },
+    {
+        "path": "images/klee_eat/27.png",
+        "hash": "bd29cf8dd5ba31d77e69904d6456d1c9"
+    },
+    {
+        "path": "images/klee_eat/28.png",
+        "hash": "1ff5c07022df2f08355b337209d5464e"
+    },
+    {
+        "path": "images/klee_eat/29.png",
+        "hash": "97f45cae4dd2daa2a4d3f00ca561eb58"
+    },
+    {
+        "path": "images/klee_eat/3.png",
+        "hash": "dcc1eca20924fcd31012dc38bc2b6429"
+    },
+    {
+        "path": "images/klee_eat/30.png",
+        "hash": "8ac8286949b0c765fb8312fee62363a6"
+    },
+    {
+        "path": "images/klee_eat/4.png",
+        "hash": "fe507dbb5c909e28c2919d26210225a4"
+    },
+    {
+        "path": "images/klee_eat/5.png",
+        "hash": "4b65a362e8465945c7d439c64386abc5"
+    },
+    {
+        "path": "images/klee_eat/6.png",
+        "hash": "76244ceeded4c6ea3ffb226cf717be3f"
+    },
+    {
+        "path": "images/klee_eat/7.png",
+        "hash": "0e7ce4c9b664d253ec57c1eb579158ef"
+    },
+    {
+        "path": "images/klee_eat/8.png",
+        "hash": "ead69b36f949b45cc4c7da801405ae38"
+    },
+    {
+        "path": "images/klee_eat/9.png",
+        "hash": "6bc9f15771d52cf1c1bb09e09b9b76a7"
+    },
+    {
         "path": "images/knock/0.png",
         "hash": "c4e73350a09ac862d8109995436734f4"
     },
@@ -1686,6 +1986,10 @@
     {
         "path": "images/knock/7.png",
         "hash": "fa158f632f04f81c4eeeb4766222df07"
+    },
+    {
+        "path": "images/learn/0.png",
+        "hash": "548f528b25cfab4e79c36f901227cd59"
     },
     {
         "path": "images/listen_music/0.png",
@@ -1769,7 +2073,7 @@
     },
     {
         "path": "images/need/0.png",
-        "hash": "4619406351d0c1b5fe4d42905e1beb6d"
+        "hash": "1b1b6fb05731056fc52d9afd3b4877b9"
     },
     {
         "path": "images/no_response/0.png",
@@ -1777,7 +2081,7 @@
     },
     {
         "path": "images/paint/0.png",
-        "hash": "d712861e9ae6b2bbe2af34a1692c0f51"
+        "hash": "c819d7bdbada27cc825db68927157b98"
     },
     {
         "path": "images/painter/0.png",
@@ -2001,7 +2305,7 @@
     },
     {
         "path": "images/play_game/0.png",
-        "hash": "8f7ac50605f5f96e0a8b643066bedfd4"
+        "hash": "aa9ba6ed9b53feb9b655a2db774fa0cf"
     },
     {
         "path": "images/play_game/1.png",
@@ -2324,6 +2628,14 @@
         "hash": "01e820c961a394382555f53e30500deb"
     },
     {
+        "path": "images/sit_still/0.png",
+        "hash": "7c80de7e9f83c87b8f099fda676cafde"
+    },
+    {
+        "path": "images/smash/0.png",
+        "hash": "f14a1ff64015a1cd5cf752e80e5cf367"
+    },
+    {
         "path": "images/suck/0.png",
         "hash": "848d6fe194940dc2fef9db9a354fb126"
     },
@@ -2601,7 +2913,7 @@
     },
     {
         "path": "images/wallpaper/0.png",
-        "hash": "923b30b63e20465d93ca11a9c0968c4c"
+        "hash": "021857cdf9da61c082b44fe3c8007141"
     },
     {
         "path": "images/wallpaper/1.png",
