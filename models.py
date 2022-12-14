@@ -22,10 +22,16 @@ class Func(Protocol):
         ...
 
 
+class FuncRandom(Protocol):
+    async def __call__(self, commands: List, banned_command: dict, handle_group: str):
+        ...
+
+
 @dataclass
 class Command:
     keywords: Tuple[str, ...]
     func: Func
     allow_gif: bool = False
     arg_num: int = 0
-    prefix_keywords: list = field(default_factory=list)
+    prefix_keywords: list = field(default_factory=list),
+    func_random: FuncRandom = None

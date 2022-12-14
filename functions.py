@@ -1,15 +1,14 @@
-import emoji
 import random
 import re
 from collections import namedtuple
 from datetime import datetime
 from typing import Dict
 
-from PIL import ImageOps, ImageEnhance, ImageFilter
+import emoji
+from PIL import Image, ImageOps, ImageEnhance, ImageFilter, ImageDraw
 
 import hoshino
 from .models import UserInfo
-from .nonebot_plugin_imageutils import Text2Image
 from .nonebot_plugin_imageutils.fonts import Font
 from .nonebot_plugin_imageutils.gradient import LinearGradient, ColorStop
 from .utils import *
@@ -19,14 +18,16 @@ NAME_TOO_LONG = "名字太长了哦，改短点再试吧~"
 REQUIRE_NAME = "找不到名字，加上名字再试吧~"
 REQUIRE_ARG = "该表情至少需要一个参数"
 
-async def random_expressions(commands: List, banned_command: dict, handle_group: str):
-    avaliable = [command for command in commands[1:] 
-                 if command.keywords[0] not in banned_command['global'] 
+
+async def random_expressions(commands: List, banned_command: dict, handle_group: str) -> Union[Command, None]:
+    available = [command for command in commands[1:]
+                 if command.keywords[0] not in banned_command['global']
                  and command.keywords[0] not in banned_command[handle_group]]
-    if len(avaliable) == 0:
+    if len(available) == 0:
         return None
     else:
-        return random.choice(avaliable)
+        return random.choice(available)
+
 
 # noinspection PyUnusedLocal
 async def operations(users: List[UserInfo], args=None, **kwargs) -> BytesIO:
@@ -38,7 +39,7 @@ async def operations(users: List[UserInfo], args=None, **kwargs) -> BytesIO:
         raise ValueError(help_msg)
 
     op = args[0]
-    if op == "倒放" and getattr(user_img, "is_animated", False):
+    if op == "倒放" and getattr(user_img.image, "is_animated", False):
         duration = user_img.image.info["duration"] / 1000
         frames = []
         for i in range(user_img.image.n_frames):
@@ -193,6 +194,25 @@ async def rub(users: List[UserInfo], sender: UserInfo, **kwargs) -> BytesIO:
 
 
 # noinspection PyUnusedLocal
+async def capoo_rub(users: List[UserInfo], **kwargs) -> BytesIO:
+    img = users[0].img
+    img = img.convert("RGBA").square().resize((180, 180))
+    frames: List[IMG] = []
+    locs = [
+        (178, 184, 78, 260),
+        (178, 174, 84, 269),
+        (178, 174, 84, 269),
+        (178, 178, 84, 264),
+    ]
+    for i in range(4):
+        frame = await load_image(f"capoo_rub/{i}.png")
+        w, h, x, y = locs[i]
+        frame.paste(img.resize((w, h)), (x, y), below=True)
+        frames.append(frame.image)
+    return save_gif(frames, 0.1)
+
+
+# noinspection PyUnusedLocal
 async def play(users: List[UserInfo], **kwargs) -> BytesIO:
     img = users[0].img
     img = img.convert("RGBA").square()
@@ -325,7 +345,7 @@ async def crawl(users: List[UserInfo], args=None, **kwargs) -> BytesIO:
         crawl_num = int(args[0])
     frame = await load_image(f"crawl/{crawl_num:02d}.jpg")
     if not no_edit:
-        frame.paste(img, (0, 400), below=True)
+        frame.paste(img, (0, 400), alpha=True)
     return frame.save_jpg()
 
 
@@ -567,6 +587,28 @@ async def eat(users: List[UserInfo], **kwargs) -> BytesIO:
 
 
 # noinspection PyUnusedLocal
+async def klee_eat(users: List[UserInfo], **kwargs) -> BytesIO:
+    img = users[0].img
+    img = img.convert("RGBA").square().resize((83, 83))
+    # fmt: off
+    locs = [
+        (0, 174), (0, 174), (0, 174), (0, 174), (0, 174),
+        (12, 160), (19, 152), (23, 148), (26, 145), (32, 140),
+        (37, 136), (42, 131), (49, 127), (70, 126), (88, 128),
+        (-30, 210), (-19, 207), (-14, 200), (-10, 188), (-7, 179),
+        (-3, 170), (-3, 175), (-1, 174), (0, 174), (0, 174),
+        (0, 174), (0, 174), (0, 174), (0, 174), (0, 174), (0, 174)
+    ]
+    # fmt: on
+    frames: List[IMG] = []
+    for i in range(31):
+        frame = await load_image(f"klee_eat/{i}.png")
+        frame.paste(img, locs[i], below=True)
+        frames.append(frame.image)
+    return save_gif(frames, 0.1)
+
+
+# noinspection PyUnusedLocal
 async def bite(users: List[UserInfo], **kwargs) -> BytesIO:
     img = users[0].img
     img = img.convert("RGBA").square()
@@ -586,6 +628,20 @@ async def bite(users: List[UserInfo], **kwargs) -> BytesIO:
         frame = await load_image(f"bite/{i}.png")
         frames.append(frame.image)
     return save_gif(frames, 0.07)
+
+
+# noinspection PyUnusedLocal
+async def hutao_bite(users: List[UserInfo], **kwargs) -> BytesIO:
+    img = users[0].img
+    img = img.convert("RGBA").square().resize((100, 100))
+    frames: List[IMG] = []
+    locs = [(98, 101, 108, 234), (96, 100, 108, 237)]
+    for i in range(2):
+        frame = await load_image(f"hutao_bite/{i}.png")
+        w, h, x, y = locs[i]
+        frame.paste(img.resize((w, h)), (x, y), below=True)
+        frames.append(frame.image)
+    return save_gif(frames, 0.1)
 
 
 # noinspection PyUnusedLocal
@@ -1611,44 +1667,46 @@ async def cuidao(users: List[UserInfo], args=None, **kwargs) -> BytesIO:
 
     bg = BuildImage.new("RGB", (600, img_h + 230), (255, 255, 255))
     bg.paste(img, (int(300 - img_w / 2), 110))
-    draw = bg.draw
-    fontname = BOLD_FONT
 
-    font = await load_font(fontname, 46)
     ta = "他" if users[0].gender == "male" else "她"
     text = f"{ta}好像失踪了，一刀都没出"
-    text_w, _ = font.getsize(text)
-    draw.text((300 - text_w / 2, img_h + 120), text, font=font, fill=(0, 0, 0))
+    try:
+        bg.draw_text(
+            (0, img_h + 120, 600, img_h + 180),
+            text,
+            max_fontsize=46,
+            fill=(0, 0, 0),
+            weight="bold",
+        )
+    except ValueError:
+        raise ValueError(TEXT_TOO_LONG)
 
-    font = await load_font(fontname, 26)
     text = f"你们谁看见了麻烦叫{ta}赶紧回来出刀"
-    text_w, _ = font.getsize(text)
-    draw.text((300 - text_w / 2, img_h + 180), text, font=font, fill=(0, 0, 0))
+    try:
+        bg.draw_text(
+            (0, img_h + 180, 600, img_h + 230),
+            text,
+            max_fontsize=26,
+            fill=(0, 0, 0),
+            weight="bold",
+        )
+    except ValueError:
+        raise ValueError(TEXT_TOO_LONG)
 
     name = args[0] if args else random.choice([users[0].name, ta])
     text = f"请问你们看到{name}了吗?"
     text = re.sub(emoji.get_emoji_regexp(), "", text)
 
-    fontsize = 70
-    while True:
-        font = await load_font(fontname, fontsize)
-        width, height = font.getsize_multiline(text)
-        if width > 560 or height > 110:
-            fontsize -= 1
-        else:
-            break
-        if fontsize < 25:
-            fontsize = 0
-            break
-
-    if not fontsize:
-        raise ValueError(NAME_TOO_LONG)
-
-    font = await load_font(fontname, fontsize)
-    text_w, text_h = font.getsize(text)
-    x = 300 - text_w / 2
-    y = 55 - text_h / 2
-    draw.text((x, y), text, font=font, fill=(0, 0, 0))
+    try:
+        bg.draw_text(
+            (10, 0, 590, 120),
+            text,
+            max_fontsize=70,
+            fill=(0, 0, 0),
+            weight="bold",
+        )
+    except ValueError:
+        raise ValueError(TEXT_TOO_LONG)
     return bg.save_jpg()
 
 
@@ -1749,7 +1807,7 @@ async def walnut_zoom(users: List[UserInfo], **kwargs) -> BytesIO:
 
         return make
 
-    return await make_gif_or_combined_gif(img, maker, 24, 0.2, FrameAlignPolicy.extend_last)
+    return await make_gif_or_combined_gif(img, maker, 24, 0.1, FrameAlignPolicy.extend_last)
 
 
 # noinspection PyUnusedLocal
@@ -2351,3 +2409,132 @@ async def kirby_hammer(users: List[UserInfo], args=None, **kwargs) -> BytesIO:
         return make
 
     return await make_gif_or_combined_gif(user_img, maker, 62, 0.05, FrameAlignPolicy.extend_loop)
+
+
+# noinspection PyUnusedLocal
+async def wooden_fish(users: List[UserInfo], **kwargs) -> BytesIO:
+    img = users[0].img
+    img = img.convert("RGBA").resize((85, 85))
+    frames = [(await load_image(f"wooden_fish/{i}.png")).paste(img, (116, 153), below=True).image for i in range(66)]
+    return save_gif(frames, 0.10)
+
+
+# noinspection PyUnusedLocal
+async def karyl_point(users: List[UserInfo], **kwargs) -> BytesIO:
+    img = users[0].img
+    img = img.convert("RGBA").rotate(7.5, expand=True).resize((225, 225))
+    frame = await load_image("karyl_point/0.png")
+    frame.paste(img, (87, 790), alpha=True)
+    return frame.save_png()
+
+
+# noinspection PyUnusedLocal
+async def kick_ball(users: List[UserInfo], **kwargs) -> BytesIO:
+    img = users[0].img
+    img = img.convert("RGBA").square().resize((78, 78))
+    # fmt: off
+    locs = [
+        (57, 136), (56, 117), (55, 99), (52, 113), (50, 126),
+        (48, 139), (47, 112), (47, 85), (47, 57), (48, 97),
+        (50, 136), (51, 176), (52, 169), (55, 181), (58, 153)
+    ]
+    # fmt: on
+    frames: List[IMG] = []
+    for i in range(15):
+        frame = await load_image(f"kick_ball/{i}.png")
+        frame.paste(img.rotate(-24 * i), locs[i], below=True)
+        frames.append(frame.image)
+    return save_gif(frames, 0.1)
+
+
+# noinspection PyUnusedLocal
+async def smash(users: List[UserInfo], **kwargs) -> BytesIO:
+    user_img = users[0].img
+    frame = await load_image("smash/0.png")
+
+    async def make(img: BuildImage) -> BuildImage:
+        points = ((1, 237), (826, 1), (832, 508), (160, 732))
+        screen = img.resize((800, 500), keep_ratio=True).perspective(points)
+        return frame.copy().paste(screen, (-136, -81), below=True)
+
+    return await make_jpg_or_gif(user_img, make)
+
+
+# noinspection PyUnusedLocal
+async def bocchi_draft(users: List[UserInfo], **kwargs) -> BytesIO:
+    img = users[0].img
+    img = img.convert("RGBA").resize((350, 400), keep_ratio=True)
+    params = [
+        (((54, 62), (353, 1), (379, 382), (1, 399)), (146, 173)),
+        (((54, 61), (349, 1), (379, 381), (1, 398)), (146, 174)),
+        (((54, 61), (349, 1), (379, 381), (1, 398)), (152, 174)),
+        (((54, 61), (335, 1), (379, 381), (1, 398)), (158, 167)),
+        (((54, 61), (335, 1), (370, 381), (1, 398)), (157, 149)),
+        (((41, 59), (321, 1), (357, 379), (1, 396)), (167, 108)),
+        (((41, 57), (315, 1), (357, 377), (1, 394)), (173, 69)),
+        (((41, 56), (309, 1), (353, 380), (1, 393)), (175, 43)),
+        (((41, 56), (314, 1), (353, 380), (1, 393)), (174, 30)),
+        (((41, 50), (312, 1), (348, 367), (1, 387)), (171, 18)),
+        (((35, 50), (306, 1), (342, 367), (1, 386)), (178, 14)),
+    ]
+    # fmt: off
+    idx = [
+        0, 0, 0, 0, 0, 0, 0, 1, 1, 2, 2, 2, 3, 4, 5, 6, 7, 8, 9, 10, 10, 10, 10,
+    ]
+    # fmt: on
+    frames: List[IMG] = []
+    for i in range(23):
+        frame = await load_image(f"bocchi_draft/{i}.png")
+        points, pos = params[idx[i]]
+        frame.paste(img.perspective(points), pos, below=True)
+        frames.append(frame.image)
+    return save_gif(frames, 0.08)
+
+
+# noinspection PyUnusedLocal
+async def sit_still(users: List[UserInfo], args=None, **kwargs) -> BytesIO:
+    user_img = users[0].img
+    if args is None:
+        args = []
+    name = args[0] if args else users[0].name
+    frame = await load_image("sit_still/0.png")
+    try:
+        frame.draw_text(
+            (100, 170, 600, 330),
+            name,
+            valign="bottom",
+            max_fontsize=75,
+            min_fontsize=30,
+        )
+    except ValueError:
+        raise ValueError(NAME_TOO_LONG)
+    img = users[0].img.convert("RGBA").circle().resize((150, 150)).rotate(-10, expand=True)
+    frame.paste(img, (268, 344), alpha=True)
+    return frame.save_jpg()
+
+
+# noinspection PyUnusedLocal
+async def learn(users: List[UserInfo], args=None, **kwargs) -> BytesIO:
+    user_img = users[0].img
+    if args is None:
+        args = []
+    text = args[0] if args else "偷学群友数理基础"
+    frame = await load_image("learn/0.png")
+
+    try:
+        frame.draw_text(
+            (100, 1360, frame.width - 100, 1730),
+            text,
+            max_fontsize=350,
+            min_fontsize=200,
+            weight="bold",
+        )
+    except ValueError:
+        raise ValueError(NAME_TOO_LONG)
+
+    async def make(img: BuildImage) -> BuildImage:
+        return frame.copy().paste(
+            img.resize((1751, 1347), keep_ratio=True), (1440, 0), alpha=True
+        )
+
+    return await make_jpg_or_gif(user_img, make)

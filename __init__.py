@@ -1,7 +1,6 @@
 import base64
 import json
 import os
-import random
 import shlex
 import traceback
 from io import BytesIO
@@ -14,9 +13,8 @@ from hoshino import HoshinoBot, Service, priv
 from hoshino.typing import CQEvent, MessageSegment, Message
 from .config import petpet_command_start as cmd_prefix
 from .data_source import commands, make_image
-from .download import DownloadError, ResourceError
 from .models import UserInfo
-from .utils import help_image, trie_handle
+from .utils import help_image, TrieHandle
 
 banned_command = {
     "global": [],
@@ -38,7 +36,8 @@ sv = Service(
     help_=sv_help  # 帮助文本
 )
 
-petpet_handler = None
+petpet_handler = TrieHandle()
+
 
 # 绕了一圈弄帮助图片
 # 主要是因为图片制作得在插件加载完成后才能生成
@@ -54,7 +53,7 @@ def bytesio2b64(im: BytesIO) -> str:
 
 @sv.on_fullmatch("头像表情包")
 async def bangzhu_img(bot: HoshinoBot, ev: CQEvent):
-    im = await help_image(commands)
+    im = await help_image(commands, ev.group_id)
     await bot.send(ev, MessageSegment.image(bytesio2b64(im)))
 
 
@@ -77,8 +76,8 @@ async def get_user_info(bot: HoshinoBot, user: UserInfo):
         user.name = info.get("nickname", "")
         user.gender = info.get("sex", "")
 
-async def handle_user_args(bot, event: CQEvent):
 
+async def handle_user_args(bot, event: CQEvent):
     users: List[UserInfo] = []
     args: List[str] = []
     msg = event.message
@@ -154,6 +153,7 @@ async def handle_user_args(bot, event: CQEvent):
 
     return users, sender, args
 
+
 @sv.on_message('group')
 async def handle(bot, event: CQEvent):
     global petpet_handler
@@ -175,8 +175,8 @@ async def handle(bot, event: CQEvent):
     sv.logger.info(f"Message {event.message_id} triggered {prefix}")
 
     if prefix == "随机表情":
-        command = await command.func(commands, banned_command, handle_group)
-        if not command:
+        command = await command.func_random(commands, banned_command, handle_group)
+        if command is None:
             bot.finish("本群已没有可使用的表情了捏qwq")
         await bot.send(event, f"随机到了【{command.keywords[0]}】")
 
@@ -200,6 +200,7 @@ async def handle(bot, event: CQEvent):
         await bot.send(event, "发送失败……消息可能被风控")
 
     return
+
 
 @sv.on_prefix("启用表情")
 async def enable_pic(bot, ev: CQEvent):
@@ -250,6 +251,7 @@ async def enable_pic(bot, ev: CQEvent):
     with open(banned_config_path, "w", encoding="utf-8") as f:
         f.write(json.dumps(banned_command, indent=4, ensure_ascii=False))
     await bot.finish(ev, msg)
+
 
 @sv.on_prefix("禁用表情")
 async def disable_pic(bot, ev: CQEvent):
@@ -314,7 +316,8 @@ async def register_handler():
             "global": []
         }
 
-    petpet_handler = trie_handle()
+    if petpet_handler is None:
+        petpet_handler = TrieHandle()
     for command in commands:
         for prefix in command.keywords:
             ok = petpet_handler.add(f"{cmd_prefix}{prefix}", command)
