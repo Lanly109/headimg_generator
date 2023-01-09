@@ -119,7 +119,7 @@ pip install dataclasses
 发送`帮助头像表情包`显示下图的列表：
 
 <div align="left">
-  <img src="https://s2.loli.net/2022/11/29/8sJQzHn5E1ALYVc.jpg" width="400" />
+  <img src="https://s2.loli.net/2023/01/08/QZVmHLtepGSyRbE.jpg" width="400" />
 </div>
 
 > 以下内容摘自原插件README
@@ -267,5 +267,13 @@ pip install dataclasses
 | 砸                           | <img src="https://s2.loli.net/2022/11/29/fTqa5V1dArhxDHX.jpg" width="200" >  | 支持gif                                                              |
 | 波奇手稿                        | <img src="https://s2.loli.net/2022/11/29/Aw8HsGud7JoMKqW.gif" width="200" >  |                                                                    |
 | 坐得住<br>坐不住                  | <img src="https://s2.loli.net/2022/12/03/gaQsO6AkVtPF3CW.jpg" width="200" >  | 图中名字为目标qq昵称<br>可自定义名字                                              |                            |
+| 偷学                          | <img src="https://s2.loli.net/2022/12/17/v6C9jegrNy1AJRu.jpg)" width="200" > | 描述默认为“偷学群友数理基础”<br>可自定义描述                                          |
+| 恍惚                          | <img src="https://s2.loli.net/2022/12/17/fU6i7tr8egbxaMI.jpg)" width="200" > |                                                                    |
+| 恐龙<br>小恐龙                   | <img src="https://s2.loli.net/2023/01/08/hWaoIZ4JxDgX9FA.jpg" width="200" >  | 支持gif                                                              |
+| 挠头                          | <img src="https://s2.loli.net/2023/01/08/DeuAJSQRdrC2v51.gif" width="200" >  |                                                                    |
+| 鼓掌                          | <img src="https://s2.loli.net/2023/01/08/SGhsngjWQLRemPd.gif" width="200" >  |                                                                    |
+| 追列车<br>追火车                  | <img src="https://s2.loli.net/2023/01/08/NJ1FnKkdcrDBtEx.gif" width="200" >  |                                                                    |
+| 万花筒<br>万花镜                  | <img src="https://s2.loli.net/2023/01/08/obSnWmDOiFcqYkN.jpg" width="200" >  | 支持gif<br>可使用参数“圆”让头像为圆形                                            |
+| 加班                          | <img src="https://s2.loli.net/2023/01/08/LTcqjGobDkSVQIN.jpg" width="200" >  |                                                                    |
 
 </details>
