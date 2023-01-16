@@ -6,11 +6,20 @@
 ，感谢[@MeetWq](https://github.com/MeetWq)以及参与该项目的所有成员！
 
 ## 更新日志
+**2023.01.09**
+- 新增`恍惚`，`恐龙`，`挠头`，`鼓掌`，`追列车`，`万花筒`，`加班`，`头像公式`，`一直套娃`
+- 修改`催刀`触发方式
+- 以上感谢[@kcn3388](https://github.com/kcn3388)
+
 **2022.12.09**
 - 重构`催刀`，解决历史遗留问题，现在全部表情均支持emoji
 - 重构生成帮助的函数，现在生成的帮助图片可以包含emoji
   - 同时被禁用的函数会变为灰色
 - 以上感谢[@kcn3388](https://github.com/kcn3388)
+
+<details>
+
+<summary>更新历史</summary>
 
 **2022.12.08**
 - 新增`咖波蹭`、`可莉吃`、`胡桃啃`、`踢球`、`砸`、`波奇手稿`、`坐得住`、`偷学`
@@ -23,10 +32,6 @@
 **2022.11.15**
 - 切换handle为`on_message`，彻底解决`一直`与`一直一直`冲突的问题。感谢[@kcn3388](https://github.com/kcn3388)
   - 同时修改`Handler`的固有变量为`command`数组，避免注册多个`trigger`带来的性能损失
-
-<details>
-
-<summary>更新历史</summary>
 
 **2022.11.14**
 - 新增随机表情
@@ -119,7 +124,7 @@ pip install dataclasses
 发送`帮助头像表情包`显示下图的列表：
 
 <div align="left">
-  <img src="https://s2.loli.net/2022/11/29/8sJQzHn5E1ALYVc.jpg" width="400" />
+  <img src="https://s2.loli.net/2023/01/08/QZVmHLtepGSyRbE.jpg" width="400" />
 </div>
 
 > 以下内容摘自原插件README
@@ -267,5 +272,13 @@ pip install dataclasses
 | 砸                           | <img src="https://s2.loli.net/2022/11/29/fTqa5V1dArhxDHX.jpg" width="200" >  | 支持gif                                                              |
 | 波奇手稿                        | <img src="https://s2.loli.net/2022/11/29/Aw8HsGud7JoMKqW.gif" width="200" >  |                                                                    |
 | 坐得住<br>坐不住                  | <img src="https://s2.loli.net/2022/12/03/gaQsO6AkVtPF3CW.jpg" width="200" >  | 图中名字为目标qq昵称<br>可自定义名字                                              |                            |
+| 偷学                          | <img src="https://s2.loli.net/2022/12/17/v6C9jegrNy1AJRu.jpg)" width="200" > | 描述默认为“偷学群友数理基础”<br>可自定义描述                                          |
+| 恍惚                          | <img src="https://s2.loli.net/2022/12/17/fU6i7tr8egbxaMI.jpg)" width="200" > |                                                                    |
+| 恐龙<br>小恐龙                   | <img src="https://s2.loli.net/2023/01/08/hWaoIZ4JxDgX9FA.jpg" width="200" >  | 支持gif                                                              |
+| 挠头                          | <img src="https://s2.loli.net/2023/01/08/DeuAJSQRdrC2v51.gif" width="200" >  |                                                                    |
+| 鼓掌                          | <img src="https://s2.loli.net/2023/01/08/SGhsngjWQLRemPd.gif" width="200" >  |                                                                    |
+| 追列车<br>追火车                  | <img src="https://s2.loli.net/2023/01/08/NJ1FnKkdcrDBtEx.gif" width="200" >  |                                                                    |
+| 万花筒<br>万花镜                  | <img src="https://s2.loli.net/2023/01/08/obSnWmDOiFcqYkN.jpg" width="200" >  | 支持gif<br>可使用参数“圆”让头像为圆形                                            |
+| 加班                          | <img src="https://s2.loli.net/2023/01/08/LTcqjGobDkSVQIN.jpg" width="200" >  |                                                                    |
 
 </details>
