@@ -1,7 +1,8 @@
 from pathlib import Path
 from typing import List
+import os
 
-custom_font_path: Path = Path("data/fonts")
+custom_font_path: Path = Path() / os.path.dirname(__file__) / '..' / 'resources' / 'fonts'
 default_fallback_fonts: List[str] = [
     "Arial",
     "Tahoma",
