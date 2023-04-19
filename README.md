@@ -2,10 +2,18 @@
 
 基于[HoshinoBot](https://github.com/Ice-Cirno/HoshinoBot)的制作头像相关的表情包插件。
 
-移植自[nonebot-plugin-petpet](https://github.com/noneplugin/nonebot-plugin-petpet)
-，感谢[@MeetWq](https://github.com/MeetWq)以及参与该项目的所有成员！
+移植自[nonebot-plugin-memes](https://github.com/noneplugin/nonebot-plugin-memes)，
+后端由[meme-generator](https://github.com/MeetWq/meme-generator)驱动，
+感谢[@MeetWq](https://github.com/MeetWq)以及参与该项目的所有成员！
 
 ## 更新日志
+**2023.04.19**
+- 重构代码，以匹配重构后的源仓库。具体配置看后文
+
+<details>
+
+<summary>更新历史</summary>
+
 **2023.01.09**
 - 新增`恍惚`，`恐龙`，`挠头`，`鼓掌`，`追列车`，`万花筒`，`加班`，`头像公式`，`一直套娃`
 - 修改`催刀`触发方式
@@ -16,11 +24,6 @@
 - 重构生成帮助的函数，现在生成的帮助图片可以包含emoji
   - 同时被禁用的函数会变为灰色
 - 以上感谢[@kcn3388](https://github.com/kcn3388)
-
-<details>
-
-<summary>更新历史</summary>
-
 **2022.12.08**
 - 新增`咖波蹭`、`可莉吃`、`胡桃啃`、`踢球`、`砸`、`波奇手稿`、`坐得住`、`偷学`
 - 同步源仓库bug修复
@@ -100,185 +103,243 @@ cd headimg_generator
 pip install -r requirements.txt
 ```
 
-`python 3.6`以下的还需安装以下依赖（[#1](https://github.com/Lanly109/headimg_generator/issues/1)）
-
-```bash
-pip install dataclasses
-``` 
-
-下载`releases`中的`resources.zip`，解压文件至`resources/`下，放置情况如下（注意`fonts`文件夹下无`fonts`文件夹，`images`同理）
-
-```bash
-.
-└── resources
-    ├── fonts
-    └── images
-``` 
-
 然后在```HoshinoBot\hoshino\config\__bot__.py```文件的```MODULES_ON```加入```headimg_generator```
-
-`imageutils`的字体安装方法请参照[原插件仓库](https://github.com/noneplugin/nonebot-plugin-imageutils)的`README`
 
 ## 使用方法
 
-发送`帮助头像表情包`显示下图的列表：
+发送`头像表情包`显示下图的列表：
 
 <div align="left">
-  <img src="https://s2.loli.net/2023/01/08/QZVmHLtepGSyRbE.jpg" width="400" />
+  <img src="./memes_cache_dir/default.jpg" width="400"  alt=""/>
 </div>
 
-> 以下内容摘自原插件README
+> 以下内容摘自原插件README并对本插件作修改
 
-### 触发方式
+### 配置项
 
-- 指令 + @user，如： 爬 @小Q
-- 指令 + 回复消息，如： [回复消息] 爬
-- 指令 + qq号，如：爬 123456
-- 指令 + 自己，如：爬 自己
-- 指令 + 图片，如：爬 [图片]
+> 以下配置项可在 `config.py` 文件中设置
 
-前三种触发方式会使用目标qq的头像作为图片
+#### `memes_command_start`
+ - 类型：`str`
+ - 默认：``
+ - 说明：命令前缀
 
-### 随机表情
+#### `memes_disabled_list`
+ - 类型：`List[str]`
+ - 默认：`[]`
+ - 说明：禁用的表情包列表，需填写表情的`key`，可在 [meme-generator 表情列表](https://github.com/MeetWq/meme-generator/blob/main/docs/memes.md) 中查看。若只是临时关闭，可以用下文中的“表情包开关”
 
-随机表情 + @user/qq号/自己/图片
+#### `memes_check_resources_on_startup`
+ - 类型：`bool`
+ - 默认：`True`
+ - 说明：是否在启动时检查 `meme-generator` 资源
 
-如：`随机表情 自己`
+#### `memes_check_cfg_on_startup`
+ - 类型：`bool`
+ - 默认：`True`
+ - 说明：是否在启动时生成/修改配置文件，建议仅当第一次使用插件时或修改配置后开启
 
-会在未禁用的表情中随机选取一个制作表情包
+#### `memes_prompt_params_error`
+ - 类型：`bool`
+ - 默认：`False`
+ - 说明：是否在图片/文字数量不符或参数解析错误时提示（若没有设置命令前缀不建议开启，否则极易误触发）
 
-### 表情包开关
+#### `memes_use_sender_when_no_image`
+ - 类型：`bool`
+ - 默认：`False`
+ - 说明：在表情需要至少1张图且没有输入图片时，是否使用发送者的头像（谨慎使用，容易误触发）
+
+#### `memes_use_default_when_no_text`
+ - 类型：`bool`
+ - 默认：`False`
+ - 说明：在表情需要至少1段文字且没有输入文字时，是否使用默认文字（谨慎使用，容易误触发）
+
+#### `load_builtin_memes`
+ - 类型：`bool`
+ - 默认：`True`
+ - 说明：是否加载内置表情包
+
+#### `meme_dirs` = []
+ - 类型：`List[Path]`
+ - 默认：`[]`
+ - 说明：加载其他位置的表情包，填写文件夹路径
+
+#### `resource_url`
+ - 类型：`str`
+ - 默认：`https://ghproxy.com/https://raw.githubusercontent.com/MeetWq/meme-generator`
+ - 说明：下载内置表情包图片时的资源链接
+
+#### `gif_max_size`
+ - 类型：`float`
+ - 默认：`10.0`
+ - 说明：限制生成的 gif 文件大小，单位为 Mb
+
+#### `gif_max_frames`
+ - 类型：`int`
+ - 默认：`100`
+ - 说明：限制生成的 gif 文件帧数
+
+#### `baidu_trans_appid`
+ - 类型：`str`
+ - 默认：``
+ - 说明：百度翻译api相关，表情包 `dianzhongdian` 需要使用
+
+#### `baidu_trans_apikey`
+ - 类型：`str`
+ - 默认：``
+ - 说明：可在 百度翻译开放平台 (http://api.fanyi.baidu.com) 申请
+
+#### `host`
+ - 类型：`str`
+ - 默认：`127.0.0.1`
+ - 说明：web server 监听地址
+
+#### `port`
+ - 类型：`int`
+ - 默认：`2233`
+ - 说明：web server 端口
+
+### 中文字体 和 emoji字体 安装
+
+根据系统的不同，推荐安装的字体如下：
+
+- Windows:
+
+大部分 Windows 系统自带 [微软雅黑](https://learn.microsoft.com/zh-cn/typography/font-list/microsoft-yahei) 中文字体 和 [Segoe UI Emoji](https://learn.microsoft.com/zh-cn/typography/font-list/segoe-ui-emoji) emoji 字体，一般情况下无需额外安装
+
+- Linux:
+
+部分系统可能自带 [文泉驿微米黑](http://wenq.org/wqy2/index.cgi?MicroHei) 中文字体；
+
+对于 Ubuntu 系统，推荐安装 Noto Sans CJK 和 Noto Color Emoji：
+
+```bash
+sudo apt install fonts-noto-cjk fonts-noto-color-emoji
+```
+
+为避免 Noto Sans CJK 中部分中文显示为异体（日文）字形，可以将简体中文设置为默认语言（详见 [ArchWiki](https://wiki.archlinux.org/title/Localization/Simplified_Chinese?rdfrom=https%3A%2F%2Fwiki.archlinux.org%2Findex.php%3Ftitle%3DLocalization_%28%25E7%25AE%2580%25E4%25BD%2593%25E4%25B8%25AD%25E6%2596%2587%29%2FSimplified_Chinese_%28%25E7%25AE%2580%25E4%25BD%2593%25E4%25B8%25AD%25E6%2596%2587%29%26redirect%3Dno#%E4%BF%AE%E6%AD%A3%E7%AE%80%E4%BD%93%E4%B8%AD%E6%96%87%E6%98%BE%E7%A4%BA%E4%B8%BA%E5%BC%82%E4%BD%93%EF%BC%88%E6%97%A5%E6%96%87%EF%BC%89%E5%AD%97%E5%BD%A2)）：
+
+```bash
+sudo locale-gen zh_CN zh_CN.UTF-8
+sudo update-locale LC_ALL=zh_CN.UTF-8 LANG=zh_CN.UTF-8
+fc-cache -fv
+```
+
+其他 Linux 系统可以自行下载字体文件安装：
+
+思源黑体：https://github.com/adobe-fonts/source-han-sans
+
+NotoSansSC：https://fonts.google.com/noto/specimen/Noto+Sans+SC
+
+Noto Color Emoji：https://github.com/googlefonts/noto-emoji
+
+
+- Mac:
+
+苹果系统一般自带 "PingFang SC" 中文字体 与 "Apple Color Emoji" emoji 字体
+
+### 其他字体安装
+
+某些表情包需要用到一些额外字体，存放于仓库中 [resources/fonts](https://github.com/MeetWq/meme-generator/tree/main/resources/fonts)，需要自行下载安装
+
+具体字体及对应的表情如下：
+
+| 字体名                                                                          | 字体文件名                                                                                                                 | 用到该字体的表情                       | 备注        |
+|------------------------------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------------|--------------------------------|-----------|
+| [Consolas](https://learn.microsoft.com/zh-cn/typography/font-list/consolas)  | [consola.ttf](https://github.com/MeetWq/meme-generator/blob/main/resources/fonts/consola.ttf)                         | `charpic`                      |           |
+| [FZKaTong-M19S](https://www.foundertype.com/index.php/FontInfo/index/id/136) | [FZKATJW.ttf](https://github.com/MeetWq/meme-generator/blob/main/resources/fonts/FZKATJW.ttf)                         | `capoo_say`                    | 方正卡通      |
+| [FZXS14](https://www.foundertype.com/index.php/FontInfo/index/id/208)        | [FZXS14.ttf](https://github.com/MeetWq/meme-generator/blob/main/resources/fonts/FZXS14.ttf)                           | `nokia`                        | 方正像素14    |
+| [FZSJ-QINGCRJ](https://www.foundertype.com/index.php/FontInfo/index/id/5178) | [FZSJ-QINGCRJ.ttf](https://github.com/MeetWq/meme-generator/blob/main/resources/fonts/FZSJ-QINGCRJ.ttf)               | `psyduck`                      | 方正手迹-青春日记 |
+| [FZShaoEr-M11S](https://www.foundertype.com/index.php/FontInfo/index/id/149) | [FZSEJW.ttf](https://github.com/MeetWq/meme-generator/blob/main/resources/fonts/FZSEJW.ttf)                           | `raise_sign`、`nekoha_holdsign` | 方正少儿      |
+| [NotoSansSC](https://fonts.google.com/noto/specimen/Noto+Sans+SC)            | [NotoSansSC-Regular.otf](https://github.com/MeetWq/meme-generator/blob/main/resources/fonts/NotoSansSC-Regular.otf)   | `5000choyen`                   |           |
+| [NotoSerifSC](https://fonts.google.com/noto/specimen/Noto+Serif+SC)          | [NotoSerifSC-Regular.otf](https://github.com/MeetWq/meme-generator/blob/main/resources/fonts/NotoSerifSC-Regular.otf) | `5000choyen`                   |           |
+
+### 字体安装方式
+
+不同系统的字体安装方式：
+
+- Windows:
+    - 双击通过字体查看器安装
+    - 复制到字体文件夹：`C:\Windows\Fonts`
+
+- Linux:
+
+在 `/usr/share/fonts` 目录下新建文件夹，如 `myfonts`，将字体文件复制到该路径下；
+
+运行如下命令建立字体缓存：
+
+```bash
+fc-cache -fv
+```
+
+- Mac:
+
+使用字体册打开字体文件安装
+
+### 使用
+
+#### 表情列表
+
+发送 “表情包制作” 查看表情列表
+
+> **Note**
+>
+> 插件会缓存生成的表情列表图片以避免重复生成
+>
+> 若因为字体没安装好等原因导致生成的图片不正常，需要删除缓存的图片
+>
+> 缓存路径：
+> - Linux: `./memes_cache_dir`
+
+#### 表情帮助
+
+- 发送 “表情详情 + 表情名/关键词” 查看 表情详细信息 和 表情预览
+
+示例：
+
+<div align="left">
+  <img src="https://s2.loli.net/2023/03/10/1glyUrwELCHMfkT.png" width="250"  alt=""/>
+</div>
+
+#### 表情包开关
 
 群主 / 管理员 / 超级用户 可以启用或禁用某些表情包
 
-发送 `启用表情/禁用表情 [表情名]`，如：`禁用表情 摸`、`启用表情 petpet 贴 爬`
+发送 `启用表情/禁用表情 [表情名/表情关键词]`，如：`禁用表情 摸`
 
 超级用户 可以设置某个表情包的管控模式（黑名单/白名单）
 
-发送 `启用表情 <全局> [表情名]` 可将表情设为黑名单模式；
+发送 `全局启用表情 [表情名/表情关键词]` 可将表情设为黑名单模式；
 
-发送 `禁用表情 <全局> [表情名]` 可将表情设为白名单模式；
+发送 `全局禁用表情 [表情名/表情关键词]` 可将表情设为白名单模式；
+
+#### 表情使用
+
+发送 “关键词 + 图片/文字” 制作表情
+
+可使用 “自己”、“@某人” 获取指定用户的头像作为图片
+
+可使用 “@ + 用户id” 指定任意用户获取头像，如 “摸 @114514”
+
+可回复包含图片的消息作为图片输入
+
+示例：
+
+<div align="left">
+  <img src="https://s2.loli.net/2023/03/10/UDTOuPnwk3emxv4.png" width="250"  alt=""/>
+</div>
+
+#### 随机表情
+
+发送 “随机表情 + 图片/文字” 可随机制作表情
+
+随机范围为 图片/文字 数量符合要求的表情
+
+
+**注意事项**
+
+- 为避免误触发，当输入的 图片/文字 数量不符时，不会进行提示，可事先通过 “表情详情” 查看所需的图文数
 
 ### 支持的指令
 
-<details>
-<summary>展开/收起</summary>
-
-| 指令                          | 效果                                                                           | 备注                                                                 |
-|-----------------------------|------------------------------------------------------------------------------|--------------------------------------------------------------------|
-| 万能表情<br>空白表情                | <img src="https://s2.loli.net/2022/05/29/C2VRA6iw4hzWZXO.jpg" width="200" /> | 简单的图片加文字                                                           |
-| 摸<br>摸摸<br>摸头<br>摸摸头<br>rua | <img src="https://s2.loli.net/2022/02/23/oNGVO4iuCk73g8S.gif" width="200" /> | 可使用参数“圆”让头像为圆形<br>如：摸头圆 自己                                         |
-| 亲<br>亲亲                     | <img src="https://s2.loli.net/2022/02/23/RuoiqP8plJBgw9K.gif" width="200" /> | 可指定一个或两个目标<br>若为一个则为 发送人 亲 目标<br>若为两个则为 目标1 亲 目标2<br>如：亲 114514 自己 |
-| 贴<br>贴贴<br>蹭<br>蹭蹭          | <img src="https://s2.loli.net/2022/02/23/QDCE5YZIfroavub.gif" width="200" /> | 可指定一个或两个目标<br>类似 亲                                                 |
-| 咖波蹭                         | <img src="https://s2.loli.net/2022/11/29/iZpwCVWb5agDKLH.gif" width="200" >  |                                                                    |
-| 顶<br>玩                      | <img src="https://s2.loli.net/2022/08/16/WVotKxjqupdCJAS.gif" width="200" /> |                                                                    |
-| 拍                           | <img src="https://s2.loli.net/2022/02/23/5mv6pFJMNtzHhcl.gif" width="200" /> |                                                                    |
-| 撕                           | <img src="https://s2.loli.net/2022/05/29/FDcam9ROPkqvwxH.jpg" width="200" >  |                                                                    |
-| 怒撕                          | <img src="https://s2.loli.net/2022/10/11/NepC3ETugIaWnHs.jpg" width="200" >  |                                                                    |
-| 丢<br>扔                      | <img src="https://s2.loli.net/2022/02/23/LlDrSGYdpcqEINu.jpg" width="200" /> |                                                                    |
-| 抛<br>掷                      | <img src="https://s2.loli.net/2022/03/10/W8X6cGZS5VMDOmh.gif" width="200" /> |                                                                    |
-| 爬                           | <img src="https://s2.loli.net/2022/02/23/hfmAToDuF2actC1.jpg" width="200" /> | 默认为随机选取一张爬表情<br>可使用数字指定特定表情<br>如：爬 13 自己                           |
-| 精神支柱                        | <img src="https://s2.loli.net/2022/02/23/WwjNmiz4JXbuE1B.jpg" width="200" /> |                                                                    |
-| 一直                          | <img src="https://s2.loli.net/2022/02/23/dAf9Z3kMDwYcRWv.gif" width="200" /> | 支持gif                                                              |
-| 一直一直                        | <img src="https://s2.loli.net/2022/10/15/hn5Q4jm29pXNsrL.gif" width="200" /> | 支持gif                                                              |
-| 加载中                         | <img src="https://s2.loli.net/2022/02/23/751Oudrah6gBsWe.gif" width="200" /> | 支持gif                                                              |
-| 转                           | <img src="https://s2.loli.net/2022/02/23/HoZaCcDIRgs784Y.gif" width="200" /> |                                                                    |
-| 小天使                         | <img src="https://s2.loli.net/2022/02/23/ZgD1WSMRxLIymCq.jpg" width="200" /> | 图中名字为目标qq昵称<br>可指定名字，如：小天使 meetwq 自己                               |
-| 不要靠近                        | <img src="https://s2.loli.net/2022/02/23/BTdkAzvhRDLOa3U.jpg" width="200" /> |                                                                    |
-| 一样                          | <img src="https://s2.loli.net/2022/02/23/SwAXoOgfdjP4ecE.jpg" width="200" /> |                                                                    |
-| 滚                           | <img src="https://s2.loli.net/2022/02/23/atzZsSE53UDIlOe.gif" width="200" /> |                                                                    |
-| 玩游戏<br>来玩游戏                 | <img src="https://s2.loli.net/2022/05/31/j9ZKB7cFOSklzMe.jpg" width="200" /> | 图中描述默认为：来玩休闲游戏啊<br>可指定描述<br>支持gif                                  |
-| 膜<br>膜拜                     | <img src="https://s2.loli.net/2022/02/23/nPgBJwV5qDb1s9l.gif" width="200" /> |                                                                    |
-| 吃                           | <img src="https://s2.loli.net/2022/02/23/ba8cCtIWEvX9sS1.gif" width="200" /> |                                                                    |
-| 可莉吃                         | <img src="https://s2.loli.net/2022/11/29/R12XlsdTjCYqnBh.gif" width="200" /> |                                                                    |
-| 啃                           | <img src="https://s2.loli.net/2022/02/23/k82n76U4KoNwsr3.gif" width="200" /> |                                                                    |
-| 胡桃啃                         | <img src="https://s2.loli.net/2022/11/29/JUCbMuxgpYDfAWo.gif" width="200" /> |                                                                    |
-| 出警                          | <img src="https://s2.loli.net/2022/05/31/Q7WL1q2TlHgnERr.jpg" width="200" /> |                                                                    |
-| 警察                          | <img src="https://s2.loli.net/2022/03/12/xYLgKVJcd3HvqfM.jpg" width="200" >  |                                                                    |
-| 问问<br>去问问                   | <img src="https://s2.loli.net/2022/02/23/GUyax1BF6q5Hvin.jpg" width="200" /> | 名字为qq昵称，可指定名字                                                      |
-| 舔<br>舔屏<br>prpr             | <img src="https://s2.loli.net/2022/03/05/WMHpwygtmN5bdEV.jpg" width="200" /> | 支持gif                                                              |
-| 搓                           | <img src="https://s2.loli.net/2022/03/09/slRF4ue56xSQzra.gif" width="200" /> |                                                                    |
-| 墙纸                          | <img src="https://s2.loli.net/2022/10/01/wm3pFvEZeUctA4J.gif" width="200" /> |                                                                    |
-| 国旗                          | <img src="https://s2.loli.net/2022/03/10/p7nwCvgsU3LxBDI.jpg" width="200" /> |                                                                    |
-| 交个朋友                        | <img src="https://s2.loli.net/2022/03/10/SnmkNrjKuFeZvbA.jpg" width="200" /> | 名字为qq昵称，可指定名字                                                      |
-| 继续干活<br>打工人                 | <img src="https://s2.loli.net/2022/04/20/LIak2BsJ9Dd5O7l.jpg" width="200" >  |                                                                    |
-| 完美<br>完美的                   | <img src="https://s2.loli.net/2022/03/10/lUS1nmPAKIYtwih.jpg" width="200" /> |                                                                    |
-| 关注                          | <img src="https://s2.loli.net/2022/03/12/FlpjRWCte72ozqs.jpg" width="200" >  | 名字为qq昵称，可指定名字                                                      |
-| 我朋友说<br>我有个朋友说              | <img src="https://s2.loli.net/2022/03/12/cBk4aG3RwIoYbMF.jpg" width="200" >  | 没有图片则使用发送者的头像<br>可指定名字<br>如“我朋友张三说 来份涩图”                           |
-| 这像画吗                        | <img src="https://s2.loli.net/2022/03/12/PiSAM1T6EvxXWgD.jpg" width="200" >  |                                                                    |
-| 震惊                          | <img src="https://s2.loli.net/2022/03/12/4krO6y53bKzYpUg.gif" width="200" >  |                                                                    |
-| 兑换券                         | <img src="https://s2.loli.net/2022/03/12/6tS7dDaprb1sUxj.jpg" width="200" >  | 默认文字为：qq昵称 + 陪睡券<br>可指定文字                                          |
-| 听音乐                         | <img src="https://s2.loli.net/2022/03/15/rjgvbXeOJtIW8fF.gif" width="200" >  |                                                                    |
-| 典中典                         | <img src="https://s2.loli.net/2022/03/18/ikQ1IB6hS4x3EjD.jpg" width="200" >  |                                                                    |
-| 哈哈镜                         | <img src="https://s2.loli.net/2022/03/15/DwRPaErSNZWXGgp.gif" width="200" >  |                                                                    |
-| 永远爱你                        | <img src="https://s2.loli.net/2022/03/15/o6mhWk7crwdepU5.gif" width="200" >  |                                                                    |
-| 对称                          | <img src="https://s2.loli.net/2022/03/15/HXntCy8kc7IRZxp.jpg" width="200" >  | 可使用参数“上”、“下”、“左”、“右”指定对称方向<br>支持gif                                |
-| 安全感                         | <img src="https://s2.loli.net/2022/03/15/58pPzrgxJNkUYRT.jpg" width="200" >  | 可指定描述                                                              |
-| 永远喜欢<br>我永远喜欢               | <img src="https://s2.loli.net/2022/03/15/EpTiUbcoVGCXLkJ.jpg" width="200" >  | 图中名字为目标qq昵称<br>可指定名字<br>可指定多个目标叠buff                               |
-| 采访                          | <img src="https://s2.loli.net/2022/03/15/AYpkWEc2BrXhKeU.jpg" width="200" >  | 可指定描述                                                              |
-| 打拳                          | <img src="https://s2.loli.net/2022/03/18/heA9fCPMQWXBxTn.gif" width="200" >  |                                                                    |
-| 群青                          | <img src="https://s2.loli.net/2022/03/18/drwXx3yK14IMVCf.jpg" width="200" >  |                                                                    |
-| 捣                           | <img src="https://s2.loli.net/2022/03/30/M9xUehlV64OpGoY.gif" width="200" >  |                                                                    |
-| 捶                           | <img src="https://s2.loli.net/2022/03/30/ElnARr7ohVXjtJx.gif" width="200" >  |                                                                    |
-| 需要<br>你可能需要                 | <img src="https://s2.loli.net/2022/03/30/VBDG74QeZUYcunh.jpg" width="200" >  |                                                                    |
-| 捂脸                          | <img src="https://s2.loli.net/2022/03/30/NLy4Eb6CHKP3Svo.jpg" width="200" >  |                                                                    |
-| 敲                           | <img src="https://s2.loli.net/2022/04/14/uHP8z3bDMtGdOCk.gif" width="200" >  |                                                                    |
-| 垃圾<br>垃圾桶                   | <img src="https://s2.loli.net/2022/04/14/i1ok2NUYaMfKezT.gif" width="200" >  |                                                                    |
-| 为什么@我<br>为什么at我             | <img src="https://s2.loli.net/2022/04/14/qQYydurABV7TMbN.jpg" width="200" >  |                                                                    |
-| 像样的亲亲                       | <img src="https://s2.loli.net/2022/04/14/1KvLjb2uRYQ9mCI.jpg" width="200" >  |                                                                    |
-| 啾啾                          | <img src="https://s2.loli.net/2022/04/20/v3YrbLMnND8BoPK.gif" width="200" >  |                                                                    |
-| 吸<br>嗦                      | <img src="https://s2.loli.net/2022/04/20/LlFNscXC1IQrkgE.gif" width="200" >  |                                                                    |
-| 锤                           | <img src="https://s2.loli.net/2022/04/20/ajXFm95tHRM6CzZ.gif" width="200" >  |                                                                    |
-| 紧贴<br>紧紧贴着                  | <img src="https://s2.loli.net/2022/04/20/FiBwc3ZxvVLObGP.gif" width="200" >  |                                                                    |
-| 注意力涣散                       | <img src="https://s2.loli.net/2022/05/11/mEtyxoZ3DfwBCn5.jpg" width="200" >  |                                                                    |
-| 阿尼亚喜欢                       | <img src="https://s2.loli.net/2022/08/16/PNCZxzqvV9uDFEf.jpg" width="200" >  | 支持gif                                                              |
-| 想什么                         | <img src="https://s2.loli.net/2022/05/18/ck1jNO2K8Qd6Lo3.jpg" width="200" >  | 支持gif                                                              |
-| 远离                          | <img src="https://s2.loli.net/2022/05/31/lqyOu25WPTsGBcb.jpg" width="200" >  | 可指定多个目标                                                            |
-| 结婚申请<br>结婚登记                | <img src="https://s2.loli.net/2022/05/31/tZR3ls7cBrdGHTL.jpg" width="200" >  |                                                                    |
-| 小画家                         | <img src="https://s2.loli.net/2022/06/23/KCD73EbgqzWFxr4.jpg" width="200" >  |                                                                    |
-| 复读                          | <img src="https://s2.loli.net/2022/08/16/E6vgRCt3MSLfAWU.gif" width="200" >  | 复读内容默认为“救命啊”<br>可指定多个目标                                            |
-| 防诱拐                         | <img src="https://s2.loli.net/2022/07/21/ve6lcYaiV4wfhHg.jpg" width="200" >  |                                                                    |
-| 字符画                         | <img src="https://s2.loli.net/2022/07/21/R58eG7mVZWPp1Cy.jpg" width="200" >  | 支持gif                                                              |
-| 催刀                          | <img src="https://s2.loli.net/2022/08/07/9UZeilHQWXIf2mF.jpg" width="200" >  |                                                                    |
-| 共进晚餐                        | <img src="https://s2.loli.net/2022/08/07/QSyceaFHwEKVRPX.jpg" width="200" >  |                                                                    |
-| 我老婆                         | <img src="https://s2.loli.net/2022/08/16/7wPht5rp6sk1ZCq.jpg" width="200" >  |                                                                    |
-| 胡桃平板                        | <img src="https://s2.loli.net/2022/08/16/Mc5HvfB6ywqLQiV.jpg" width="200" >  | 支持gif                                                              |
-| 胡桃放大                        | <img src="https://s2.loli.net/2022/10/01/ISotJVp1xOfgvlq.gif" width="200" >  | 支持gif                                                              |
-| 讲课<br>敲黑板                   | <img src="https://s2.loli.net/2022/08/16/VpdIHsteKocgRzP.jpg" width="200" >  | 支持gif                                                              |
-| 上瘾<br>毒瘾发作                  | <img src="https://s2.loli.net/2022/08/26/WAVDFfJB7tH5z3y.jpg" width="200" >  | 支持gif                                                              |
-| 手枪                          | <img src="https://s2.loli.net/2022/08/26/MRO3mqvfbaxkB1t.jpg" width="200" >  |                                                                    |
-| 高血压                         | <img src="https://s2.loli.net/2022/08/26/9qbyN2h38MAkRZE.jpg" width="200" >  | 支持gif                                                              |
-| 看书                          | <img src="https://s2.loli.net/2022/08/26/SeAC86RgDlUvLNY.jpg" width="200" >  |                                                                    |
-| 遇到困难请拨打                     | <img src="https://s2.loli.net/2022/08/26/KWGSf6qErB14uwp.jpg" width="200" >  | 可指定一个或两个目标                                                         |
-| 迷惑                          | <img src="https://s2.loli.net/2022/10/01/WqfAXNpD8JkVnUH.gif" width="200" >  | 支持gif                                                              |
-| 打穿<br>打穿屏幕                  | <img src="https://s2.loli.net/2022/10/01/ndxBbC1TKeRYv9X.gif" width="200" >  | 支持gif                                                              |
-| 击剑<br>🤺                    | <img src="https://s2.loli.net/2022/10/01/97uZYdFs16CkJhQ.gif" width="200" >  |                                                                    |
-| 抱大腿                         | <img src="https://s2.loli.net/2022/10/01/mivPkLle6qwZQsg.gif" width="200" >  |                                                                    |
-| 唐可可举牌                       | <img src="https://s2.loli.net/2022/10/01/LdGk9MmzYaebFt5.gif" width="200" >  |                                                                    |
-| 无响应                         | <img src="https://s2.loli.net/2022/10/01/vjXnOgcSVLGfdCQ.jpg" width="200" >  |                                                                    |
-| 抱紧                          | <img src="https://s2.loli.net/2022/10/01/vYgl3nRmXuGwqDd.jpg" width="200" >  |                                                                    |
-| 看扁                          | <img src="https://s2.loli.net/2022/10/08/kAHs6GYnmRh28WB.jpg" width="200" >  | 支持gif<br>可指定描述<br>可指定缩放倍率，默认为2<br>如：看扁 3 自己                        |
-| 看图标                         | <img src="https://s2.loli.net/2022/10/08/Ek8Vu6eFyQKJnos.jpg" width="200" >  | 支持gif<br>可指定描述                                                     |
-| 舰长                          | <img src="https://s2.loli.net/2022/10/11/8kPgVo6yzWMhfqU.jpg" width="200" >  | 可指定1~5个目标                                                          |
-| 急急国王                        | <img src="https://s2.loli.net/2022/10/11/RqFP8Gtr2CQmSTU.jpg" width="200" >  | 可指定方块中的字和描述<br>可用多个图片替代方块                                          |
-| 不文明                         | <img src="https://s2.loli.net/2022/10/15/XBqrksgCcAx1YaH.jpg" width="200" >  |                                                                    |
-| 一起                          | <img src="https://s2.loli.net/2022/10/15/Ujt7avy9d5TfOlW.jpg" width="200" >  |                                                                    |
-| 波纹                          | <img src="https://s2.loli.net/2022/11/09/hTnrF1e5gaYbxsX.gif" width="200" >  | 支持gif                                                              |
-| 诈尸<br>秽土转生                  | <img src="https://s2.loli.net/2022/11/09/z2alEPjdsrNSyMU.gif" width="200" >  |                                                                    |
-| 卡比锤<br>卡比重锤                 | <img src="https://s2.loli.net/2022/11/09/ouF5MxzQaqjC64d.gif" width="200" >  | 支持gif<br>可使用参数“圆”让头像为圆形                                            |
-| 木鱼                          | <img src="https://s2.loli.net/2022/11/29/fuen9axo2d67bRE.gif" width="200" >  |                                                                    |
-| 凯露指                         | <img src="https://s2.loli.net/2022/11/29/8fjBb1rCe6oIdRY.png" width="200" >  |                                                                    |
-| 踢球                          | <img src="https://s2.loli.net/2022/11/29/o9zns8YvZLguV6G.gif" width="200" >  |                                                                    |
-| 砸                           | <img src="https://s2.loli.net/2022/11/29/fTqa5V1dArhxDHX.jpg" width="200" >  | 支持gif                                                              |
-| 波奇手稿                        | <img src="https://s2.loli.net/2022/11/29/Aw8HsGud7JoMKqW.gif" width="200" >  |                                                                    |
-| 坐得住<br>坐不住                  | <img src="https://s2.loli.net/2022/12/03/gaQsO6AkVtPF3CW.jpg" width="200" >  | 图中名字为目标qq昵称<br>可自定义名字                                              |                            |
-| 偷学                          | <img src="https://s2.loli.net/2022/12/17/v6C9jegrNy1AJRu.jpg)" width="200" > | 描述默认为“偷学群友数理基础”<br>可自定义描述                                          |
-| 恍惚                          | <img src="https://s2.loli.net/2022/12/17/fU6i7tr8egbxaMI.jpg)" width="200" > |                                                                    |
-| 恐龙<br>小恐龙                   | <img src="https://s2.loli.net/2023/01/08/hWaoIZ4JxDgX9FA.jpg" width="200" >  | 支持gif                                                              |
-| 挠头                          | <img src="https://s2.loli.net/2023/01/08/DeuAJSQRdrC2v51.gif" width="200" >  |                                                                    |
-| 鼓掌                          | <img src="https://s2.loli.net/2023/01/08/SGhsngjWQLRemPd.gif" width="200" >  |                                                                    |
-| 追列车<br>追火车                  | <img src="https://s2.loli.net/2023/01/08/NJ1FnKkdcrDBtEx.gif" width="200" >  |                                                                    |
-| 万花筒<br>万花镜                  | <img src="https://s2.loli.net/2023/01/08/obSnWmDOiFcqYkN.jpg" width="200" >  | 支持gif<br>可使用参数“圆”让头像为圆形                                            |
-| 加班                          | <img src="https://s2.loli.net/2023/01/08/LTcqjGobDkSVQIN.jpg" width="200" >  |                                                                    |
-
-</details>
+请访问[源仓库](https://github.com/MeetWq/meme-generator/blob/main/docs/memes.md)查看

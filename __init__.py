@@ -1,29 +1,34 @@
 import base64
-import json
+import hashlib
 import os
-import shlex
+import random
 import traceback
 from io import BytesIO
-from typing import List
+from itertools import chain
+from pathlib import Path
+from typing import List, Union, Dict, Any
 
 import aiocqhttp
-from nonebot import on_startup
-
 from hoshino import HoshinoBot, Service, priv
-from hoshino.typing import CQEvent, MessageSegment, Message
-from .config import petpet_command_start as cmd_prefix
-from .data_source import commands, make_image
-from .models import UserInfo
-from .utils import help_image, TrieHandle
+from hoshino.aiorequests import run_sync_func
+from hoshino.typing import CQEvent, MessageSegment
+from meme_generator.exception import *
+from meme_generator.meme import Meme
+from meme_generator.utils import TextProperties, render_meme_list
+from pypinyin import Style, pinyin
 
-banned_command = {
-    "global": [],
-}
-banned_config_path = os.path.join(os.path.dirname(__file__), "banned.json")
+from .config import memes_prompt_params_error, meme_command_start as cmd_prefix
+from .data_source import ImageSource, User, UserInfo
+from .depends import split_msg_v11
+from .exception import NetworkError, PlatformUnsupportError
+from .manager import ActionResult, MemeMode, meme_manager
+from .utils import meme_info
+
+memes_cache_dir = Path(os.path.join(os.path.dirname(__file__), "memes_cache_dir"))
 
 sv_help = """
 [头像表情包] 发送全部功能帮助
-[头像详解] 发送特殊用法帮助 
+[表情帮助 + 表情] 发送选定表情功能帮助
 """
 
 sv = Service(
@@ -36,292 +41,287 @@ sv = Service(
     help_=sv_help  # 帮助文本
 )
 
-petpet_handler = TrieHandle()
 
-
-# 绕了一圈弄帮助图片
-# 主要是因为图片制作得在插件加载完成后才能生成
 @sv.on_fullmatch(["帮助头像表情包"])
-async def bangzhu_text(bot, ev):
+async def bangzhu_text(bot: HoshinoBot, ev: CQEvent):
     await bot.send(ev, sv_help, at_sender=True)
 
 
-def bytesio2b64(im: BytesIO) -> str:
-    img = im.getvalue()
+def bytesio2b64(img: Union[BytesIO, bytes]) -> str:
+    if isinstance(img, BytesIO):
+        img = img.getvalue()
     return f"base64://{base64.b64encode(img).decode()}"
 
 
-@sv.on_fullmatch("头像表情包")
-async def bangzhu_img(bot: HoshinoBot, ev: CQEvent):
-    im = await help_image(commands, ev.group_id)
-    await bot.send(ev, MessageSegment.image(bytesio2b64(im)))
-
-
-def is_qq(msg: str):
-    return msg.isdigit() and 11 >= len(msg) >= 5
-
-
-async def get_user_info(bot: HoshinoBot, user: UserInfo):
-    if not user.qq:
-        return
-
-    if user.group:
-        info = await bot.get_group_member_info(
-            group_id=int(user.group), user_id=int(user.qq)
-        )
-        user.name = info.get("card", "") or info.get("nickname", "")
-        user.gender = info.get("sex", "")
+def get_user_id(ev: CQEvent, permit: Union[int, None] = None):
+    if permit is None or permit < 21:
+        cid = f"{ev.self_id}_{ev.group_id}_{ev.user_id}"
     else:
-        info = await bot.get_stranger_info(user_id=int(user.qq))
-        user.name = info.get("nickname", "")
-        user.gender = info.get("sex", "")
+        cid = f"{ev.self_id}_{ev.group_id}"
+    return cid
 
 
-async def handle_user_args(bot, event: CQEvent):
-    users: List[UserInfo] = []
-    args: List[str] = []
-    msg = event.message
-    # 回复前置处理
-    if msg[0].type == "reply":
-        # 当回复目标是自己时，去除隐式at自己
-        msg_id = msg[0].data["id"]
-        source_msg = await sv.bot.get_msg(message_id=int(msg_id))
-        source_qq = str(source_msg['sender']['user_id'])
-        # 隐式at和显示at之间还有一个文本空格
-        while len(msg) > 1 and (
-                msg[1].type == 'at' or msg[1].type == 'text' and msg[1].data['text'].strip() == ""):
-            if msg[1].type == 'at' and msg[1].data['qq'] == source_qq \
-                    or msg[1].type == 'text' and msg[1].data['text'].strip() == "":
-                msg.pop(1)
-            else:
-                break
+@sv.on_fullmatch(("表情包制作", "头像表情包", "文字表情包"))
+async def help_cmd(bot: HoshinoBot, ev: CQEvent):
+    memes = sorted(
+        meme_manager.memes,
+        key=lambda meme: "".join(
+            chain.from_iterable(pinyin(meme.keywords[0], style=Style.TONE3))
+        ),
+    )
+    user_id = get_user_id(ev)
+    meme_list = [
+        (
+            meme,
+            TextProperties(
+                fill="black" if meme_manager.check(user_id, meme.key) else "lightgrey"
+            ),
+        )
+        for meme in memes
+    ]
 
-    for msg_seg in msg:
-        if msg_seg.type == "at":
-            users.append(
-                UserInfo(
-                    qq=msg_seg.data["qq"],
-                    group=str(event.group_id)
-                )
-            )
-        elif msg_seg.type == "image":
-            users.append(UserInfo(img_url=msg_seg.data["url"]))
-        elif msg_seg.type == "reply":
-            msg_id = msg_seg.data["id"]
-            source_msg = await sv.bot.get_msg(message_id=int(msg_id))
-            source_qq = str(source_msg['sender']['user_id'])
-            source_msg = source_msg["message"]
-            msgs = Message(source_msg)
-            get_img = False
-            for each_msg in msgs:
-                if each_msg.type == "image":
-                    users.append(UserInfo(img_url=each_msg.data["url"]))
-                    get_img = True
-            else:
-                if not get_img:
-                    users.append(UserInfo(qq=source_qq))
-        elif msg_seg.type == "text":
-            raw_text = str(msg_seg)
-            try:
-                texts = shlex.split(raw_text)
-            except Exception as e:
-                sv.logger.warning(f"{e}")
-                texts = raw_text.split()
-            for text in texts:
-                if is_qq(text):
-                    users.append(UserInfo(qq=text))
-                elif text == "自己":
-                    users.append(
-                        UserInfo(
-                            qq=str(event.user_id),
-                            group=str(event.group_id)
-                        )
-                    )
-                else:
-                    text = text.strip()
-                    if text:
-                        args.append(text)
+    # cache rendered meme list
+    meme_list_hashable = [
+        ({"key": meme.key, "keywords": meme.keywords}, prop) for meme, prop in meme_list
+    ]
+    meme_list_hash = hashlib.md5(str(meme_list_hashable).encode("utf8")).hexdigest()
+    meme_list_cache_file = memes_cache_dir / f"{meme_list_hash}.jpg"
+    if not meme_list_cache_file.exists():
+        img: BytesIO = await run_sync_func(render_meme_list, meme_list)
+        with open(meme_list_cache_file, "wb") as f:
+            f.write(img.getvalue())
+    else:
+        img = BytesIO(meme_list_cache_file.read_bytes())
 
-    if not users:
-        users.append(UserInfo(qq=str(event.self_id), group=str(event.group_id)))
+    msg = "触发方式：“关键词 + 图片/文字”\n发送 “表情详情 + 关键词” 查看表情参数和预览\n目前支持的表情列表："
 
-    sender = UserInfo(qq=str(event.user_id))
-    await get_user_info(bot, sender)
-
-    for user in users:
-        await get_user_info(bot, user)
-
-    return users, sender, args
+    await bot.finish(ev, msg + MessageSegment.image(bytesio2b64(img)))
 
 
-@sv.on_message('group')
-async def handle(bot, event: CQEvent):
-    global petpet_handler
-    command = petpet_handler.find_handle(event)
-    if not command:
-        return
+@sv.on_prefix(("表情帮助", "表情示例", "表情详情"))
+async def info_cmd(bot: HoshinoBot, ev: CQEvent):
+    meme_name = ev.message.extract_plain_text().strip()
+    if not meme_name:
+        await bot.finish(ev, "参数出错，请重新输入")
 
-    prefix = command.keywords[0]
-    handle_group = str(event.group_id)
+    if not (meme := meme_manager.find(meme_name)):
+        await bot.finish(ev, f"表情 {meme_name} 不存在！")
 
-    if handle_group not in banned_command:
-        banned_command[handle_group] = []
-    if prefix in banned_command["global"]:
-        sv.logger.info(f"{prefix}已被全局禁用")
-        return
-    if command.keywords[0] in banned_command[handle_group]:
-        sv.logger.info(f"{prefix}已被本群禁用")
-        return
-    sv.logger.info(f"Message {event.message_id} triggered {prefix}")
+    info = meme_info(meme)
+    info += "表情预览：\n"
+    img = await meme.generate_preview()
 
-    if prefix == "随机表情":
-        command = await command.func_random(commands, banned_command, handle_group)
-        if command is None:
-            bot.finish("本群已没有可使用的表情了捏qwq")
-        await bot.send(event, f"随机到了【{command.keywords[0]}】")
-
-    users, sender, args = await handle_user_args(bot, event)
-
-    if len(args) > command.arg_num:
-        sv.logger.info("arg num exceed limit")
-        return False
-
-    try:
-        img = await make_image(command=command, sender=sender, users=users, args=args)
-        img = bytesio2b64(img)
-        img = str(MessageSegment.image(img))
-    except Exception as e:
-        print(traceback.format_exc())
-        img = str(e)
-
-    try:
-        await bot.send(event, img)
-    except aiocqhttp.ActionFailed:
-        await bot.send(event, "发送失败……消息可能被风控")
-
-    return
-
-
-@sv.on_prefix("启用表情")
-async def enable_pic(bot, ev: CQEvent):
-    if not priv.check_priv(ev, priv.ADMIN):
-        await bot.finish(ev, '此命令仅群管可用~')
-    global banned_command
-    args = ev.message.extract_plain_text().strip().split()
-    group = str(ev.group_id)
-
-    is_global = False
-    if "全局" in args:
-        if not priv.check_priv(ev, priv.SUPERUSER):
-            await bot.finish(ev, '此命令仅机器人管理员可用~')
-        args.remove("全局")
-        is_global = True
-
-    if not args:
-        await bot.finish(ev, "请输入需要启用的表情")
-
-    msg = "处理结果："
-    for arg in args:
-        item = petpet_handler.find(arg)
-        if not item:
-            msg += f"\n{arg} 表情未找到"
-            continue
-        else:
-            command = item.value
-
-        if is_global:
-            if command.keywords[0] in banned_command['global']:
-                banned_command["global"].remove(command.keywords[0])
-                msg += f"\n{arg} 全局启用成功"
-            else:
-                msg += f"\n{arg} 全局没被禁用"
-        else:
-            if command.keywords[0] in banned_command['global']:
-                msg += f"\n{arg} 全局被禁用，请联系机器人管理员启用～"
-                continue
-
-            if group not in banned_command:
-                banned_command[group] = []
-            if command.keywords[0] in banned_command[group]:
-                banned_command[group].remove(command.keywords[0])
-                msg += f"\n{arg} 本群启用成功"
-            else:
-                msg += f"\n{arg} 本群没被禁用"
-
-    with open(banned_config_path, "w", encoding="utf-8") as f:
-        f.write(json.dumps(banned_command, indent=4, ensure_ascii=False))
-    await bot.finish(ev, msg)
+    await bot.finish(ev, info + MessageSegment.image(bytesio2b64(img)))
 
 
 @sv.on_prefix("禁用表情")
-async def disable_pic(bot, ev: CQEvent):
+async def block_cmd(bot: HoshinoBot, ev: CQEvent):
+    meme_names = ev.message.extract_plain_text().strip().split()
+    user_id: str = get_user_id(ev)
+    if not meme_names:
+        await bot.finish(ev, "参数出错，请重新输入")
+    results = meme_manager.block(user_id, meme_names)
+    messages = []
+    for name, result in results.items():
+        if result == ActionResult.SUCCESS:
+            message = f"表情 {name} 禁用成功"
+        elif result == ActionResult.NOTFOUND:
+            message = f"表情 {name} 不存在！"
+        else:
+            message = f"表情 {name} 禁用失败"
+        messages.append(message)
+    await bot.finish(ev, "\n".join(messages))
+
+
+@sv.on_prefix("启用表情")
+async def unblock_cmd(bot: HoshinoBot, ev: CQEvent):
+    meme_names = ev.message.extract_plain_text().strip().split()
+    user_id: str = get_user_id(ev)
+    if not meme_names:
+        await bot.finish(ev, "参数出错，请重新输入")
+    results = meme_manager.unblock(user_id, meme_names)
+    messages = []
+    for name, result in results.items():
+        if result == ActionResult.SUCCESS:
+            message = f"表情 {name} 启用成功"
+        elif result == ActionResult.NOTFOUND:
+            message = f"表情 {name} 不存在！"
+        else:
+            message = f"表情 {name} 启用失败"
+        messages.append(message)
+    await bot.finish(ev, "\n".join(messages))
+
+
+@sv.on_prefix("全局禁用表情")
+async def block_cmd_gl(bot: HoshinoBot, ev: CQEvent):
     if not priv.check_priv(ev, priv.ADMIN):
         await bot.finish(ev, '此命令仅群管可用~')
-    global banned_command
-    args = ev.message.extract_plain_text().strip().split()
-    group = str(ev.group_id)
-
-    is_global = False
-    if "全局" in args:
-        if not priv.check_priv(ev, priv.SUPERUSER):
-            await bot.finish(ev, '此命令仅机器人管理员可用~')
-        args.remove("全局")
-        is_global = True
-
-    if not args:
-        await bot.finish(ev, "请输入需要禁用的表情")
-
-    msg = "处理结果："
-    for arg in args:
-        item = petpet_handler.find(arg)
-        if not item:
-            msg += f"\n{arg} 表情未找到"
-            continue
+    meme_names = ev.message.extract_plain_text().strip().split()
+    if not meme_names:
+        await bot.finish(ev, "参数出错，请重新输入")
+    results = meme_manager.change_mode(MemeMode.WHITE, meme_names)
+    messages = []
+    for name, result in results.items():
+        if result == ActionResult.SUCCESS:
+            message = f"表情 {name} 已设为白名单模式"
+        elif result == ActionResult.NOTFOUND:
+            message = f"表情 {name} 不存在！"
         else:
-            command = item.value
+            message = f"表情 {name} 设置失败"
+        messages.append(message)
+    await bot.finish(ev, "\n".join(messages))
 
-        if is_global:
-            if command.keywords[0] not in banned_command['global']:
-                banned_command["global"].append(command.keywords[0])
-                msg += f"\n{arg} 全局禁用成功"
-            else:
-                msg += f"\n{arg} 全局已被禁用"
+
+@sv.on_prefix("全局启用表情")
+async def unblock_cmd_gl(bot: HoshinoBot, ev: CQEvent):
+    if not priv.check_priv(ev, priv.ADMIN):
+        await bot.finish(ev, '此命令仅群管可用~')
+    meme_names = ev.message.extract_plain_text().strip().split()
+    if not meme_names:
+        await bot.finish(ev, "参数出错，请重新输入")
+    results = meme_manager.change_mode(MemeMode.BLACK, meme_names)
+    messages = []
+    for name, result in results.items():
+        if result == ActionResult.SUCCESS:
+            message = f"表情 {name} 已设为黑名单模式"
+        elif result == ActionResult.NOTFOUND:
+            message = f"表情 {name} 不存在！"
         else:
-            if command.keywords[0] in banned_command['global']:
-                msg += f"\n{arg} 全局已被禁用"
-                continue
-
-            if group not in banned_command:
-                banned_command[group] = []
-            if command.keywords[0] not in banned_command[group]:
-                banned_command[group].append(command.keywords[0])
-                msg += f"\n{arg} 本群禁用成功"
-            else:
-                msg += f"\n{arg} 本群已被禁用"
-
-    with open(banned_config_path, "w", encoding="utf-8") as f:
-        f.write(json.dumps(banned_command, indent=4, ensure_ascii=False))
-    await bot.finish(ev, msg)
+            message = f"表情 {name} 设置失败"
+        messages.append(message)
+    await bot.finish(ev, "\n".join(messages))
 
 
-@on_startup
-async def register_handler():
-    global banned_command, petpet_handler
-    if not os.path.exists(banned_config_path):
-        open(banned_config_path, "w")
+async def process(
+        bot: HoshinoBot,
+        ev: CQEvent,
+        meme: Meme,
+        image_sources: List[ImageSource],
+        texts: List[str],
+        users: List[User],
+        args=None,
+):
+    if args is None:
+        args = {}
+    images: List[bytes] = []
+    user_infos: List[UserInfo] = []
+
     try:
-        banned_command = json.load(open(banned_config_path, encoding="utf-8"))
-    except json.decoder.JSONDecodeError:
-        banned_command = {
-            "global": []
-        }
+        for image_source in image_sources:
+            images.append(await image_source.get_image())
+    except PlatformUnsupportError as e:
+        await bot.finish(ev, f"当前平台 “{e.platform}” 暂不支持获取头像，请使用图片输入")
+    except NetworkError:
+        sv.logger.warning(traceback.format_exc())
+        await bot.finish(ev, "图片下载出错，请稍后再试")
 
-    if petpet_handler is None:
-        petpet_handler = TrieHandle()
-    for command in commands:
-        for prefix in command.keywords:
-            ok = petpet_handler.add(f"{cmd_prefix}{prefix}", command)
-            if not ok:
-                sv.logger.warning(f"Failed to add existing trigger {prefix}")
+    try:
+        for user in users:
+            user_infos.append(await user.get_info())
+        args["user_infos"] = user_infos
+    except NetworkError:
+        sv.logger.warning("用户信息获取失败\n" + traceback.format_exc())
 
-    sv.logger.info('petpet register done.')
+    try:
+        result = await meme(images=images, texts=texts, args=args)
+        try:
+            await bot.send(ev, MessageSegment.image(bytesio2b64(result)))
+        except aiocqhttp.ActionFailed:
+            await bot.send(ev, "发送失败……消息可能被风控")
+
+    except TextOverLength as e:
+        await bot.send(ev, f"文字 “{e.text}” 长度过长")
+    except ArgMismatch:
+        await bot.send(ev, "参数解析错误")
+    except TextOrNameNotEnough:
+        await bot.send(ev, "文字或名字数量不足")
+    except MemeGeneratorException:
+        sv.logger.warning(traceback.format_exc())
+        await bot.send(ev, "出错了，请稍后再试")
+
+
+async def find_meme(
+        trigger: str, bot: HoshinoBot, ev: CQEvent
+) -> Union[Meme, None]:
+    memes = meme_manager.memes
+    if trigger == "随机表情":
+        meme = random.choice(memes)
+        uid = get_user_id(ev)
+        if not meme_manager.check(uid, meme.key):
+            await bot.send(ev, "随机到的表情不可用了捏qwq\n再试一次吧~")
+            return None
+
+        await bot.send(ev, f"随机到了【{meme.keywords[0]}】")
+        return meme
+    for each_meme in memes:
+        if trigger in each_meme.keywords:
+            return each_meme
+    return None
+
+
+@sv.on_message('group')
+async def handle(bot: HoshinoBot, ev: CQEvent):
+    msg = ev.raw_message.strip().split()
+    if not msg or not msg[0].startswith(cmd_prefix):
+        return
+    uid = get_user_id(ev)
+    meme = await find_meme(
+        msg[0].replace(cmd_prefix, ""),
+        bot, ev
+    )
+    if meme is None:
+        return
+    if not meme_manager.check(uid, meme.key):
+        return
+
+    split_msg = await split_msg_v11(bot, ev, meme)
+
+    raw_texts: List[str] = split_msg["texts"]
+    users: List[User] = split_msg["users"]
+    image_sources: List[ImageSource] = split_msg["image_sources"]
+
+    args: Dict[str, Any] = {}
+
+    if meme.params_type.args_type:
+        try:
+            parse_result = meme.parse_args(raw_texts)
+        except ArgParserExit:
+            await bot.finish(ev, f"参数解析错误")
+            return
+        texts = parse_result["texts"]
+        parse_result.pop("texts")
+        args = parse_result
+    else:
+        texts = raw_texts
+
+    if not (
+            meme.params_type.min_images
+            <= len(image_sources)
+            <= meme.params_type.max_images
+    ):
+        if memes_prompt_params_error:
+            await bot.send(
+                ev,
+                f"输入图片数量不符，图片数量应为 {meme.params_type.min_images}"
+                + (
+                    f" ~ {meme.params_type.max_images}"
+                    if meme.params_type.max_images > meme.params_type.min_images
+                    else ""
+                )
+            )
+        return
+
+    if not (meme.params_type.min_texts <= len(texts) <= meme.params_type.max_texts):
+        if memes_prompt_params_error:
+            await bot.send(
+                ev,
+                f"输入文字数量不符，文字数量应为 {meme.params_type.min_texts}"
+                + (
+                    f" ~ {meme.params_type.max_texts}"
+                    if meme.params_type.max_texts > meme.params_type.min_texts
+                    else ""
+                )
+            )
+        return
+
+    await process(bot, ev, meme, image_sources, texts, users, args)
