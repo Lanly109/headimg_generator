@@ -11,7 +11,7 @@ from typing import List, Union, Dict, Any
 import aiocqhttp
 from hoshino import HoshinoBot, Service, priv
 from hoshino.aiorequests import run_sync_func
-from hoshino.typing import CQEvent, MessageSegment
+from hoshino.typing import CQEvent, MessageSegment, Message
 from meme_generator.exception import (
     TextOverLength,
     ArgMismatch,
@@ -267,7 +267,7 @@ async def find_meme(
 
 @sv.on_message('group')
 async def handle(bot: HoshinoBot, ev: CQEvent):
-    msg: List[MessageSegment] = ev.message
+    msg: Message = ev.message
     if msg[0].type == "reply":
         # 当回复目标是自己时，去除隐式at自己
         msg_id = msg[0].data["id"]
@@ -290,10 +290,9 @@ async def handle(bot: HoshinoBot, ev: CQEvent):
         break
     else:
         return
-    msg.remove(trigger)
     uid = get_user_id(ev)
     meme = await find_meme(
-        trigger.data["text"].replace(cmd_prefix, "").strip(),
+        trigger.data["text"].split()[0].replace(cmd_prefix, "").strip(),
         bot, ev
     )
     if meme is None:
@@ -301,7 +300,7 @@ async def handle(bot: HoshinoBot, ev: CQEvent):
     if not meme_manager.check(uid, meme.key):
         return
 
-    split_msg = await split_msg_v11(bot, ev, meme)
+    split_msg = await split_msg_v11(bot, ev, meme, trigger)
 
     raw_texts: List[str] = split_msg["texts"]
     users: List[User] = split_msg["users"]

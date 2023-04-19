@@ -6,7 +6,8 @@ from hoshino.typing import CQEvent, MessageSegment, Message
 
 from .config import (
     memes_use_sender_when_no_image,
-    memes_use_default_when_no_text
+    memes_use_default_when_no_text,
+    meme_command_start as cmd_prefix
 )
 from .data_source import (
     ImageSource,
@@ -39,12 +40,21 @@ def restore_last_at_me_seg(event: CQEvent, msg: Message):
             msg.append(last_msg_seg)
 
 
-async def split_msg_v11(bot: HoshinoBot, event: CQEvent, meme: Meme) -> dict:
+async def split_msg_v11(
+        bot: HoshinoBot, event: CQEvent, meme: Meme, trigger: MessageSegment
+) -> dict:
     texts: List[str] = []
     users: List[User] = []
     image_sources: List[ImageSource] = []
 
     msg = event.message
+
+    trigger_text: List[str] = trigger.data["text"].strip().split()
+    trigger_text_seg = Message([
+        MessageSegment.text(each_text) for each_text in trigger_text if not each_text.startswith(cmd_prefix)
+    ])
+    msg.remove(trigger)
+    msg: Message = trigger_text_seg.extend(msg)
 
     restore_last_at_me_seg(event, msg)
 
