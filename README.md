@@ -289,7 +289,7 @@ fc-cache -fv
 > 若因为字体没安装好等原因导致生成的图片不正常，需要删除缓存的图片
 >
 > 缓存路径：
-> - Linux: `./memes_cache_dir`
+> - `./memes_cache_dir`
 
 #### 表情帮助
 
