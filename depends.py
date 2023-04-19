@@ -45,11 +45,21 @@ async def split_msg_v11(bot: HoshinoBot, event: CQEvent, meme: Meme) -> dict:
     image_sources: List[ImageSource] = []
 
     msg = event.message
-    restore_last_at_me_seg(event, msg)
+    if msg[0].type == "reply":
+        # 当回复目标是自己时，去除隐式at自己
+        msg_id = msg[0].data["id"]
+        source_msg = await bot.get_msg(message_id=int(msg_id))
+        source_qq = str(source_msg['sender']['user_id'])
+        # 隐式at和显示at之间还有一个文本空格
+        while len(msg) > 1 and (
+                msg[1].type == 'at' or msg[1].type == 'text' and msg[1].data['text'].strip() == ""):
+            if msg[1].type == 'at' and msg[1].data['qq'] == source_qq \
+                    or msg[1].type == 'text' and msg[1].data['text'].strip() == "":
+                msg.pop(1)
+            else:
+                break
 
-    if event.reply:
-        for msg_seg in event.reply.message["image"]:
-            image_sources.append(ImageUrl(url=msg_seg.data["url"]))
+    restore_last_at_me_seg(event, msg)
 
     for msg_seg in msg:
         if msg_seg.type == "at":
@@ -59,10 +69,25 @@ async def split_msg_v11(bot: HoshinoBot, event: CQEvent, meme: Meme) -> dict:
         elif msg_seg.type == "image":
             image_sources.append(ImageUrl(url=msg_seg.data["url"]))
 
+        elif msg_seg.type == "reply":
+            msg_id = msg_seg.data["id"]
+            source_msg = await bot.get_msg(message_id=int(msg_id))
+            source_qq = str(source_msg['sender']['user_id'])
+            source_msg = source_msg["message"]
+            msgs = Message(source_msg)
+            get_img = False
+            for each_msg in msgs:
+                if each_msg.type == "image":
+                    image_sources.append(ImageUrl(url=each_msg.data["url"]))
+                    get_img = True
+            else:
+                if not get_img:
+                    image_sources.append(user_avatar(source_qq))
+                    users.append(QQUser(bot, event, int(source_qq)))
+
         elif msg_seg.type == "text":
             raw_text = msg_seg.data["text"]
             split_msg = split_text(raw_text)
-            split_msg.pop(0)
             for text in split_msg:
                 if text.startswith("@") and check_user_id(text[1:]):
                     user_id = text[1:]

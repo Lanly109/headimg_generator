@@ -12,7 +12,13 @@ import aiocqhttp
 from hoshino import HoshinoBot, Service, priv
 from hoshino.aiorequests import run_sync_func
 from hoshino.typing import CQEvent, MessageSegment
-from meme_generator.exception import *
+from meme_generator.exception import (
+    TextOverLength,
+    ArgMismatch,
+    TextOrNameNotEnough,
+    MemeGeneratorException,
+    ArgParserExit
+)
 from meme_generator.meme import Meme
 from meme_generator.utils import TextProperties, render_meme_list
 from pypinyin import Style, pinyin
@@ -261,12 +267,20 @@ async def find_meme(
 
 @sv.on_message('group')
 async def handle(bot: HoshinoBot, ev: CQEvent):
-    msg = ev.raw_message.strip().split()
-    if not msg or not msg[0].startswith(cmd_prefix):
+    msg: List[MessageSegment] = ev.message
+    for each_msg in msg:
+        if not each_msg.type == "text":
+            continue
+        if not each_msg.data["text"].strip().startswith(cmd_prefix):
+            continue
+        trigger = each_msg
+        break
+    else:
         return
+    msg.remove(trigger)
     uid = get_user_id(ev)
     meme = await find_meme(
-        msg[0].replace(cmd_prefix, ""),
+        trigger.data["text"].replace(cmd_prefix, "").strip(),
         bot, ev
     )
     if meme is None:
