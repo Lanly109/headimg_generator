@@ -1,3 +1,4 @@
+import re
 from typing import List
 
 from meme_generator.meme import Meme
@@ -49,10 +50,9 @@ async def split_msg_v11(
 
     msg = event.message
 
-    trigger_text: List[str] = trigger.data["text"].strip().split()
-    trigger_text_seg = Message([
-        MessageSegment.text(each_text) for each_text in trigger_text if not each_text.startswith(cmd_prefix)
-    ])
+    trigger_text_with_trigger: str = trigger.data["text"].strip()
+    trigger_text = re.sub(rf"^{cmd_prefix}\S+", " ", trigger_text_with_trigger).strip()
+    trigger_text_seg = Message(f"{trigger_text} ")
     msg.remove(trigger)
     msg: Message = trigger_text_seg.extend(msg)
 
