@@ -45,19 +45,6 @@ async def split_msg_v11(bot: HoshinoBot, event: CQEvent, meme: Meme) -> dict:
     image_sources: List[ImageSource] = []
 
     msg = event.message
-    if msg[0].type == "reply":
-        # 当回复目标是自己时，去除隐式at自己
-        msg_id = msg[0].data["id"]
-        source_msg = await bot.get_msg(message_id=int(msg_id))
-        source_qq = str(source_msg['sender']['user_id'])
-        # 隐式at和显示at之间还有一个文本空格
-        while len(msg) > 1 and (
-                msg[1].type == 'at' or msg[1].type == 'text' and msg[1].data['text'].strip() == ""):
-            if msg[1].type == 'at' and msg[1].data['qq'] == source_qq \
-                    or msg[1].type == 'text' and msg[1].data['text'].strip() == "":
-                msg.pop(1)
-            else:
-                break
 
     restore_last_at_me_seg(event, msg)
 
