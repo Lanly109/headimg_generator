@@ -8,7 +8,7 @@ from itertools import chain
 from pathlib import Path
 from typing import List, Union, Dict, Any
 
-import aiocqhttp
+from aiocqhttp.exceptions import ActionFailed
 from hoshino import HoshinoBot, Service, priv
 from hoshino.aiorequests import run_sync_func
 from hoshino.typing import CQEvent, MessageSegment, Message
@@ -232,7 +232,7 @@ async def process(
         result = await meme(images=images, texts=texts, args=args)
         try:
             await bot.send(ev, MessageSegment.image(bytesio2b64(result)))
-        except aiocqhttp.ActionFailed:
+        except ActionFailed:
             await bot.send(ev, "发送失败……消息可能被风控")
 
     except TextOverLength as e:

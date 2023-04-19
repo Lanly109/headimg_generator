@@ -1,3 +1,4 @@
+from aiocqhttp.exceptions import ActionFailed
 from dataclasses import dataclass
 from hoshino import HoshinoBot
 from hoshino.typing import CQEvent
@@ -22,9 +23,12 @@ class QQUser(User):
     user_id: int
 
     async def get_info(self) -> UserInfo:
-        info = await self.bot.get_group_member_info(
-            group_id=self.event.group_id, user_id=self.user_id
-        )
+        try:
+            info = await self.bot.get_group_member_info(
+                group_id=self.event.group_id, user_id=self.user_id
+            )
+        except ActionFailed:
+            info = await self.bot.get_stranger_info(user_id=self.user_id)
         name = info.get("card", "") or info.get("nickname", "")
         gender = info.get("sex", "")
         return UserInfo(name=name, gender=gender)
