@@ -244,14 +244,16 @@ async def process(
     except MemeGeneratorException:
         sv.logger.warning(traceback.format_exc())
         await bot.send(ev, "出错了，请稍后再试")
+    except ValueError as e:
+        sv.logger.warning(traceback.format_exc())
+        await bot.send(ev, e.args[0])
 
 
 async def find_meme(
         trigger: str, bot: HoshinoBot, ev: CQEvent
 ) -> Union[Meme, None]:
-    memes = meme_manager.memes
     if trigger == "随机表情":
-        meme = random.choice(memes)
+        meme = random.choice(meme_manager.memes)
         uid = get_user_id(ev)
         if not meme_manager.check(uid, meme.key):
             await bot.send(ev, "随机到的表情不可用了捏qwq\n再试一次吧~")
@@ -259,10 +261,8 @@ async def find_meme(
 
         await bot.send(ev, f"随机到了【{meme.keywords[0]}】")
         return meme
-    for each_meme in memes:
-        if trigger in each_meme.keywords:
-            return each_meme
-    return None
+    meme = meme_manager.find(trigger)
+    return meme
 
 
 @sv.on_message('group')
@@ -312,7 +312,7 @@ async def handle(bot: HoshinoBot, ev: CQEvent):
         try:
             parse_result = meme.parse_args(raw_texts)
         except ArgParserExit:
-            await bot.finish(ev, f"参数解析错误")
+            await bot.send(ev, f"参数解析错误")
             return
         texts = parse_result["texts"]
         parse_result.pop("texts")

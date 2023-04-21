@@ -1,3 +1,4 @@
+import copy
 import re
 from typing import List
 
@@ -117,6 +118,15 @@ async def split_msg_v11(
             meme.params_type.min_texts > 0 and len(texts) == 0
     ):
         texts = meme.params_type.default_texts
+
+    # 当所需文字数 >0 且没有输入文字，且仅存在一个参数时，使用默认文字
+    # 为了防止误触发，参数必须放在最后一位，且该参数必须是bool，且参数前缀必须是--
+    if memes_use_default_when_no_text and (
+            meme.params_type.min_texts > 0 and len(texts) == 1 and texts[-1].startswith("--")
+    ):
+        temp = copy.deepcopy(meme.params_type.default_texts)
+        temp.extend(texts)
+        texts = temp
     return {
         "texts": texts,
         "users": users,

@@ -1,0 +1,8 @@
+*__pycache__/
+*/__pycache__/
+*/__pycache__/*
+dist/
+.vscode/
+.DS_Store
+*.json
+*.yml
