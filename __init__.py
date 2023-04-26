@@ -268,6 +268,8 @@ async def find_meme(
 @sv.on_message('group')
 async def handle(bot: HoshinoBot, ev: CQEvent):
     msg: Message = ev.message
+    if not msg:
+        return
     if msg[0].type == "reply":
         # 当回复目标是自己时，去除隐式at自己
         msg_id = msg[0].data["id"]
