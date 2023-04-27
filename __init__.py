@@ -35,8 +35,9 @@ from .utils import meme_info
 memes_cache_dir = Path(os.path.join(os.path.dirname(__file__), "memes_cache_dir"))
 
 sv_help = """
-[头像表情包] 发送全部功能帮助
+[表情包制作] 发送全部功能帮助
 [表情帮助 + 表情] 发送选定表情功能帮助
+[更新表情包制作] 更新表情包资源
 """
 
 sv = Service(
@@ -365,7 +366,7 @@ async def handle(bot: HoshinoBot, ev: CQEvent):
     await process(bot, ev, meme, image_sources, texts, users, args)
 
 
-@sv.on_fullmatch("头像表情包更新")
+@sv.on_fullmatch(("更新表情包制作", "更新头像表情包", "更新文字表情包"))
 async def update_res(bot: HoshinoBot, ev: CQEvent):
     sv.logger.info("正在检查资源文件...")
     try:

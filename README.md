@@ -9,6 +9,7 @@
 ## 更新日志
 **2023.04.19**
 - 重构代码，以匹配重构后的源仓库。具体配置看后文
+- 注意：安装插件前请先卸载opencv：`pip uninstall opencv-python`
 
 <details>
 
@@ -290,6 +291,8 @@ fc-cache -fv
 >
 > 缓存路径：
 > - `./memes_cache_dir`
+
+发送 `更新表情包制作` 更新表情资源
 
 #### 表情帮助
 
