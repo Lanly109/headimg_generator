@@ -1,3 +1,4 @@
+import asyncio
 import base64
 import hashlib
 import os
@@ -12,6 +13,7 @@ from aiocqhttp.exceptions import ActionFailed
 from hoshino import HoshinoBot, Service, priv
 from hoshino.aiorequests import run_sync_func
 from hoshino.typing import CQEvent, MessageSegment, Message
+from meme_generator.download import check_resources
 from meme_generator.exception import (
     TextOverLength,
     ArgMismatch,
@@ -23,7 +25,7 @@ from meme_generator.meme import Meme
 from meme_generator.utils import TextProperties, render_meme_list
 from pypinyin import Style, pinyin
 
-from .config import memes_prompt_params_error, meme_command_start as cmd_prefix
+from .config import memes_prompt_params_error, meme_command_start
 from .data_source import ImageSource, User, UserInfo
 from .depends import split_msg_v11
 from .exception import NetworkError, PlatformUnsupportError
@@ -266,6 +268,7 @@ async def find_meme(
 
 
 @sv.on_message('group')
+@sv.on_prefix()
 async def handle(bot: HoshinoBot, ev: CQEvent):
     msg: Message = ev.message
     if not msg:
@@ -286,15 +289,22 @@ async def handle(bot: HoshinoBot, ev: CQEvent):
     for each_msg in msg:
         if not each_msg.type == "text":
             continue
-        if not each_msg.data["text"].strip().startswith(cmd_prefix):
+        if not each_msg.data["text"].strip().startswith(meme_command_start):
             continue
         trigger = each_msg
         break
     else:
-        return
+        for each_msg in msg:
+            if not each_msg.type == "text":
+                continue
+            trigger = each_msg
+            break
+        else:
+            return
+
     uid = get_user_id(ev)
     meme = await find_meme(
-        trigger.data["text"].split()[0].replace(cmd_prefix, "").strip(),
+        trigger.data["text"].split()[0].replace(meme_command_start, "").strip(),
         bot, ev
     )
     if meme is None:
@@ -353,3 +363,14 @@ async def handle(bot: HoshinoBot, ev: CQEvent):
         return
 
     await process(bot, ev, meme, image_sources, texts, users, args)
+
+
+@sv.on_fullmatch("头像表情包更新")
+async def update_res(bot: HoshinoBot, ev: CQEvent):
+    sv.logger.info("正在检查资源文件...")
+    try:
+        asyncio.create_task(check_resources())
+    except Exception as e:
+        await bot.send(ev, f"更新资源出错：\n{e}")
+        return
+    await bot.send(ev, f"更新资源完成")

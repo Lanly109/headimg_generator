@@ -9,7 +9,7 @@ from hoshino.typing import CQEvent, MessageSegment, Message
 from .config import (
     memes_use_sender_when_no_image,
     memes_use_default_when_no_text,
-    meme_command_start as cmd_prefix
+    meme_command_start
 )
 from .data_source import (
     ImageSource,
@@ -52,7 +52,9 @@ async def split_msg_v11(
     msg = event.message
 
     trigger_text_with_trigger: str = trigger.data["text"].strip()
-    trigger_text = re.sub(rf"^{cmd_prefix}\S+", " ", trigger_text_with_trigger).strip()
+    trigger_text = re.sub(
+        rf"^{meme_command_start}\S+", "", trigger_text_with_trigger
+    ).strip()
     trigger_text_seg = Message(f"{trigger_text} ")
     msg.remove(trigger)
     msg: Message = trigger_text_seg.extend(msg)
