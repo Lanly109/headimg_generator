@@ -304,10 +304,13 @@ async def handle(bot: HoshinoBot, ev: CQEvent):
             return
 
     uid = get_user_id(ev)
-    meme = await find_meme(
-        trigger.data["text"].split()[0].replace(meme_command_start, "").strip(),
-        bot, ev
-    )
+    try:
+        meme = await find_meme(
+            trigger.data["text"].split()[0].replace(meme_command_start, "").strip(),
+            bot, ev
+        )
+    except IndexError:
+        return
     if meme is None:
         return
     if not meme_manager.check(uid, meme.key):
