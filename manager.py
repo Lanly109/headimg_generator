@@ -12,7 +12,7 @@ from pydantic import BaseModel
 import hoshino
 from .config import meme_disabled_list
 
-config_path = Path(os.path.join(os.path.dirname(__file__), "config.yml"))
+config_file_path = Path(os.path.join(os.path.dirname(__file__), "config.yml"))
 
 
 class MemeMode(IntEnum):
@@ -36,7 +36,7 @@ class ActionResult(IntEnum):
 
 
 class MemeManager:
-    def __init__(self, path: Path = config_path):
+    def __init__(self, path: Path = config_file_path):
         self.__path = path
         self.__meme_list: Dict[str, MemeConfig] = {}
         self.memes = list(

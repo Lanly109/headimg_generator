@@ -1,11 +1,10 @@
 import asyncio
 import shlex
 
+import hoshino
 import httpx
-from meme_generator.config import Config, config_file_path
 from meme_generator.meme import Meme
 
-import hoshino
 from .config import *
 from .exception import NetworkError
 
@@ -80,34 +79,3 @@ if memes_check_resources_on_startup:
     async def _():
         hoshino.logger.info("正在检查资源文件...")
         asyncio.create_task(check_resources())
-        hoshino.logger.info("正在检查配置文件...")
-        if not config_file_path.exists():
-            meme_config = Config()
-        else:
-            meme_config = Config.load()
-
-        meme_config.meme = MemeConfig()
-        meme_config.resource = ResourceConfig()
-        meme_config.gif = GifConfig()
-        meme_config.translate = TranslatorConfig()
-        meme_config.server = ServerConfig()
-        meme_config.dump()
-
-if memes_check_cfg_on_startup:
-    from nonebot import on_startup
-
-
-    @on_startup
-    async def _():
-        hoshino.logger.info("正在检查配置文件...")
-        if not config_file_path.exists():
-            meme_config = Config()
-        else:
-            meme_config = Config.load()
-
-        meme_config.meme = MemeConfig()
-        meme_config.resource = ResourceConfig()
-        meme_config.gif = GifConfig()
-        meme_config.translate = TranslatorConfig()
-        meme_config.server = ServerConfig()
-        meme_config.dump()

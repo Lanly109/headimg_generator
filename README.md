@@ -135,11 +135,6 @@ pip install -r requirements.txt
  - 默认：`True`
  - 说明：是否在启动时检查 `meme-generator` 资源
 
-#### `memes_check_cfg_on_startup`
- - 类型：`bool`
- - 默认：`True`
- - 说明：是否在启动时生成/修改配置文件，建议仅当第一次使用插件时或修改配置后开启
-
 #### `memes_prompt_params_error`
  - 类型：`bool`
  - 默认：`False`
