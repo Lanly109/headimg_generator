@@ -2,7 +2,7 @@ import os
 import re
 from enum import IntEnum
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, Optional
 
 import yaml
 from meme_generator.manager import get_memes
@@ -11,6 +11,7 @@ from pydantic import BaseModel
 
 import hoshino
 from .config import meme_disabled_list
+from .meme_optional import *
 
 config_file_path = Path(os.path.join(os.path.dirname(__file__), "config.yml"))
 
