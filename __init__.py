@@ -269,7 +269,6 @@ async def find_meme(
 
 
 @sv.on_message('group')
-@sv.on_prefix()
 async def handle(bot: HoshinoBot, ev: CQEvent):
     msg: Message = ev.message
     if not msg:
