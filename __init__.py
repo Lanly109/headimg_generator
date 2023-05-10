@@ -1,5 +1,6 @@
 import asyncio
 import base64
+import copy
 import hashlib
 import os
 import random
@@ -270,8 +271,9 @@ async def find_meme(
 
 @sv.on_message('group')
 async def handle(bot: HoshinoBot, ev: CQEvent):
-    msg: Message = ev.message
+    msg: Message = copy.deepcopy(ev.message)
     if not msg:
+        sv.logger.info("Empty msg, skip")
         return
     if msg[0].type == "reply":
         # 当回复目标是自己时，去除隐式at自己
@@ -300,19 +302,27 @@ async def handle(bot: HoshinoBot, ev: CQEvent):
             trigger = each_msg
             break
         else:
+            sv.logger.info("Empty trigger, skip")
             return
 
     uid = get_user_id(ev)
     try:
-        meme = await find_meme(
-            trigger.data["text"].split()[0].replace(meme_command_start, "").strip(),
-            bot, ev
-        )
+        trigger_text: str = trigger.data["text"].split()[0]
     except IndexError:
+        sv.logger.info("Empty trigger, skip")
         return
+    if not trigger_text.startswith(meme_command_start):
+        sv.logger.info("Empty prefix, skip")
+        return 
+    meme = await find_meme(
+        trigger_text.replace(meme_command_start, "").strip(),
+        bot, ev
+    )
     if meme is None:
+        sv.logger.info("Empty meme, skip")
         return
     if not meme_manager.check(uid, meme.key):
+        sv.logger.info("Blocked meme, skip")
         return
 
     split_msg = await split_msg_v11(bot, ev, meme, trigger)
@@ -377,3 +387,4 @@ async def update_res(bot: HoshinoBot, ev: CQEvent):
         await bot.send(ev, f"更新资源出错：\n{e}")
         return
     await bot.send(ev, f"更新资源完成")
+    
