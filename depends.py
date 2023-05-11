@@ -43,13 +43,12 @@ def restore_last_at_me_seg(event: CQEvent, msg: Message):
 
 
 async def split_msg_v11(
-        bot: HoshinoBot, ev: CQEvent, meme: Meme, trigger: MessageSegment
+        bot: HoshinoBot, event: CQEvent, meme: Meme, trigger: MessageSegment
 ) -> dict:
     texts: List[str] = []
     users: List[User] = []
     image_sources: List[ImageSource] = []
 
-    event: CQEvent = copy.deepcopy(ev)
     msg = copy.deepcopy(event.message)
 
     trigger_text_with_trigger: str = trigger.data["text"].strip()

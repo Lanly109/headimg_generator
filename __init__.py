@@ -270,8 +270,7 @@ async def find_meme(
 
 
 @sv.on_message('group')
-async def handle(bot: HoshinoBot, event: CQEvent):
-    ev: CQEvent = copy.deepcopy(event)
+async def handle(bot: HoshinoBot, ev: CQEvent):
     msg: Message = copy.deepcopy(ev.message)
     if not msg:
         sv.logger.info("Empty msg, skip")
