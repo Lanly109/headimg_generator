@@ -1,7 +1,7 @@
 import os
 import re
 from enum import IntEnum
-from pathlib import Path
+from pathlib import Path  # noqa
 from typing import Any, Dict, Optional, List  # noqa
 
 import yaml

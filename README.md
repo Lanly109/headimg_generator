@@ -10,6 +10,14 @@
 **2023.04.19**
 - 重构代码，以匹配重构后的源仓库。具体配置看后文
 - 注意：安装插件前请先卸载opencv：`pip uninstall opencv-python`
+- 针对已经安装了本模块的用户：
+  - 如果在`git clone`时没有抓取子模块：
+    - 初始化本地子模块配置文件
+      - `git submodule init`
+    - 更新项目，抓取子模块内容。
+      - `git submodule update`
+- 如果想在`git clone`时抓取子模块：
+  - `git clone --recursive https://GIT_REPO_URL`
 
 <details>
 
@@ -95,6 +103,12 @@
 
 ```
 git clone https://github.com/Lanly109/headimg_generator.git
+```
+
+如果需要安装额外的表情仓库则使用以下命令：
+
+```
+git clone --recursive https://github.com/Lanly109/headimg_generator.git
 ```
 
 进入该目录后使用如下命令安装依赖
