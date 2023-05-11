@@ -1,8 +1,7 @@
-import os
 import re
 from enum import IntEnum
 from pathlib import Path  # noqa
-from typing import Any, Dict, Optional, List  # noqa
+from typing import Any, Dict, Optional
 
 import yaml
 from meme_generator.manager import get_memes
@@ -50,7 +49,7 @@ class MemeManager:
         self.__dump()
 
     def block(
-        self, user_id: str, meme_names=None
+            self, user_id: str, meme_names=None
     ) -> Dict[str, ActionResult]:
         if meme_names is None:
             meme_names = []
@@ -70,7 +69,7 @@ class MemeManager:
         return results
 
     def unblock(
-        self, user_id: str, meme_names=None
+            self, user_id: str, meme_names=None
     ) -> Dict[str, ActionResult]:
         if meme_names is None:
             meme_names = []
@@ -90,7 +89,7 @@ class MemeManager:
         return results
 
     def change_mode(
-        self, mode: MemeMode, meme_names=None
+            self, mode: MemeMode, meme_names=None
     ) -> Dict[str, ActionResult]:
         if meme_names is None:
             meme_names = []
