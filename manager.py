@@ -2,7 +2,7 @@ import os
 import re
 from enum import IntEnum
 from pathlib import Path
-from typing import Any, Dict, Optional
+from typing import Any, Dict, Optional, List  # noqa
 
 import yaml
 from meme_generator.manager import get_memes

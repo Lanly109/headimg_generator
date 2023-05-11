@@ -270,7 +270,8 @@ async def find_meme(
 
 
 @sv.on_message('group')
-async def handle(bot: HoshinoBot, ev: CQEvent):
+async def handle(bot: HoshinoBot, event: CQEvent):
+    ev: CQEvent = copy.deepcopy(event)
     msg: Message = copy.deepcopy(ev.message)
     if not msg:
         sv.logger.info("Empty msg, skip")
@@ -313,7 +314,7 @@ async def handle(bot: HoshinoBot, ev: CQEvent):
         return
     if not trigger_text.startswith(meme_command_start):
         sv.logger.info("Empty prefix, skip")
-        return 
+        return
     meme = await find_meme(
         trigger_text.replace(meme_command_start, "").strip(),
         bot, ev
@@ -387,4 +388,3 @@ async def update_res(bot: HoshinoBot, ev: CQEvent):
         await bot.send(ev, f"更新资源出错：\n{e}")
         return
     await bot.send(ev, f"更新资源完成")
-    
