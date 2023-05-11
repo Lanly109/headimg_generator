@@ -1,0 +1,3 @@
+[submodule "meme_optional/meme_3rd_optional"]
+	path = meme_optional/meme_3rd_optional
+	url = git@github.com:kcn3388/meme_3rd_optional.git
