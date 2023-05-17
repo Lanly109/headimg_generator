@@ -3,4 +3,6 @@ dist/
 .vscode/
 .DS_Store
 *.json
-*.yml
+*.jpg
+*.png
+*.gif
