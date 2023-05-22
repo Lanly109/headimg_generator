@@ -325,7 +325,7 @@ async def handle(bot: HoshinoBot, ev: CQEvent):
         sv.logger.info("Blocked meme, skip")
         return
 
-    split_msg = await split_msg_v11(bot, ev, meme, trigger)
+    split_msg = await split_msg_v11(bot, ev, msg, meme, trigger)
 
     raw_texts: List[str] = split_msg["texts"]
     users: List[User] = split_msg["users"]
@@ -358,7 +358,7 @@ async def handle(bot: HoshinoBot, ev: CQEvent):
                     f" ~ {meme.params_type.max_images}"
                     if meme.params_type.max_images > meme.params_type.min_images
                     else ""
-                )
+                ) + f", 实际数量为{len(image_sources)}"
             )
         return
 
@@ -371,7 +371,7 @@ async def handle(bot: HoshinoBot, ev: CQEvent):
                     f" ~ {meme.params_type.max_texts}"
                     if meme.params_type.max_texts > meme.params_type.min_texts
                     else ""
-                )
+                ) + f", 实际数量为{len(raw_texts)}"
             )
         return
 
