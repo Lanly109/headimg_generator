@@ -75,15 +75,13 @@ async def split_msg_v11(
             source_qq = str(source_msg['sender']['user_id'])
             source_msg = source_msg["message"]
             msgs = Message(source_msg)
-            get_img = False
             for each_msg in msgs:
                 if each_msg.type == "image":
                     image_sources.append(ImageUrl(url=each_msg.data["url"]))
-                    get_img = True
+                    break
             else:
-                if not get_img:
-                    image_sources.append(user_avatar(source_qq))
-                    users.append(QQUser(bot, event, int(source_qq)))
+                image_sources.append(user_avatar(source_qq))
+                users.append(QQUser(bot, event, int(source_qq)))
 
         elif msg_seg.type == "text":
             raw_text = msg_seg.data["text"]
@@ -121,7 +119,7 @@ async def split_msg_v11(
     ):
         texts = meme.params_type.default_texts
 
-    # 当所需文字数 >0 且没有输入文字，且仅存在一个参数时，使用默认文字
+    # 当所需文字数 > 0 且没有输入文字，且仅存在一个参数时，使用默认文字
     # 为了防止误触发，参数必须放在最后一位，且该参数必须是bool，且参数前缀必须是--
     if memes_use_default_when_no_text and (
             meme.params_type.min_texts > 0 and len(texts) == 1 and texts[-1].startswith("--")
