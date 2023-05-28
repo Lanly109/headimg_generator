@@ -325,7 +325,7 @@ async def handle(bot: HoshinoBot, ev: CQEvent):
         sv.logger.info("Blocked meme, skip")
         return
 
-    split_msg = await split_msg_v11(bot, ev, msg, meme, trigger)
+    split_msg = await split_msg_v11(bot, ev, meme, trigger)
 
     raw_texts: List[str] = split_msg["texts"]
     users: List[User] = split_msg["users"]
