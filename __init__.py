@@ -314,8 +314,7 @@ async def handle(bot: HoshinoBot, ev: CQEvent):
     except IndexError:
         sv.logger.info("Empty trigger, skip")
         return
-    if not trigger_text.startswith(meme_command_start)\
-            or not raw_trigger_text.startswith(meme_command_start):
+    if not trigger_text.startswith(meme_command_start):
         sv.logger.info("Empty prefix, skip")
         return
     meme = await find_meme(
