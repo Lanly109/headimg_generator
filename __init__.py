@@ -254,7 +254,7 @@ async def process(
 
 
 async def find_meme(
-        trigger: str, bot: HoshinoBot, ev: CQEvent
+        trigger: str, raw_trigger: str, bot: HoshinoBot, ev: CQEvent
 ) -> Union[Meme, None]:
     if trigger == "随机表情":
         meme = random.choice(meme_manager.memes)
@@ -266,6 +266,8 @@ async def find_meme(
         await bot.send(ev, f"随机到了【{meme.keywords[0]}】")
         return meme
     meme = meme_manager.find(trigger)
+    if meme is None:
+        meme = meme_manager.find(raw_trigger)
     return meme
 
 
@@ -308,14 +310,17 @@ async def handle(bot: HoshinoBot, ev: CQEvent):
     uid = get_user_id(ev)
     try:
         trigger_text: str = trigger.data["text"].split()[0]
+        raw_trigger_text: str = trigger.data["text"].strip()
     except IndexError:
         sv.logger.info("Empty trigger, skip")
         return
-    if not trigger_text.startswith(meme_command_start):
+    if not trigger_text.startswith(meme_command_start)\
+            or not raw_trigger_text.startswith(meme_command_start):
         sv.logger.info("Empty prefix, skip")
         return
     meme = await find_meme(
         trigger_text.replace(meme_command_start, "").strip(),
+        raw_trigger_text.replace(meme_command_start, "").strip(),
         bot, ev
     )
     if meme is None:
@@ -325,7 +330,7 @@ async def handle(bot: HoshinoBot, ev: CQEvent):
         sv.logger.info("Blocked meme, skip")
         return
 
-    split_msg = await split_msg_v11(bot, ev, meme, trigger)
+    split_msg = await split_msg_v11(bot, ev, msg, meme, trigger)
 
     raw_texts: List[str] = split_msg["texts"]
     users: List[User] = split_msg["users"]
