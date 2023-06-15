@@ -43,19 +43,30 @@ def restore_last_at_me_seg(event: CQEvent, msg: Message):
 
 
 async def split_msg_v11(
-        bot: HoshinoBot, event: CQEvent, meme: Meme, trigger: MessageSegment
+        bot: HoshinoBot, event: CQEvent, msg: Message, meme: Meme, trigger: MessageSegment
 ) -> dict:
     texts: List[str] = []
     users: List[User] = []
     image_sources: List[ImageSource] = []
-
-    msg = copy.deepcopy(event.message)
-
     trigger_text_with_trigger: str = trigger.data["text"].strip()
-    trigger_text = re.sub(
-        rf"^{meme_command_start}\S+", "", trigger_text_with_trigger
-    ).strip()
-    trigger_text_seg = Message(f"{trigger_text} ")
+    if meme.patterns:
+        rule = meme.patterns[0]
+        origin: str = trigger_text_with_trigger.replace(meme_command_start, "")
+        try:
+            trigger_text = ""
+            trigger_origin = re.search(rule, origin).groups()
+            if r"吴京[\s:：]*(.*?)中国(.*)" == rule:
+                if not trigger_origin[0]:
+                    re_args = trigger_origin[1].split("中国")
+                    re_args[0] = f"中国{re_args[0]}"
+                    trigger_origin = re_args
+            for each_group in trigger_origin:
+                trigger_text += f"{each_group} "
+        except AttributeError:
+            trigger_text = origin
+    else:
+        trigger_text = re.sub(rf"^{meme_command_start}\S+", "", trigger_text_with_trigger)
+    trigger_text_seg = Message(f"{trigger_text.strip()} ")
     msg.remove(trigger)
     msg: Message = trigger_text_seg.extend(msg)
 
