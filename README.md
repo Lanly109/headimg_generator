@@ -215,7 +215,7 @@ pip install -r requirements.txt
 > - Windows: `C:\Users\<username>\.matplotlib\fontlist-xxx.json`
 > - Linux: `~/.cache/matplotlib/fontlist-xxx.json`
 > - Mac: `~/Library/Caches/matplotlib/fontlist-xxx.json`
-> - 具体可参考[这篇](http://bcxw.net/article/849.html)（感谢[@SlightDust](https://github.com/SlightDust)提供的建议）
+> - 如果还不行，可参考[这篇](http://bcxw.net/article/849.html)（感谢[@SlightDust](https://github.com/SlightDust)提供的建议）
 
 根据系统的不同，推荐安装的字体如下：
 
