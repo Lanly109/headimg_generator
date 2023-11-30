@@ -285,9 +285,11 @@ async def handle(bot: HoshinoBot, ev: CQEvent):
         # 隐式at和显示at之间还有一个文本空格
         while len(msg) > 1 and (
                 msg[1].type == 'at' or msg[1].type == 'text' and msg[1].data['text'].strip() == ""):
-            if msg[1].type == 'at' and msg[1].data['qq'] == source_qq \
-                    or msg[1].type == 'text' and msg[1].data['text'].strip() == "":
+            if msg[1].type == 'at' and msg[1].data['qq'] == source_qq:
                 msg.pop(1)
+            elif msg[1].type == 'text' and msg[1].data['text'].strip() == "":
+                msg.pop(1)
+                break
             else:
                 break
     for each_msg in msg:
@@ -354,17 +356,15 @@ async def handle(bot: HoshinoBot, ev: CQEvent):
             <= len(image_sources)
             <= meme.params_type.max_images
     ):
-        if memes_prompt_params_error:
-            await bot.send(
-                ev,
-                f"输入图片数量不符，图片数量应为 {meme.params_type.min_images}"
-                + (
-                    f" ~ {meme.params_type.max_images}"
-                    if meme.params_type.max_images > meme.params_type.min_images
-                    else ""
-                ) + f", 实际数量为{len(image_sources)}"
-            )
-        return
+        if meme.params_type.min_images > len(image_sources):
+            if memes_prompt_params_error:
+                await bot.send(
+                    ev,
+                    f"输入图片数量过少，图片数量至少为 {meme.params_type.min_images}" + f", 实际数量为{len(image_sources)}"
+                )
+            return
+        else:
+            image_sources = image_sources[:meme.params_type.max_images]
 
     if not (meme.params_type.min_texts <= len(texts) <= meme.params_type.max_texts):
         if memes_prompt_params_error:
