@@ -11,7 +11,7 @@ from pathlib import Path
 from typing import List, Union, Dict, Any
 
 from aiocqhttp.exceptions import ActionFailed
-from hoshino import HoshinoBot, Service, priv
+from hoshino import HoshinoBot, Service, priv, util
 from hoshino.aiorequests import run_sync_func
 from hoshino.typing import CQEvent, MessageSegment, Message
 from meme_generator.download import check_resources
@@ -336,6 +336,9 @@ async def handle(bot: HoshinoBot, ev: CQEvent):
     raw_texts: List[str] = split_msg["texts"]
     users: List[User] = split_msg["users"]
     image_sources: List[ImageSource] = split_msg["image_sources"]
+
+    filtered_texts = [util.filt_message(text) for text in raw_texts]
+    raw_texts = filtered_texts    
 
     args: Dict[str, Any] = {}
 
