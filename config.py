@@ -11,6 +11,8 @@ meme_disabled_list: List[str] = []  # 禁用的表情包列表，填写表情的
 baidu_trans_appid: str = ""
 baidu_trans_apikey: str = ""
 
+group_lmt: int = 1  # 生成表情包的群命令冷却 | 默认1秒
+
 meme_config.translate.baidu_trans_appid = baidu_trans_appid
 meme_config.translate.baidu_trans_apikey = baidu_trans_apikey
 meme_config.dump()
