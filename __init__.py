@@ -391,7 +391,7 @@ async def handle(bot: HoshinoBot, ev: CQEvent):
         await bot.send(ev, SINGLE_EXCEED_NOTICE, at_sender=True)
         return
     lmt.start_cd(ev.group_id)
-    single_limit.increase(ev.user_id, 150)
+    single_limit.increase(ev.user_id, 1)
     await process(bot, ev, meme, image_sources, texts, users, args)
 
 
