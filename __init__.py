@@ -14,7 +14,7 @@ from aiocqhttp.exceptions import ActionFailed
 from hoshino import HoshinoBot, Service, priv
 from hoshino.aiorequests import run_sync_func
 from hoshino.typing import CQEvent, MessageSegment, Message
-from hoshino.util import FreqLimiter
+from hoshino.util import DailyNumberLimiter, FreqLimiter
 from meme_generator.download import check_resources
 from meme_generator.exception import (
     TextOverLength,
@@ -27,7 +27,7 @@ from meme_generator.meme import Meme
 from meme_generator.utils import TextProperties, render_meme_list
 from pypinyin import Style, pinyin
 
-from .config import memes_prompt_params_error, meme_command_start, group_lmt
+from .config import memes_prompt_params_error, meme_command_start, group_lmt, user_single_limit, SINGLE_EXCEED_NOTICE
 from .data_source import ImageSource, User, UserInfo
 from .depends import split_msg_v11
 from .exception import NetworkError, PlatformUnsupportError
@@ -38,6 +38,7 @@ memes_cache_dir = Path(os.path.join(os.path.dirname(__file__), "memes_cache_dir"
 
 # 生成表情包的群命令冷却
 lmt = FreqLimiter(group_lmt)
+single_limit = DailyNumberLimiter(user_single_limit)
 
 sv_help = """
 [表情包制作] 发送全部功能帮助
@@ -386,7 +387,11 @@ async def handle(bot: HoshinoBot, ev: CQEvent):
     if not lmt.check(ev.group_id):
         await bot.send(ev, f'头像表情包功能冷却中(剩余 {int(lmt.left_time(ev.group_id)) + 1}秒)', at_sender=True)
         return
+    if not single_limit.check(ev.user_id):
+        await bot.send(ev, SINGLE_EXCEED_NOTICE, at_sender=True)
+        return
     lmt.start_cd(ev.group_id)
+    single_limit.increase(ev.user_id, 150)
     await process(bot, ev, meme, image_sources, texts, users, args)
 
 
