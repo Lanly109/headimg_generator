@@ -27,7 +27,8 @@ from meme_generator.meme import Meme
 from meme_generator.utils import TextProperties, render_meme_list
 from pypinyin import Style, pinyin
 
-from .config import memes_prompt_params_error, meme_command_start, group_lmt, user_single_limit, SINGLE_EXCEED_NOTICE
+from .config import memes_prompt_params_error, meme_command_start, group_lmt, user_single_limit, SINGLE_EXCEED_NOTICE, \
+    symmetry_lmt, SYMMETRY_EXCEED_NOTICE
 from .data_source import ImageSource, User, UserInfo
 from .depends import split_msg_v11
 from .exception import NetworkError, PlatformUnsupportError
@@ -39,6 +40,7 @@ memes_cache_dir = Path(os.path.join(os.path.dirname(__file__), "memes_cache_dir"
 # 生成表情包的群命令冷却
 lmt = FreqLimiter(group_lmt)
 single_limit = DailyNumberLimiter(user_single_limit)
+symmetry_limit = DailyNumberLimiter(symmetry_lmt)
 
 sv_help = """
 [表情包制作] 发送全部功能帮助
@@ -390,6 +392,11 @@ async def handle(bot: HoshinoBot, ev: CQEvent):
     if not single_limit.check(ev.user_id):
         await bot.send(ev, SINGLE_EXCEED_NOTICE, at_sender=True)
         return
+    if '对称' in str(ev.message):
+        if not symmetry_limit.check(ev.user_id):
+            await bot.send(ev, SYMMETRY_EXCEED_NOTICE, at_sender=True)
+            return
+        symmetry_limit.increase(ev.user_id, 1)
     lmt.start_cd(ev.group_id)
     single_limit.increase(ev.user_id, 1)
     await process(bot, ev, meme, image_sources, texts, users, args)

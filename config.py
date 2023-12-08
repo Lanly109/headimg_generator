@@ -11,9 +11,11 @@ meme_disabled_list: List[str] = []  # 禁用的表情包列表，填写表情的
 baidu_trans_appid: str = ""
 baidu_trans_apikey: str = ""
 
-group_lmt: int = 1  # 生成表情包的群命令冷却 | 默认1秒
-user_single_limit: int = 3  # 每日每人的次数限制
-SINGLE_EXCEED_NOTICE: str = "您今天已经使用过3次头像表情包功能了，请明早5点后再来哦！"
+group_lmt: int = 10  # 生成表情包的群命令冷却 | 默认1秒
+user_single_limit: int = 10  # 每日每人的次数限制
+SINGLE_EXCEED_NOTICE: str = "您今天已经使用过10次头像表情包功能了，请明早5点后再来哦！"
+symmetry_lmt: int = 1  # 对称功能次数限制
+SYMMETRY_EXCEED_NOTICE: str = "您今天已经使用过1次对称表情包了，请明早5点后再来哦！"
 
 meme_config.translate.baidu_trans_appid = baidu_trans_appid
 meme_config.translate.baidu_trans_apikey = baidu_trans_apikey
