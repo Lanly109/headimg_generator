@@ -7,13 +7,13 @@ import traceback
 from io import BytesIO
 from itertools import chain
 from pathlib import Path
-from typing import List, Union, Dict, Any, Tuple
+from typing import List, Union, Tuple
 
 from aiocqhttp.exceptions import ActionFailed
 from meme_generator.download import check_resources
+from meme_generator.exception import MemeGeneratorException
 from meme_generator.meme import Meme
 from meme_generator.utils import render_meme_list, MemeProperties
-from meme_generator.exception import MemeGeneratorException
 from pypinyin import Style, pinyin
 
 from hoshino import HoshinoBot, Service, priv
@@ -105,8 +105,10 @@ async def info_cmd(bot: HoshinoBot, ev: CQEvent):
     if not meme_name:
         await bot.finish(ev, "参数出错，请重新输入")
 
-    if not (meme := meme_manager.find(meme_name)):
-        await bot.finish(ev, f"表情 {meme_name} 不存在！")
+    meme, _ = meme_manager.find(meme_name)
+    if not meme:
+        await bot.send(ev, f"表情 {meme_name} 不存在！")
+        return
 
     info = await meme_info(meme)
     await bot.finish(ev, info)
@@ -237,20 +239,20 @@ async def process(
 
 async def find_meme(
         trigger: str, raw_trigger: str, bot: HoshinoBot, ev: CQEvent
-) -> Union[Meme, None]:
+) -> Union[Union[Tuple[Meme, bool], Tuple[None, None]]]:
     if trigger == "随机表情":
         meme = random.choice(meme_manager.memes)
         uid = get_user_id(ev)
         if not meme_manager.check(uid, meme.key):
             await bot.send(ev, "随机到的表情不可用了捏qwq\n再试一次吧~")
-            return None
+            return None, None
 
         await bot.send(ev, f"随机到了【{meme.keywords[0]}】")
-        return meme
-    meme = meme_manager.find(trigger)
+        return meme, False
+    meme, regex = meme_manager.find(trigger)
     if meme is None:
-        meme = meme_manager.find(raw_trigger)
-    return meme
+        meme, regex = meme_manager.find(raw_trigger)
+    return meme, regex
 
 
 @sv.on_message('group')
@@ -299,7 +301,7 @@ async def handle(bot: HoshinoBot, ev: CQEvent):
     if not trigger_text.startswith(meme_command_start):
         # sv.logger.info("Empty prefix, skip")
         return
-    meme = await find_meme(
+    meme, is_regex = await find_meme(
         trigger_text.replace(meme_command_start, "").strip(),
         raw_trigger_text.replace(meme_command_start, "").strip(),
         bot, ev
@@ -311,33 +313,16 @@ async def handle(bot: HoshinoBot, ev: CQEvent):
         sv.logger.info("Blocked meme, skip")
         return
 
-    split_msg = await split_msg_v11(bot, ev, msg, meme, trigger)
+    split_msg = await split_msg_v11(bot, ev, msg, meme, trigger, is_regex)
+    if not split_msg:
+        await bot.send(ev, f"表情 {meme.keywords[0]} 不存在！")
+        return
 
     raw_texts: List[str] = split_msg["texts"]
     user_infos: List[UserInfo] = split_msg["user_infos"]
     image_sources: List[ImageSource] = split_msg["image_sources"]
-
-    args: Dict[str, Any] = {}
-
-    if meme.params_type.args_type:
-        raw_texts_copy = copy.deepcopy(raw_texts)
-        parser_options = meme.params_type.args_type.parser_options
-        for i in range(len(raw_texts_copy)):
-            arg = raw_texts_copy[i]
-            if arg.startswith("/") or arg.startswith("--"):
-                arg_key = arg.replace("/", "")
-                for each_opt in parser_options:
-                    if arg_key in each_opt.names:
-                        dest = each_opt.dest
-                        action_value = each_opt.action.value
-                        real_arg_key = each_opt.names[0].replace("--", "")
-                        if dest:
-                            args[dest] = action_value
-                        else:
-                            args[real_arg_key] = action_value
-                        raw_texts.remove(arg)
-
-    texts = raw_texts
+    args: dict = split_msg["args"]
+    texts = raw_texts if raw_texts else meme.params_type.default_texts
 
     await process(bot, ev, meme, image_sources, texts, user_infos, args)
 

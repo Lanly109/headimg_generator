@@ -1,5 +1,6 @@
+import re
 from enum import IntEnum
-from typing import Any, Dict, Optional
+from typing import Any, Dict, Tuple, Union
 
 import yaml
 from meme_generator.manager import get_memes
@@ -53,7 +54,7 @@ class MemeManager:
             meme_names = []
         results = {}
         for name in meme_names:
-            meme = self.find(name)
+            meme, _ = self.find(name)
             if not meme:
                 results[name] = ActionResult.NOTFOUND
                 continue
@@ -73,7 +74,7 @@ class MemeManager:
             meme_names = []
         results = {}
         for name in meme_names:
-            meme = self.find(name)
+            meme, _ = self.find(name)
             if not meme:
                 results[name] = ActionResult.NOTFOUND
                 continue
@@ -93,7 +94,7 @@ class MemeManager:
             meme_names = []
         results = {}
         for name in meme_names:
-            meme = self.find(name)
+            meme, _ = self.find(name)
             if not meme:
                 results[name] = ActionResult.NOTFOUND
                 continue
@@ -103,16 +104,18 @@ class MemeManager:
         self.__dump()
         return results
 
-    def find(self, meme_name: str) -> Optional[Meme]:
+    def find(self, meme_name: str) -> Tuple[Union[Meme, None], bool]:
         for meme in self.memes:
             if meme_name.lower() == meme.key.lower():
-                return meme
+                return meme, False
             for keyword in sorted(meme.keywords, reverse=True):
                 if meme_name.lower() == keyword.lower():
-                    return meme
-            # for pattern in meme.patterns:
-            #     if re.fullmatch(pattern, meme_name, re.IGNORECASE):
-            #         return meme
+                    return meme, False
+            if meme.shortcuts:
+                for shortcut in meme.shortcuts:
+                    if re.search(shortcut.key, meme_name, re.IGNORECASE):
+                        return meme, True
+        return None, False
 
     def check(self, user_id: str, meme_key: str) -> bool:
         if meme_key not in self.__meme_list:

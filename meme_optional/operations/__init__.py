@@ -6,7 +6,8 @@ from meme_generator import (
     MemeArgsModel,
     MemeArgsType,
     add_meme,
-    ParserOption
+    ParserOption,
+    ParserArg
 )
 from meme_generator.utils import (
     make_jpg_or_gif,
@@ -30,9 +31,7 @@ class Model(MemeArgsModel):
     fliph: bool = Field(False, description=help_fliph)
     flipv: bool = Field(False, description=help_flipv)
     binary: bool = Field(False, description=help_binary)
-    rotate90: bool = Field(False, description=help_rotate)
-    rotate180: bool = Field(False, description=help_rotate)
-    rotate270: bool = Field(False, description=help_rotate)
+    rotate: int = Field(0, description=help_rotate)
     invert: bool = Field(False, description=help_invert)
     emboss: bool = Field(False, description=help_emboss)
     contour: bool = Field(False, description=help_contour)
@@ -44,9 +43,7 @@ parser_options = [
     ParserOption(names=["--fliph", "水平翻转"], action=store_true, help=help_fliph),
     ParserOption(names=["--flipv", "垂直翻转"], action=store_true, help=help_flipv),
     ParserOption(names=["--binary", "黑白"], action=store_true, help=help_binary),
-    ParserOption(names=["--rotate90", "旋转90"], action=store_true, help=help_rotate),
-    ParserOption(names=["--rotate180", "旋转180"], action=store_true, help=help_rotate),
-    ParserOption(names=["--rotate270", "旋转270"], action=store_true, help=help_rotate),
+    ParserOption(names=["--rotate", "旋转"], args=[ParserArg(name="name", value="int", default=0)], help=help_rotate),
     ParserOption(names=["--invert", "反相"], action=store_true, help=help_invert),
     ParserOption(names=["--emboss", "浮雕"], action=store_true, help=help_emboss),
     ParserOption(names=["--contour", "轮廓"], action=store_true, help=help_contour),
@@ -75,12 +72,8 @@ def operations(images: List[BuildImage], texts: List[str], args) -> BytesIO:
             frame = img.transpose(Image.FLIP_TOP_BOTTOM)
         elif args.binary:
             frame = img.convert("L")
-        elif args.rotate90:
-            frame = img.rotate(angle=90)
-        elif args.rotate180:
-            frame = img.rotate(angle=180)
-        elif args.rotate270:
-            frame = img.rotate(angle=270)
+        elif args.rotate:
+            frame = img.rotate(angle=args.rotate)
         elif args.invert:
             img = img.convert("RGB")
             frame = BuildImage(ImageOps.invert(img.image))

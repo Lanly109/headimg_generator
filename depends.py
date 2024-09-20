@@ -1,6 +1,6 @@
 import copy
 import re
-from typing import List
+from typing import List, Dict, Any
 
 from aiohttp import ClientSession
 from meme_generator.meme import Meme
@@ -58,14 +58,32 @@ def restore_last_at_me_seg(event: CQEvent, msg: Message):
 
 
 async def split_msg_v11(
-        bot: HoshinoBot, event: CQEvent, msg: Message, meme: Meme, trigger: MessageSegment
+        bot: HoshinoBot, event: CQEvent, msg: Message, meme: Meme, trigger: MessageSegment, is_regex: bool
 ) -> dict:
     texts: List[str] = []
     user_infos: List[UserInfo] = []
     image_sources: List[ImageSource] = []
     trigger_text_with_trigger: str = trigger.data["text"].strip()
-    trigger_text = re.sub(rf"^{meme_command_start}\S+", "", trigger_text_with_trigger)
-    trigger_text_seg = Message(f"{trigger_text.strip()} ")
+    if is_regex:
+        regex_args = []
+        raw_args = ""
+        for shortcut in meme.shortcuts:
+            raw_text = trigger_text_with_trigger.replace(meme_command_start, "")
+            regex_args = re.findall(shortcut.key, raw_text)
+            if regex_args:
+                regex_args = regex_args[0]
+                break
+        for each_arg in regex_args:
+            raw_args += f"{each_arg} "
+        trigger_text_seg = Message(f"{raw_args.strip()} ")
+    else:
+        for keyword in meme.keywords:
+            if re.search(rf"^{meme_command_start}{keyword}", trigger_text_with_trigger):
+                trigger_text = re.sub(rf"^{meme_command_start}{keyword}", "", trigger_text_with_trigger)
+                trigger_text_seg = Message(f"{trigger_text.strip() }")
+                break
+        else:
+            return {}
     msg.remove(trigger)
     msg: Message = trigger_text_seg.extend(msg)
 
@@ -120,6 +138,40 @@ async def split_msg_v11(
                 elif text:
                     texts.append(text)
 
+    args: Dict[str, Any] = {}
+    if meme.params_type.args_type:
+        raw_text_copy: List[str] = copy.deepcopy(texts)
+        parser_options = meme.params_type.args_type.parser_options
+        for i in range(len(raw_text_copy)):
+            arg = raw_text_copy[i]
+            if arg.startswith("/") or arg.startswith("--") or arg.startswith("-"):
+                arg_key = arg.replace("/", "")
+                for each_opt in parser_options:
+                    if arg_key in each_opt.names:
+                        for name in each_opt.names:
+                            if name.startswith("--"):
+                                real_arg_key = name.replace("--", "")
+                                break
+                        else:
+                            await bot.send(event, f"参数错误！")
+                            return {}
+                        dest = each_opt.dest
+                        action = each_opt.action
+                        if action:
+                            action_value = action.value
+                        else:
+                            try:
+                                action_value = raw_text_copy[i + 1]
+                                texts.remove(raw_text_copy[i + 1])
+                            except IndexError:
+                                await bot.send(event, f"参数错误！")
+                                return {}
+                        if dest:
+                            args[dest] = action_value
+                        else:
+                            args[real_arg_key] = action_value
+                        texts.remove(raw_text_copy[i])
+
     # 当所需图片数为 2 且已指定图片数为 1 时，使用 发送者的头像 作为第一张图
     if meme.params_type.min_images == 2 and len(image_sources) == 1:
         if user_info := await get_user_info(bot, event, event.user_id):
@@ -153,5 +205,6 @@ async def split_msg_v11(
     return {
         "texts": texts,
         "user_infos": user_infos,
-        "image_sources": image_sources
+        "image_sources": image_sources,
+        "args": args
     }
