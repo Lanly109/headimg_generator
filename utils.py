@@ -1,12 +1,23 @@
 import asyncio
+import base64
 import shlex
+from io import BytesIO
+from typing import Union
 
-import hoshino
 import httpx
+from arclet.alconna import TextFormatter
 from meme_generator.meme import Meme
 
+import hoshino
+from hoshino import MessageSegment
 from .config import *
 from .exception import NetworkError
+
+
+def bytesio2b64(img: Union[BytesIO, bytes]) -> str:
+    if isinstance(img, BytesIO):
+        img = img.getvalue()
+    return f"base64://{base64.b64encode(img).decode()}"
 
 
 async def download_url(url: str) -> bytes:
@@ -30,10 +41,12 @@ def split_text(text: str) -> List[str]:
         return text.split()
 
 
-def meme_info(meme: Meme) -> str:
+async def meme_info(meme: Meme) -> str:
     keywords = "、".join([f'"{keyword}"' for keyword in meme.keywords])
-
-    patterns = "、".join([f'"{pattern}"' for pattern in meme.patterns])
+    shortcuts = "、".join(
+        [f'"{shortcut.humanized or shortcut.key}"' for shortcut in meme.shortcuts]
+    )
+    tags = "、".join([f'"{tag}"' for tag in meme.tags])
 
     image_num = f"{meme.params_type.min_images}"
     if meme.params_type.max_images > meme.params_type.min_images:
@@ -45,29 +58,34 @@ def meme_info(meme: Meme) -> str:
 
     default_texts = ", ".join([f'"{text}"' for text in meme.params_type.default_texts])
 
-    if args := meme.params_type.args_type:
-        parser = args.parser
-        args_info = parser.format_help().split("\n\n")[-1]
-        lines = []
-        for line in args_info.splitlines():
-            if line.lstrip().startswith("options") or line.lstrip().startswith(
-                    "-h, --help"
-            ):
-                continue
-            lines.append(line)
-        args_info = "\n".join(lines)
-    else:
-        args_info = ""
+    args_info = ""
+    if args_type := meme.params_type.args_type:
+        formater = TextFormatter()
+        for option in args_type.parser_options:
+            opt = option.option()
+            alias_text = (
+                    " ".join(opt.requires)
+                    + (" " if opt.requires else "")
+                    + "│".join(sorted(opt.aliases, key=len))
+            )
+            args_info += (
+                f"\n  * {alias_text}{opt.separators[0]}"
+                f"{formater.parameters(opt.args)} {opt.help_text}"
+            )
 
-    return (
-            f"表情名：{meme.key}\n"
-            + f"关键词：{keywords}\n"
-            + (f"正则表达式：{patterns}\n" if patterns else "")
-            + f"需要图片数目：{image_num}\n"
-            + f"需要文字数目：{text_num}\n"
-            + (f"默认文字：[{default_texts}]\n" if default_texts else "")
-            + (f"可选参数：\n{args_info}\n" if args_info else "")
+    info = (
+            f"表情名：{meme.key}"
+            + f"\n关键词：{keywords}"
+            + (f"\n快捷指令：{shortcuts}" if shortcuts else "")
+            + (f"\n标签：{tags}" if tags else "")
+            + f"\n需要图片数目：{image_num}"
+            + f"\n需要文字数目：{text_num}"
+            + (f"\n默认文字：[{default_texts}]" if default_texts else "")
+            + (f"\n可选参数：{args_info}" if args_info else "")
     )
+    info += "\n表情预览：\n"
+    img = MessageSegment.image(bytesio2b64(meme.generate_preview()))
+    return f"{info}{img}"
 
 
 if memes_check_resources_on_startup:
@@ -78,4 +96,4 @@ if memes_check_resources_on_startup:
     @on_startup
     async def _():
         hoshino.logger.info("正在检查资源文件...")
-        asyncio.create_task(check_resources())
+        await asyncio.create_task(check_resources())

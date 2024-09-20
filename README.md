@@ -7,13 +7,19 @@
 感谢[@MeetWq](https://github.com/MeetWq)以及参与该项目的所有成员！
 
 ## 更新日志
-**2023.06.05**
-- 修复正则表达式匹配，感谢[@kcn3388](https://github.com/kcn3388)
-  
 **2023.04.19**
 - 重构代码，以匹配重构后的源仓库。具体配置看后文
 - 注意：安装插件前请先卸载opencv：`pip uninstall opencv-python`
+- 针对已经安装了本模块的用户：
+  - 如果在`git clone`时没有抓取子模块：
+    - 初始化本地子模块配置文件
+      - `git submodule init`
+    - 更新项目，抓取子模块内容。
+      - `git submodule update`
+- 如果想在`git clone`时抓取子模块：
+  - `git clone --recursive https://GIT_REPO_URL`
 - 以上感谢[@kcn3388](https://github.com/kcn3388)
+
 
 <details>
 
@@ -206,16 +212,6 @@ pip install -r requirements.txt
  - 说明：web server 端口
 
 ### 中文字体 和 emoji字体 安装
-
-> **Note**
->
-> 字体安装后若文字仍显示不正常，可删掉 `matplotlib` 字体缓存文件重新运行程序
->
-> 缓存文件位置：
-> - Windows: `C:\Users\<username>\.matplotlib\fontlist-xxx.json`
-> - Linux: `~/.cache/matplotlib/fontlist-xxx.json`
-> - Mac: `~/Library/Caches/matplotlib/fontlist-xxx.json`
-> - 如果还不行，可参考[这篇](http://bcxw.net/article/849.html)（感谢[@SlightDust](https://github.com/SlightDust)提供的建议）
 
 根据系统的不同，推荐安装的字体如下：
 

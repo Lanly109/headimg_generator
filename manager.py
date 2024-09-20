@@ -1,7 +1,4 @@
-import re
-import os
 from enum import IntEnum
-from pathlib import Path  # noqa
 from typing import Any, Dict, Optional
 
 import yaml
@@ -22,7 +19,7 @@ class MemeMode(IntEnum):
 
 
 class MemeConfig(BaseModel):
-    mode: MemeMode = MemeMode.BLACK
+    mode: int = MemeMode.BLACK.value
     white_list: List[str] = []
     black_list: List[str] = []
 
@@ -90,7 +87,7 @@ class MemeManager:
         return results
 
     def change_mode(
-            self, mode: MemeMode, meme_names=None
+            self, mode: int, meme_names=None
     ) -> Dict[str, ActionResult]:
         if meme_names is None:
             meme_names = []
@@ -113,19 +110,19 @@ class MemeManager:
             for keyword in sorted(meme.keywords, reverse=True):
                 if meme_name.lower() == keyword.lower():
                     return meme
-            for pattern in meme.patterns:
-                if re.fullmatch(pattern, meme_name, re.IGNORECASE):
-                    return meme
+            # for pattern in meme.patterns:
+            #     if re.fullmatch(pattern, meme_name, re.IGNORECASE):
+            #         return meme
 
     def check(self, user_id: str, meme_key: str) -> bool:
         if meme_key not in self.__meme_list:
             return False
         config = self.__meme_list[meme_key]
-        if config.mode == MemeMode.BLACK:
+        if config.mode == MemeMode.BLACK.value:
             if user_id in config.black_list:
                 return False
             return True
-        elif config.mode == MemeMode.WHITE:
+        elif config.mode == MemeMode.WHITE.value:
             if user_id in config.white_list:
                 return True
             return False
@@ -141,7 +138,7 @@ class MemeManager:
                     hoshino.logger.warning("表情列表解析失败，将重新生成")
         try:
             meme_list = {
-                name: MemeConfig.parse_obj(config) for name, config in raw_list.items()
+                name: MemeConfig.model_validate(config) for name, config in raw_list.items()
             }
         except AttributeError:
             meme_list = {}
@@ -151,7 +148,7 @@ class MemeManager:
 
     def __dump(self):
         self.__path.parent.mkdir(parents=True, exist_ok=True)
-        meme_list = {name: config.dict() for name, config in self.__meme_list.items()}
+        meme_list = {name: config.model_dump() for name, config in self.__meme_list.items()}
         with self.__path.open("w", encoding="utf-8") as f:
             yaml.dump(meme_list, f, allow_unicode=True)
 
