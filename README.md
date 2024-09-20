@@ -7,6 +7,14 @@
 感谢[@MeetWq](https://github.com/MeetWq)以及参与该项目的所有成员！
 
 ## 更新日志
+**2023.09.20**
+- 重构代码以修复源仓库在0.1版本后的破坏性更新。
+  - 不再支持正则搜索表情包（因为源仓库已经删除了正则表达式）
+
+<details>
+
+<summary>更新历史</summary>
+
 **2023.04.19**
 - 重构代码，以匹配重构后的源仓库。具体配置看后文
 - 注意：安装插件前请先卸载opencv：`pip uninstall opencv-python`
@@ -19,11 +27,6 @@
 - 如果想在`git clone`时抓取子模块：
   - `git clone --recursive https://GIT_REPO_URL`
 - 以上感谢[@kcn3388](https://github.com/kcn3388)
-
-
-<details>
-
-<summary>更新历史</summary>
 
 **2023.01.09**
 - 新增`恍惚`，`恐龙`，`挠头`，`鼓掌`，`追列车`，`万花筒`，`加班`，`头像公式`，`一直套娃`
