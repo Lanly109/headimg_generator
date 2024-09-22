@@ -259,7 +259,7 @@ async def find_meme(
 async def handle(bot: HoshinoBot, ev: CQEvent):
     msg: Message = copy.deepcopy(ev.message)
     if not msg:
-        sv.logger.info("Empty msg, skip")
+        sv.logger.debug("Empty msg, skip")
         return
     if msg[0].type == "reply":
         # 当回复目标是自己时，去除隐式at自己
@@ -288,7 +288,7 @@ async def handle(bot: HoshinoBot, ev: CQEvent):
             trigger = each_msg
             break
         else:
-            sv.logger.info("Empty trigger, skip")
+            sv.logger.debug("Empty trigger, skip")
             return
 
     uid = get_user_id(ev)
@@ -296,10 +296,10 @@ async def handle(bot: HoshinoBot, ev: CQEvent):
         trigger_text: str = trigger.data["text"].split()[0]
         raw_trigger_text: str = trigger.data["text"].strip()
     except IndexError:
-        sv.logger.info("Empty trigger, skip")
+        sv.logger.debug("Empty trigger, skip")
         return
     if not trigger_text.startswith(meme_command_start):
-        # sv.logger.info("Empty prefix, skip")
+        # sv.logger.debug("Empty prefix, skip")
         return
     meme, is_regex = await find_meme(
         trigger_text.replace(meme_command_start, "").strip(),
@@ -307,10 +307,10 @@ async def handle(bot: HoshinoBot, ev: CQEvent):
         bot, ev
     )
     if meme is None:
-        sv.logger.info("Empty meme, skip")
+        sv.logger.debug("Empty meme, skip")
         return
     if not meme_manager.check(uid, meme.key):
-        sv.logger.info("Blocked meme, skip")
+        sv.logger.debug("Blocked meme, skip")
         return
 
     split_msg = await split_msg_v11(bot, ev, msg, meme, trigger, is_regex)

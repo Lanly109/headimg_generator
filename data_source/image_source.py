@@ -46,7 +46,10 @@ class EmojiStyle(StrEnum):
 
 class Emoji(ImageSource):
     data: str
-    from pydantic import field_validator
+    try:
+        from pydantic import field_validator
+    except: # compatible with pydantic 1.x
+        from pydantic import validator as field_validator
 
     @field_validator("data")
     def check_emoji(cls, value: str) -> str:

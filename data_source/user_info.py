@@ -2,7 +2,8 @@ from typing import Optional, Union
 from aiocqhttp.exceptions import ActionFailed
 from pydantic import BaseModel
 from strenum import StrEnum
-from hoshino import logger, HoshinoBot, CQEvent
+from hoshino import logger, HoshinoBot
+from hoshino.typing import CQEvent
 from .image_source import ImageSource, QQAvatar
 from .utils import check_qq_number
 
