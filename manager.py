@@ -1,8 +1,6 @@
 import re
-import os
 from enum import IntEnum
-from pathlib import Path  # noqa
-from typing import Any, Dict, Optional
+from typing import Any, Dict, Tuple, Union
 
 import yaml
 from meme_generator.manager import get_memes
@@ -12,6 +10,7 @@ from pydantic import BaseModel
 import hoshino
 from .config import meme_disabled_list
 from .meme_optional import *
+from pathlib import Path
 
 config_file_path = Path(os.path.join(os.path.dirname(__file__), "config.yml"))
 
@@ -22,7 +21,7 @@ class MemeMode(IntEnum):
 
 
 class MemeConfig(BaseModel):
-    mode: MemeMode = MemeMode.BLACK
+    mode: int = MemeMode.BLACK.value
     white_list: List[str] = []
     black_list: List[str] = []
 
@@ -56,7 +55,7 @@ class MemeManager:
             meme_names = []
         results = {}
         for name in meme_names:
-            meme = self.find(name)
+            meme, _ = self.find(name)
             if not meme:
                 results[name] = ActionResult.NOTFOUND
                 continue
@@ -76,7 +75,7 @@ class MemeManager:
             meme_names = []
         results = {}
         for name in meme_names:
-            meme = self.find(name)
+            meme, _ = self.find(name)
             if not meme:
                 results[name] = ActionResult.NOTFOUND
                 continue
@@ -90,13 +89,13 @@ class MemeManager:
         return results
 
     def change_mode(
-            self, mode: MemeMode, meme_names=None
+            self, mode: int, meme_names=None
     ) -> Dict[str, ActionResult]:
         if meme_names is None:
             meme_names = []
         results = {}
         for name in meme_names:
-            meme = self.find(name)
+            meme, _ = self.find(name)
             if not meme:
                 results[name] = ActionResult.NOTFOUND
                 continue
@@ -106,26 +105,28 @@ class MemeManager:
         self.__dump()
         return results
 
-    def find(self, meme_name: str) -> Optional[Meme]:
+    def find(self, meme_name: str) -> Tuple[Union[Meme, None], bool]:
         for meme in self.memes:
             if meme_name.lower() == meme.key.lower():
-                return meme
+                return meme, False
             for keyword in sorted(meme.keywords, reverse=True):
                 if meme_name.lower() == keyword.lower():
-                    return meme
-            for pattern in meme.patterns:
-                if re.fullmatch(pattern, meme_name, re.IGNORECASE):
-                    return meme
+                    return meme, False
+            if meme.shortcuts:
+                for shortcut in meme.shortcuts:
+                    if re.search(shortcut.key, meme_name, re.IGNORECASE):
+                        return meme, True
+        return None, False
 
     def check(self, user_id: str, meme_key: str) -> bool:
         if meme_key not in self.__meme_list:
             return False
         config = self.__meme_list[meme_key]
-        if config.mode == MemeMode.BLACK:
+        if config.mode == MemeMode.BLACK.value:
             if user_id in config.black_list:
                 return False
             return True
-        elif config.mode == MemeMode.WHITE:
+        elif config.mode == MemeMode.WHITE.value:
             if user_id in config.white_list:
                 return True
             return False
@@ -141,7 +142,7 @@ class MemeManager:
                     hoshino.logger.warning("表情列表解析失败，将重新生成")
         try:
             meme_list = {
-                name: MemeConfig.parse_obj(config) for name, config in raw_list.items()
+                name: MemeConfig.model_validate(config) for name, config in raw_list.items()
             }
         except AttributeError:
             meme_list = {}
@@ -151,7 +152,10 @@ class MemeManager:
 
     def __dump(self):
         self.__path.parent.mkdir(parents=True, exist_ok=True)
-        meme_list = {name: config.dict() for name, config in self.__meme_list.items()}
+        try:
+            meme_list = {name: config.model_dump() for name, config in self.__meme_list.items()}
+        except: # compatible with pydantic 1.x
+            meme_list = {name: config.dict() for name, config in self.__meme_list.items()}
         with self.__path.open("w", encoding="utf-8") as f:
             yaml.dump(meme_list, f, allow_unicode=True)
 

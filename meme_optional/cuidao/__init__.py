@@ -39,11 +39,11 @@ def cuidao(images: List[BuildImage], texts: List[str], args) -> BytesIO:
     except ValueError:
         raise TextOverLength(name)
 
-    def make(make_img: BuildImage) -> BuildImage:
-        make_img = make_img.resize_width(500)
+    def make(make_img: List[BuildImage]) -> BuildImage:
+        make_img = make_img[0].resize_width(500)
         return frame.copy().paste(make_img, (int(300 - img_w / 2), 110), alpha=True)
 
-    return make_jpg_or_gif(img, make)
+    return make_jpg_or_gif([img], make)
 
 
 add_meme(

@@ -1,5 +1,4 @@
 import asyncio
-import base64
 import copy
 import hashlib
 import os
@@ -8,30 +7,24 @@ import traceback
 from io import BytesIO
 from itertools import chain
 from pathlib import Path
-from typing import List, Union, Dict, Any
+from typing import List, Union, Tuple
 
 from aiocqhttp.exceptions import ActionFailed
+from meme_generator.download import check_resources
+from meme_generator.exception import MemeGeneratorException
+from meme_generator.meme import Meme
+from meme_generator.utils import render_meme_list, MemeProperties
+from pypinyin import Style, pinyin
+
 from hoshino import HoshinoBot, Service, priv
 from hoshino.aiorequests import run_sync_func
 from hoshino.typing import CQEvent, MessageSegment, Message
-from meme_generator.download import check_resources
-from meme_generator.exception import (
-    TextOverLength,
-    ArgMismatch,
-    TextOrNameNotEnough,
-    MemeGeneratorException,
-    ArgParserExit
-)
-from meme_generator.meme import Meme
-from meme_generator.utils import TextProperties, render_meme_list
-from pypinyin import Style, pinyin
-
 from .config import memes_prompt_params_error, meme_command_start
-from .data_source import ImageSource, User, UserInfo
+from .data_source import ImageSource, UserInfo
 from .depends import split_msg_v11
 from .exception import NetworkError, PlatformUnsupportError
 from .manager import ActionResult, MemeMode, meme_manager
-from .utils import meme_info
+from .utils import meme_info, bytesio2b64
 
 memes_cache_dir = Path(os.path.join(os.path.dirname(__file__), "memes_cache_dir"))
 
@@ -57,12 +50,6 @@ async def bangzhu_text(bot: HoshinoBot, ev: CQEvent):
     await bot.send(ev, sv_help, at_sender=True)
 
 
-def bytesio2b64(img: Union[BytesIO, bytes]) -> str:
-    if isinstance(img, BytesIO):
-        img = img.getvalue()
-    return f"base64://{base64.b64encode(img).decode()}"
-
-
 def get_user_id(ev: CQEvent, permit: Union[int, None] = None):
     if permit is None or permit < 21:
         cid = f"{ev.self_id}_{ev.group_id}_{ev.user_id}"
@@ -79,20 +66,24 @@ async def help_cmd(bot: HoshinoBot, ev: CQEvent):
             chain.from_iterable(pinyin(meme.keywords[0], style=Style.TONE3))
         ),
     )
-    user_id = get_user_id(ev)
-    meme_list = [
-        (
-            meme,
-            TextProperties(
-                fill="black" if meme_manager.check(user_id, meme.key) else "lightgrey"
-            ),
-        )
-        for meme in memes
-    ]
-
+    meme_list: List[Tuple[Meme, MemeProperties]] = []
+    for single_meme in memes:
+        disabled = not meme_manager.check(get_user_id(ev), single_meme.key)
+        meme_list.append((single_meme, MemeProperties(disabled=disabled)))
     # cache rendered meme list
     meme_list_hashable = [
-        ({"key": meme.key, "keywords": meme.keywords}, prop) for meme, prop in meme_list
+        (
+            {
+                "key": meme.key,
+                "keywords": meme.keywords,
+                "shortcuts": [
+                    shortcut.humanized or shortcut.key for shortcut in meme.shortcuts
+                ],
+                "tags": sorted(meme.tags),
+            },
+            prop,
+        )
+        for meme, prop in meme_list
     ]
     meme_list_hash = hashlib.md5(str(meme_list_hashable).encode("utf8")).hexdigest()
     meme_list_cache_file = memes_cache_dir / f"{meme_list_hash}.jpg"
@@ -114,14 +105,13 @@ async def info_cmd(bot: HoshinoBot, ev: CQEvent):
     if not meme_name:
         await bot.finish(ev, "参数出错，请重新输入")
 
-    if not (meme := meme_manager.find(meme_name)):
-        await bot.finish(ev, f"表情 {meme_name} 不存在！")
+    meme, _ = meme_manager.find(meme_name)
+    if not meme:
+        await bot.send(ev, f"表情 {meme_name} 不存在！")
+        return
 
-    info = meme_info(meme)
-    info += "表情预览：\n"
-    img = await meme.generate_preview()
-
-    await bot.finish(ev, info + MessageSegment.image(bytesio2b64(img)))
+    info = await meme_info(meme)
+    await bot.finish(ev, info)
 
 
 @sv.on_prefix("禁用表情")
@@ -208,74 +198,68 @@ async def process(
         meme: Meme,
         image_sources: List[ImageSource],
         texts: List[str],
-        users: List[User],
+        user_infos: List[UserInfo],
         args=None,
 ):
     if args is None:
         args = {}
     images: List[bytes] = []
-    user_infos: List[UserInfo] = []
 
     try:
         for image_source in image_sources:
             images.append(await image_source.get_image())
-    except PlatformUnsupportError as e:
-        await bot.finish(ev, f"当前平台 “{e.platform}” 暂不支持获取头像，请使用图片输入")
+    except NotImplementedError:
+        await bot.send(ev, "当前平台可能不支持获取图片")
+        return
     except NetworkError:
         sv.logger.warning(traceback.format_exc())
-        await bot.finish(ev, "图片下载出错，请稍后再试")
+        await bot.send(ev, "图片下载出错，请稍后再试")
+        return
+
+    args_user_infos = []
+    for user_info in user_infos:
+        name = user_info.user_displayname or user_info.user_name
+        gender = str(user_info.user_gender)
+        if gender not in ("male", "female"):
+            gender = "unknown"
+        args_user_infos.append({"name": name, "gender": gender})
+    args["user_infos"] = args_user_infos
 
     try:
-        for user in users:
-            user_infos.append(await user.get_info())
-        args["user_infos"] = user_infos
-    except NetworkError:
-        sv.logger.warning("用户信息获取失败\n" + traceback.format_exc())
+        result = await run_sync_func(meme, images=images, texts=texts, args=args)
+    except MemeGeneratorException as e:
+        await bot.send(ev, e.message)
+        return
 
     try:
-        result = await meme(images=images, texts=texts, args=args)
-        try:
-            await bot.send(ev, MessageSegment.image(bytesio2b64(result)))
-        except ActionFailed:
-            await bot.send(ev, "发送失败……消息可能被风控")
-
-    except TextOverLength as e:
-        await bot.send(ev, f"文字 “{e.text}” 长度过长")
-    except ArgMismatch:
-        await bot.send(ev, "参数解析错误")
-    except TextOrNameNotEnough:
-        await bot.send(ev, "文字或名字数量不足")
-    except MemeGeneratorException:
-        sv.logger.warning(traceback.format_exc())
-        await bot.send(ev, "出错了，请稍后再试")
-    except ValueError as e:
-        sv.logger.warning(traceback.format_exc())
-        await bot.send(ev, e.args[0])
+        await bot.send(ev, MessageSegment.image(bytesio2b64(result)))
+    except ActionFailed:
+        await bot.send(ev, "发送失败……消息可能被风控")
 
 
 async def find_meme(
         trigger: str, raw_trigger: str, bot: HoshinoBot, ev: CQEvent
-) -> Union[Meme, None]:
+) -> Union[Union[Tuple[Meme, bool], Tuple[None, None]]]:
     if trigger == "随机表情":
         meme = random.choice(meme_manager.memes)
         uid = get_user_id(ev)
         if not meme_manager.check(uid, meme.key):
             await bot.send(ev, "随机到的表情不可用了捏qwq\n再试一次吧~")
-            return None
+            return None, None
 
         await bot.send(ev, f"随机到了【{meme.keywords[0]}】")
-        return meme
-    meme = meme_manager.find(trigger)
+        return meme, False
+    meme, regex = meme_manager.find(trigger)
     if meme is None:
-        meme = meme_manager.find(raw_trigger)
-    return meme
+        meme, regex = meme_manager.find(raw_trigger)
+    return meme, regex
 
 
 @sv.on_message('group')
 async def handle(bot: HoshinoBot, ev: CQEvent):
     msg: Message = copy.deepcopy(ev.message)
     if not msg:
-        sv.logger.info("Empty msg, skip")
+        sv.logger.debug("Empty msg, skip")
         return
     if msg[0].type == "reply":
         # 当回复目标是自己时，去除隐式at自己
@@ -306,7 +290,7 @@ async def handle(bot: HoshinoBot, ev: CQEvent):
             trigger = each_msg
             break
         else:
-            sv.logger.info("Empty trigger, skip")
+            sv.logger.debug("Empty trigger, skip")
             return
 
     uid = get_user_id(ev)
@@ -314,79 +298,42 @@ async def handle(bot: HoshinoBot, ev: CQEvent):
         trigger_text: str = trigger.data["text"].split()[0]
         raw_trigger_text: str = trigger.data["text"].strip()
     except IndexError:
-        sv.logger.info("Empty trigger, skip")
+        sv.logger.debug("Empty trigger, skip")
         return
     if not trigger_text.startswith(meme_command_start):
-        sv.logger.info("Empty prefix, skip")
+        # sv.logger.debug("Empty prefix, skip")
         return
-    meme = await find_meme(
+    meme, is_regex = await find_meme(
         trigger_text.replace(meme_command_start, "").strip(),
         raw_trigger_text.replace(meme_command_start, "").strip(),
         bot, ev
     )
     if meme is None:
-        sv.logger.info("Empty meme, skip")
+        sv.logger.debug("Empty meme, skip")
         return
     if not meme_manager.check(uid, meme.key):
-        sv.logger.info("Blocked meme, skip")
+        sv.logger.debug("Blocked meme, skip")
         return
 
-    split_msg = await split_msg_v11(bot, ev, msg, meme, trigger)
+    split_msg = await split_msg_v11(bot, ev, msg, meme, trigger, is_regex)
+    if not split_msg:
+        await bot.send(ev, f"表情 {meme.keywords[0]} 不存在！")
+        return
 
     raw_texts: List[str] = split_msg["texts"]
-    users: List[User] = split_msg["users"]
+    user_infos: List[UserInfo] = split_msg["user_infos"]
     image_sources: List[ImageSource] = split_msg["image_sources"]
+    args: dict = split_msg["args"]
+    texts = raw_texts if raw_texts else meme.params_type.default_texts
 
-    args: Dict[str, Any] = {}
-
-    if meme.params_type.args_type:
-        try:
-            parse_result = meme.parse_args(raw_texts)
-        except ArgParserExit:
-            await bot.send(ev, f"参数解析错误")
-            return
-        texts = parse_result["texts"]
-        parse_result.pop("texts")
-        args = parse_result
-    else:
-        texts = raw_texts
-
-    if not (
-            meme.params_type.min_images
-            <= len(image_sources)
-            <= meme.params_type.max_images
-    ):
-        if meme.params_type.min_images > len(image_sources):
-            if memes_prompt_params_error:
-                await bot.send(
-                    ev,
-                    f"输入图片数量过少，图片数量至少为 {meme.params_type.min_images}" + f", 实际数量为{len(image_sources)}"
-                )
-            return
-        else:
-            image_sources = image_sources[:meme.params_type.max_images]
-
-    if not (meme.params_type.min_texts <= len(texts) <= meme.params_type.max_texts):
-        if memes_prompt_params_error:
-            await bot.send(
-                ev,
-                f"输入文字数量不符，文字数量应为 {meme.params_type.min_texts}"
-                + (
-                    f" ~ {meme.params_type.max_texts}"
-                    if meme.params_type.max_texts > meme.params_type.min_texts
-                    else ""
-                ) + f", 实际数量为{len(raw_texts)}"
-            )
-        return
-
-    await process(bot, ev, meme, image_sources, texts, users, args)
+    await process(bot, ev, meme, image_sources, texts, user_infos, args)
 
 
 @sv.on_fullmatch(("更新表情包制作", "更新头像表情包", "更新文字表情包"))
 async def update_res(bot: HoshinoBot, ev: CQEvent):
     sv.logger.info("正在检查资源文件...")
     try:
-        asyncio.create_task(check_resources())
+        await asyncio.create_task(check_resources())
     except Exception as e:
         await bot.send(ev, f"更新资源出错：\n{e}")
         return
