@@ -10,6 +10,8 @@ from pydantic import BaseModel
 import hoshino
 from .config import meme_disabled_list
 from .meme_optional import *
+from .data_source.compat import PYDANTIC_V2
+
 from pathlib import Path
 
 config_file_path = Path(os.path.join(os.path.dirname(__file__), "config.yml"))
@@ -152,9 +154,9 @@ class MemeManager:
 
     def __dump(self):
         self.__path.parent.mkdir(parents=True, exist_ok=True)
-        try:
+        if PYDANTIC_V2:
             meme_list = {name: config.model_dump() for name, config in self.__meme_list.items()}
-        except: # compatible with pydantic 1.x
+        else:
             meme_list = {name: config.dict() for name, config in self.__meme_list.items()}
         with self.__path.open("w", encoding="utf-8") as f:
             yaml.dump(meme_list, f, allow_unicode=True)
