@@ -58,32 +58,35 @@ def restore_last_at_me_seg(event: CQEvent, msg: Message):
 
 
 async def split_msg_v11(
-        bot: HoshinoBot, event: CQEvent, msg: Message, meme: Meme, trigger: MessageSegment, is_regex: bool
+        bot: HoshinoBot, event: CQEvent, msg: Message,
+        meme: Meme, trigger: MessageSegment, is_regex: bool, is_random: bool
 ) -> dict:
     texts: List[str] = []
     user_infos: List[UserInfo] = []
     image_sources: List[ImageSource] = []
     trigger_text_with_trigger: str = trigger.data["text"].strip()
-    if is_regex:
-        regex_args = []
-        raw_args = ""
-        for shortcut in meme.shortcuts:
-            raw_text = trigger_text_with_trigger.replace(meme_command_start, "")
-            regex_args = re.findall(shortcut.key, raw_text)
-            if regex_args:
-                regex_args = regex_args[0]
-                break
-        for each_arg in regex_args:
-            raw_args += f"{each_arg} "
-        trigger_text_seg = Message(f"{raw_args.strip()} ")
-    else:
-        for keyword in meme.keywords:
-            if re.search(rf"^{meme_command_start}{keyword}", trigger_text_with_trigger):
-                trigger_text = re.sub(rf"^{meme_command_start}{keyword}", "", trigger_text_with_trigger)
-                trigger_text_seg = Message(f"{trigger_text.strip() }")
-                break
+    trigger_text_seg = Message()
+    if not is_random:
+        if is_regex:
+            regex_args = []
+            raw_args = ""
+            for shortcut in meme.shortcuts:
+                raw_text = trigger_text_with_trigger.replace(meme_command_start, "")
+                regex_args = re.findall(shortcut.key, raw_text)
+                if regex_args:
+                    regex_args = regex_args[0]
+                    break
+            for each_arg in regex_args:
+                raw_args += f"{each_arg} "
+            trigger_text_seg = Message(f"{raw_args.strip()} ")
         else:
-            return {}
+            for keyword in meme.keywords:
+                if re.search(rf"^{meme_command_start}{keyword}", trigger_text_with_trigger):
+                    trigger_text = re.sub(rf"^{meme_command_start}{keyword}", "", trigger_text_with_trigger)
+                    trigger_text_seg = Message(f"{trigger_text.strip()}")
+                    break
+            else:
+                return {}
     msg.remove(trigger)
     msg: Message = trigger_text_seg.extend(msg)
 
