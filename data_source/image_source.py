@@ -5,7 +5,7 @@ import anyio
 import emoji
 from pydantic import BaseModel
 from strenum import StrEnum
-
+from .compat import PYDANTIC_V2
 from .utils import download_url
 
 
@@ -46,16 +46,22 @@ class EmojiStyle(StrEnum):
 
 class Emoji(ImageSource):
     data: str
-    try:
+    if PYDANTIC_V2:
         from pydantic import field_validator
-    except: # compatible with pydantic 1.x
-        from pydantic import validator as field_validator
 
-    @field_validator("data")
-    def check_emoji(cls, value: str) -> str:
-        if not emoji.is_emoji(value):
-            raise ValueError("Not a emoji")
-        return value
+        @field_validator("data")
+        def check_emoji(cls, value: str) -> str:
+            if not emoji.is_emoji(value):
+                raise ValueError("Not a emoji")
+            return value
+    else:
+        from pydantic import validator
+
+        @validator("data")
+        def check_emoji(cls, value: str) -> str:
+            if not emoji.is_emoji(value):
+                raise ValueError("Not a emoji")
+            return value
 
     def get_url(self, style: EmojiStyle = EmojiStyle.Apple) -> str:
         return f"https://emojicdn.elk.sh/{self.data}?style={style}"
