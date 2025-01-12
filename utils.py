@@ -9,7 +9,7 @@ from arclet.alconna import TextFormatter
 from meme_generator.meme import Meme
 
 import hoshino
-from hoshino import MessageSegment
+from hoshino.typing import MessageSegment
 from .config import *
 from .exception import NetworkError
 
