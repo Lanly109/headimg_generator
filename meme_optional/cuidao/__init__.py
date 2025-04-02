@@ -23,18 +23,18 @@ def cuidao(images: List[BuildImage], texts: List[str], args) -> BytesIO:
     text = f"{ta}好像失踪了，一刀都没出"
 
     frame.draw_text(
-        (10, img_h + 120, 590, img_h + 185), text, max_fontsize=48, weight="bold"
+        (10, img_h + 120, 590, img_h + 185), text, max_fontsize=48, font_style="bold"
     )
 
     text = f"你们谁看见了麻烦叫{ta}赶紧回来出刀"
     frame.draw_text(
-        (20, img_h + 180, 580, img_h + 215), text, max_fontsize=26, weight="bold"
+        (20, img_h + 180, 580, img_h + 215), text, max_fontsize=26, font_style="bold"
     )
 
     text = f"请问你们看到{name}了吗?"
     try:
         frame.draw_text(
-            (20, 0, 580, 110), text, max_fontsize=70, min_fontsize=25, weight="bold"
+            (20, 0, 580, 110), text, max_fontsize=70, min_fontsize=25, font_style="bold"
         )
     except ValueError:
         raise TextOverLength(name)

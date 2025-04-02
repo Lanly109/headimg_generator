@@ -1,6 +1,6 @@
 import re
 from enum import IntEnum
-from typing import Any, Dict, Tuple, Union
+from typing import Any, Dict, Tuple, Union, List
 
 import yaml
 from meme_generator.manager import get_memes
@@ -9,7 +9,8 @@ from pydantic import BaseModel
 
 import hoshino
 from .config import meme_disabled_list
-from .meme_optional import *
+import os
+
 from .data_source.compat import PYDANTIC_V2
 
 from pathlib import Path
@@ -50,9 +51,7 @@ class MemeManager:
         self.__load()
         self.__dump()
 
-    def block(
-            self, user_id: str, meme_names=None
-    ) -> Dict[str, ActionResult]:
+    def block(self, user_id: str, meme_names=None) -> Dict[str, ActionResult]:
         if meme_names is None:
             meme_names = []
         results = {}
@@ -70,9 +69,7 @@ class MemeManager:
         self.__dump()
         return results
 
-    def unblock(
-            self, user_id: str, meme_names=None
-    ) -> Dict[str, ActionResult]:
+    def unblock(self, user_id: str, meme_names=None) -> Dict[str, ActionResult]:
         if meme_names is None:
             meme_names = []
         results = {}
@@ -90,9 +87,7 @@ class MemeManager:
         self.__dump()
         return results
 
-    def change_mode(
-            self, mode: int, meme_names=None
-    ) -> Dict[str, ActionResult]:
+    def change_mode(self, mode: int, meme_names=None) -> Dict[str, ActionResult]:
         if meme_names is None:
             meme_names = []
         results = {}
@@ -144,7 +139,8 @@ class MemeManager:
                     hoshino.logger.warning("表情列表解析失败，将重新生成")
         try:
             meme_list = {
-                name: MemeConfig.model_validate(config) for name, config in raw_list.items()
+                name: MemeConfig.model_validate(config)
+                for name, config in raw_list.items()
             }
         except AttributeError:
             meme_list = {}
@@ -155,9 +151,13 @@ class MemeManager:
     def __dump(self):
         self.__path.parent.mkdir(parents=True, exist_ok=True)
         if PYDANTIC_V2:
-            meme_list = {name: config.model_dump() for name, config in self.__meme_list.items()}
+            meme_list = {
+                name: config.model_dump() for name, config in self.__meme_list.items()
+            }
         else:
-            meme_list = {name: config.dict() for name, config in self.__meme_list.items()}
+            meme_list = {
+                name: config.dict() for name, config in self.__meme_list.items()
+            }
         with self.__path.open("w", encoding="utf-8") as f:
             yaml.dump(meme_list, f, allow_unicode=True)
 
