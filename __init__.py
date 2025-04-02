@@ -19,7 +19,7 @@ from pypinyin import Style, pinyin
 from hoshino import HoshinoBot, Service, priv
 from hoshino.aiorequests import run_sync_func
 from hoshino.typing import CQEvent, MessageSegment, Message
-from .config import memes_prompt_params_error, meme_command_start
+from .config import meme_command_start
 from .data_source import ImageSource, UserInfo
 from .depends import split_msg_v11
 from .exception import NetworkError, PlatformUnsupportError
@@ -40,8 +40,8 @@ sv = Service(
     manage_priv=priv.ADMIN,  # 管理权限
     visible=True,  # False隐藏
     enable_on_default=True,  # 是否默认启用
-    bundle='娱乐',  # 属于哪一类
-    help_=sv_help  # 帮助文本
+    bundle="娱乐",  # 属于哪一类
+    help_=sv_help,  # 帮助文本
 )
 
 
@@ -155,7 +155,7 @@ async def unblock_cmd(bot: HoshinoBot, ev: CQEvent):
 @sv.on_prefix("全局禁用表情")
 async def block_cmd_gl(bot: HoshinoBot, ev: CQEvent):
     if not priv.check_priv(ev, priv.ADMIN):
-        await bot.finish(ev, '此命令仅群管可用~')
+        await bot.finish(ev, "此命令仅群管可用~")
     meme_names = ev.message.extract_plain_text().strip().split()
     if not meme_names:
         await bot.finish(ev, "参数出错，请重新输入")
@@ -175,7 +175,7 @@ async def block_cmd_gl(bot: HoshinoBot, ev: CQEvent):
 @sv.on_prefix("全局启用表情")
 async def unblock_cmd_gl(bot: HoshinoBot, ev: CQEvent):
     if not priv.check_priv(ev, priv.ADMIN):
-        await bot.finish(ev, '此命令仅群管可用~')
+        await bot.finish(ev, "此命令仅群管可用~")
     meme_names = ev.message.extract_plain_text().strip().split()
     if not meme_names:
         await bot.finish(ev, "参数出错，请重新输入")
@@ -193,13 +193,13 @@ async def unblock_cmd_gl(bot: HoshinoBot, ev: CQEvent):
 
 
 async def process(
-        bot: HoshinoBot,
-        ev: CQEvent,
-        meme: Meme,
-        image_sources: List[ImageSource],
-        texts: List[str],
-        user_infos: List[UserInfo],
-        args=None,
+    bot: HoshinoBot,
+    ev: CQEvent,
+    meme: Meme,
+    image_sources: List[ImageSource],
+    texts: List[str],
+    user_infos: List[UserInfo],
+    args=None,
 ):
     if args is None:
         args = {}
@@ -238,7 +238,7 @@ async def process(
 
 
 async def find_meme(
-        trigger: str, raw_trigger: str, bot: HoshinoBot, ev: CQEvent
+    trigger: str, raw_trigger: str, bot: HoshinoBot, ev: CQEvent
 ) -> Union[Union[Tuple[Meme, bool, bool], Tuple[None, None, bool]]]:
     if trigger == "随机表情":
         meme = random.choice(meme_manager.memes)
@@ -255,7 +255,7 @@ async def find_meme(
     return meme, regex, False
 
 
-@sv.on_message('group')
+@sv.on_message("group")
 async def handle(bot: HoshinoBot, ev: CQEvent):
     msg: Message = copy.deepcopy(ev.message)
     if not msg:
@@ -265,13 +265,16 @@ async def handle(bot: HoshinoBot, ev: CQEvent):
         # 当回复目标是自己时，去除隐式at自己
         msg_id = msg[0].data["id"]
         source_msg = await bot.get_msg(message_id=int(msg_id))
-        source_qq = str(source_msg['sender']['user_id'])
+        source_qq = str(source_msg["sender"]["user_id"])
         # 隐式at和显示at之间还有一个文本空格
         while len(msg) > 1 and (
-                msg[1].type == 'at' or msg[1].type == 'text' and msg[1].data['text'].strip() == ""):
-            if msg[1].type == 'at' and msg[1].data['qq'] == source_qq:
+            msg[1].type == "at"
+            or msg[1].type == "text"
+            and msg[1].data["text"].strip() == ""
+        ):
+            if msg[1].type == "at" and msg[1].data["qq"] == source_qq:
                 msg.pop(1)
-            elif msg[1].type == 'text' and msg[1].data['text'].strip() == "":
+            elif msg[1].type == "text" and msg[1].data["text"].strip() == "":
                 msg.pop(1)
                 break
             else:
@@ -306,7 +309,8 @@ async def handle(bot: HoshinoBot, ev: CQEvent):
     meme, is_regex, is_random = await find_meme(
         trigger_text.replace(meme_command_start, "").strip(),
         raw_trigger_text.replace(meme_command_start, "").strip(),
-        bot, ev
+        bot,
+        ev,
     )
     if meme is None:
         sv.logger.debug("Empty meme, skip")
