@@ -4,7 +4,7 @@ from typing import Union
 
 from aiohttp import ClientSession
 
-from hoshino import logger
+from hoshino import aiorequests, logger
 from .exception import NetworkError
 
 headers = {
@@ -19,9 +19,8 @@ async def get_content(url: str, session: ClientSession) -> Union[Exception, byte
         async with session.get(url, headers=headers) as resp:
             return await resp.content.read()
     except Exception as e:
-        logger.error(f"aiorequest error: {e}")
-        return e
-
+        logger.warning(f"aiorequest error: {e}")
+        return await (await aiorequests.get(url)).content
 
 async def download_url(url: str) -> bytes:
     async with ClientSession() as session:
