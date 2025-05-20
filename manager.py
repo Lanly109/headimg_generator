@@ -165,16 +165,20 @@ class MemeManager:
 
     def __dump(self):
         self.__path.parent.mkdir(parents=True, exist_ok=True)
-        if PYDANTIC_V2:
-            meme_list = {
-                name: config.model_dump() for name, config in self.__meme_list.items()
-            }
-        else:
-            meme_list = {
-                name: config.dict() for name, config in self.__meme_list.items()
-            }
-        with self.__path.open("w", encoding="utf-8") as f:
-            yaml.dump(meme_list, f, allow_unicode=True)
+        meme_list = {}
 
+        for name, config in self.__meme_list.items():
+            if PYDANTIC_V2:
+                config_dict = config.model_dump()
+            else:
+                config_dict = config.dict()
+
+            if isinstance(config_dict['mode'], MemeMode):
+                config_dict['mode'] = config_dict['mode'].value
+
+            meme_list[name] = config_dict
+
+        with self.__path.open("w", encoding="utf-8") as f:
+            dump(meme_list, f, allow_unicode=True)
 
 meme_manager = MemeManager()
