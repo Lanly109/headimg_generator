@@ -19,10 +19,10 @@ from pypinyin import Style, pinyin
 from hoshino import HoshinoBot, Service, priv
 from hoshino.aiorequests import run_sync_func
 from hoshino.typing import CQEvent, MessageSegment, Message
-from .config import meme_command_start
+from .config import meme_command_start, memes_prompt_params_error
 from .data_source import ImageSource, UserInfo
 from .depends import split_msg_v11
-from .exception import NetworkError, PlatformUnsupportError
+from .exception import NetworkError
 from .manager import ActionResult, MemeMode, meme_manager
 from .utils import meme_info, bytesio2b64
 
@@ -228,7 +228,9 @@ async def process(
     try:
         result = await run_sync_func(meme, images=images, texts=texts, args=args)
     except MemeGeneratorException as e:
-        await bot.send(ev, e.message)
+        if memes_prompt_params_error:
+            await bot.send(ev, e.message)
+        sv.logger.warning(meme.key, e.message)
         return
 
     try:
