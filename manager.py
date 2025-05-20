@@ -2,7 +2,8 @@ import re
 from enum import IntEnum
 from typing import Any, Dict, Tuple, Union, List
 
-import yaml
+from yaml import CLoader, dump, load, safe_load, unsafe_load
+from yaml.constructor import ConstructorError
 from meme_generator.manager import get_memes
 from meme_generator.meme import Meme
 from pydantic import BaseModel
@@ -132,11 +133,24 @@ class MemeManager:
     def __load(self):
         raw_list: Dict[str, Any] = {}
         if self.__path.exists():
-            with self.__path.open("r", encoding="utf-8") as f:
-                try:
-                    raw_list = yaml.safe_load(f)
-                except UnicodeDecodeError:
-                    hoshino.logger.warning("表情列表解析失败，将重新生成")
+            try:
+                with self.__path.open("r", encoding="utf-8") as f:
+                    content = f.read()
+                    try:
+                        raw_list = safe_load(content)
+                    except ConstructorError as e:
+                        hoshino.logger.warning(f"无法使用 safe_load: {e}")
+                        try:
+                            hoshino.logger.warning("尝试使用 CLoader")
+                            raw_list = load(content, Loader=CLoader)
+                        except ConstructorError as e:
+                            hoshino.logger.warning(f"无法使用 CLoader: {e}")
+                            raw_list = unsafe_load(content)
+            except UnicodeDecodeError:
+                hoshino.logger.warning("表情列表解析失败（编码错误），将重新生成")
+            except Exception as e:
+                hoshino.logger.warning(f"表情列表读取失败: {e}，将重新生成")
+
         try:
             meme_list = {
                 name: MemeConfig.model_validate(config)
@@ -145,6 +159,7 @@ class MemeManager:
         except AttributeError:
             meme_list = {}
             hoshino.logger.warning("表情列表解析失败，将重新生成")
+
         self.__meme_list = {meme.key: MemeConfig() for meme in self.memes}
         self.__meme_list.update(meme_list)
 
