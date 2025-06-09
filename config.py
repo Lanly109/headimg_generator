@@ -11,7 +11,8 @@ memes_use_sender_when_no_image: bool = (
     True  # 在表情需要至少1张图且没有输入图片时，是否使用发送者的头像（谨慎使用，容易误触发）
 )
 memes_use_default_when_no_text: bool = (
-    True  # 在表情需要至少1段文字且没有输入文字时，是否使用默认文字（谨慎使用，容易误触发）
+memes_normal_error: bool = (
+    False  # 是否输出表情的相关错误提示，如获取图片失败、表情不存在等（谨慎使用，容易误触发）
 )
 meme_disabled_list: List[str] = []  # 禁用的表情包列表，填写表情的 `key`
 
