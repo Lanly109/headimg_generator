@@ -176,6 +176,11 @@ pip install -r requirements.txt
  - 默认：`False`
  - 说明：在表情需要至少1段文字且没有输入文字时，是否使用默认文字（谨慎使用，容易误触发）
 
+#### `memes_normal_error`
+ - 类型：`bool`
+ - 默认：`False`
+ - 说明：是否输出表情的相关错误提示，如获取图片失败、表情不存在等（谨慎使用，容易误触发）
+
 #### `load_builtin_memes`
  - 类型：`bool`
  - 默认：`True`

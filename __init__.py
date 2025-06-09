@@ -19,7 +19,7 @@ from pypinyin import Style, pinyin
 from hoshino import HoshinoBot, Service, priv
 from hoshino.aiorequests import run_sync_func
 from hoshino.typing import CQEvent, MessageSegment, Message
-from .config import meme_command_start, memes_prompt_params_error
+from .config import meme_command_start, memes_normal_error
 from .data_source import ImageSource, UserInfo
 from .depends import split_msg_v11
 from .exception import NetworkError
@@ -228,7 +228,7 @@ async def process(
     try:
         result = await run_sync_func(meme, images=images, texts=texts, args=args)
     except MemeGeneratorException as e:
-        if memes_prompt_params_error:
+        if memes_normal_error:
             await bot.send(ev, e.message)
         sv.logger.warning(meme.key, e.message)
         return
@@ -323,7 +323,8 @@ async def handle(bot: HoshinoBot, ev: CQEvent):
 
     split_msg = await split_msg_v11(bot, ev, msg, meme, trigger, is_regex, is_random)
     if not split_msg:
-        await bot.send(ev, f"表情 {meme.keywords[0]} 不存在！")
+        if memes_normal_error:
+            await bot.send(ev, f"表情 {meme.keywords[0]} 不存在！")
         return
 
     raw_texts: List[str] = split_msg["texts"]
